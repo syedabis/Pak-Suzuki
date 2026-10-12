@@ -10,8 +10,9 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getCurrentUser } from "@/server/auth-actions";
 
-import { profile } from "./_components/profile-data";
+import { profile as fallbackProfile, getProfileForUser } from "./_components/profile-data";
 import { ProfileDocuments } from "./_components/profile-documents";
 import { EmploymentDetails } from "./_components/profile-employment-details";
 import { ProfileHeader } from "./_components/profile-header";
@@ -21,15 +22,17 @@ import { ProfileStatusSidebar } from "./_components/profile-status-sidebar";
 import { TimeOffDetails } from "./_components/profile-time-off-details";
 
 export const metadata: Metadata = {
-  title: "Open Source Employee Profile Dashboard with shadcn/ui",
-  description:
-    "Explore an open source employee profile dashboard with personal details, employment information, time off, documents, and reporting lines.",
+  title: "Meezan Oil - Staff & Agent Profile",
+  description: "View and manage staff and field agent profile details, credentials, and employment status.",
   alternates: {
     canonical: "/dashboard/profile",
   },
 };
 
-export default function Page() {
+export default async function Page() {
+  const currentUser = await getCurrentUser();
+  const activeProfile = currentUser ? getProfileForUser(currentUser) : fallbackProfile;
+
   return (
     <div className="flex flex-col gap-4 py-4" data-content-padding="false">
       <Breadcrumb className="px-4">
@@ -43,11 +46,11 @@ export default function Page() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <span>Employee directory</span>
+            <span>Field Staff & Agents</span>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <span>{profile.name}</span>
+            <span>{activeProfile.name}</span>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
@@ -55,7 +58,7 @@ export default function Page() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <ProfileHeader profile={profile} />
+      <ProfileHeader profile={activeProfile} />
 
       <Tabs className="min-h-0 flex-1 gap-0" defaultValue="overview">
         <div className="scrollbar-none touch-pan-x overflow-x-auto overscroll-x-contain border-y">
@@ -76,21 +79,21 @@ export default function Page() {
           <TabsContent value="overview">
             <div className="grid lg:grid-cols-[minmax(0,1fr)_auto_18rem]">
               <div className="py-4 lg:pr-6">
-                <ProfileOverview profile={profile} />
+                <ProfileOverview profile={activeProfile} />
               </div>
               <Separator className="hidden lg:block" orientation="vertical" />
               <div className="py-4 lg:pl-6">
-                <ProfileStatusSidebar profile={profile} />
+                <ProfileStatusSidebar profile={activeProfile} />
               </div>
             </div>
           </TabsContent>
 
           <TabsContent className="py-4" value="personal">
-            <PersonalDetails profile={profile} />
+            <PersonalDetails profile={activeProfile} />
           </TabsContent>
 
           <TabsContent className="py-4" value="employment">
-            <EmploymentDetails profile={profile} />
+            <EmploymentDetails profile={activeProfile} />
           </TabsContent>
 
           <TabsContent className="py-4" value="compensation">
@@ -106,11 +109,11 @@ export default function Page() {
           </TabsContent>
 
           <TabsContent className="py-4" value="time-off">
-            <TimeOffDetails profile={profile} />
+            <TimeOffDetails profile={activeProfile} />
           </TabsContent>
 
           <TabsContent className="py-4" value="documents">
-            <ProfileDocuments documents={profile.documents} />
+            <ProfileDocuments documents={activeProfile.documents} />
           </TabsContent>
         </div>
       </Tabs>

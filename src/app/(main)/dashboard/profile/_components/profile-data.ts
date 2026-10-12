@@ -61,42 +61,42 @@ export interface ProfileRecord {
 }
 
 export const profile: ProfileRecord = {
-  name: "Arham Khan",
-  preferredName: "Arham",
-  legalName: "Arham Khan",
+  name: "Meezan Administrator",
+  preferredName: "Administrator",
+  legalName: "Meezan Administrator",
   pronouns: "He / him",
-  initials: "AK",
-  avatar: "https://avatars.githubusercontent.com/u/43849669",
+  initials: "MA",
+  avatar: "",
   engagementStatus: "Active",
-  jobTitle: "Software Engineer",
-  jobLevel: "Senior",
-  department: "Product",
-  team: "Product",
-  currentProject: "Autonomous Bid Agent",
-  workEmail: "hello@arhamkhnz.com",
-  personalEmail: "arhamkhnz@gmail.com",
-  workPhone: "+1 (415) 555-0148",
-  workplace: "Remote",
-  timeZone: "UTC+5:30",
-  contractorId: "WS-2301",
-  startDate: "March 18, 2022",
-  engagementLength: "4 years, 4 months",
-  employmentType: "Contractor",
+  jobTitle: "Operations & Field Sales Lead",
+  jobLevel: "Lead",
+  department: "Field Sales & Operations",
+  team: "Meezan Oil Direct-to-Consumer",
+  currentProject: "Karachi D2D Sales Campaign",
+  workEmail: "admin@wavex.com",
+  personalEmail: "admin@wavex.com",
+  workPhone: "+92 (21) 3500-1122",
+  workplace: "Karachi HQ & Field",
+  timeZone: "UTC+5:00",
+  contractorId: "MO-1001",
+  startDate: "January 15, 2024",
+  engagementLength: "2 years, 3 months",
+  employmentType: "Permanent Staff",
   weeklyHours: "40 hours",
-  schedule: "Monday–Friday · 9:00 AM–5:30 PM",
-  contractingEntity: "Studio Technologies Pte. Ltd.",
+  schedule: "Monday–Saturday · 9:00 AM–6:00 PM",
+  contractingEntity: "Meezan Oil Consumer Products",
   noticePeriod: "30 days",
-  dateOfBirth: "September 9, 1993",
-  address: "1842 Valencia Street, San Francisco, CA 94110",
-  emergencyContact: "Ammar K. · Brother",
-  emergencyPhone: "+1 (510) 555-0177",
+  dateOfBirth: "March 15, 1990",
+  address: "Plot 12, Korangi Industrial Area, Karachi",
+  emergencyContact: "Operations Control · Central Office",
+  emergencyPhone: "+92 (21) 3500-1120",
   manager: {
-    name: "Pravi K.",
-    role: "Head of Product",
-    initials: "PK",
+    name: "Tariq Mahmood",
+    role: "Head of Distribution",
+    initials: "TM",
   },
-  bio: "Arham is a software engineer on the product team, building bids and tender management software, including autonomous bid agents that streamline opportunity discovery, requirement analysis, document preparation, compliance checks, pricing, and submission. He focuses on turning complex tender workflows into reliable, easy-to-use products that help teams work faster and make better bidding decisions.",
-  leavePolicy: "Contract leave allowance",
+  bio: "Oversees direct-to-consumer field sales, door-to-door sales teams, inventory allocation, and consumer conversion analytics for Meezan Oil distribution operations across metropolitan territories.",
+  leavePolicy: "Standard company leave allowance",
   annualLeaveAllowance: "25 days",
   remainingLeave: "18 days",
   carriedOverLeave: "0 days",
@@ -106,8 +106,8 @@ export const profile: ProfileRecord = {
   leaveYear: "January 1–December 31, 2026",
   nextLeave: "August 24–28, 2026",
   lastWorkingDay: "October 3, 2026",
-  updatedBy: "Arham Khan",
-  updatedAt: "August 8, 2026",
+  updatedBy: "Meezan Administrator",
+  updatedAt: "Today",
   documents: [
     {
       id: "doc-1",
@@ -135,3 +135,39 @@ export const profile: ProfileRecord = {
     },
   ],
 };
+
+export function getProfileForUser(user: {
+  name: string;
+  email: string;
+  avatar?: string;
+  role?: string;
+}): ProfileRecord {
+  const initials =
+    user.name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() || "MO";
+
+  const isAgent = user.role?.toLowerCase().includes("agent");
+
+  return {
+    ...profile,
+    name: user.name,
+    preferredName: user.name.split(" ")[0] || user.name,
+    legalName: user.name,
+    initials,
+    avatar: user.avatar || "",
+    jobTitle: isAgent ? "Senior Field Sales Agent" : "Operations & Field Sales Lead",
+    jobLevel: isAgent ? "Field Agent Level 2" : "Lead",
+    department: "Field Sales & Operations",
+    team: "Meezan Oil Direct-to-Consumer",
+    currentProject: "Karachi D2D Sales Campaign",
+    workEmail: user.email,
+    personalEmail: user.email,
+    bio: `${user.name} is a member of the Meezan Oil field operations team, managing direct-to-consumer field sales, retail distribution, doorstep consumer surveys, and territory execution across assigned zones.`,
+    updatedBy: user.name,
+    updatedAt: "Today",
+  };
+}
