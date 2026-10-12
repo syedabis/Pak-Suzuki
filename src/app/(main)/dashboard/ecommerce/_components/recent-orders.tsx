@@ -1,6 +1,8 @@
 "use client";
 import * as React from "react";
 
+import Link from "next/link";
+
 import { type ColumnFiltersState, type PaginationState, type SortingState, useTable } from "@tanstack/react-table";
 import { ArrowUpDown, ArrowUpRight, Download, MoreHorizontal } from "lucide-react";
 
@@ -79,13 +81,15 @@ export function RecentOrders() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="font-normal text-muted-foreground text-sm">Recent Orders</CardTitle>
+        <CardTitle className="font-normal text-muted-foreground text-sm">Door-to-Door Sales & Visit Logs</CardTitle>
         <CardDescription className="text-foreground text-xl tabular-nums leading-none tracking-tight">
           {orderCountDescription}
         </CardDescription>
         <CardAction className="flex items-center gap-1">
-          <Button aria-label="Open orders" size="icon-sm" variant="outline">
-            <ArrowUpRight />
+          <Button asChild aria-label="Open field logs page" size="icon-sm" variant="outline">
+            <Link href="/dashboard/field-logs" title="Open Full Field Logs Page">
+              <ArrowUpRight />
+            </Link>
           </Button>
           <Button aria-label="Download orders" size="icon-sm" variant="outline">
             <Download />

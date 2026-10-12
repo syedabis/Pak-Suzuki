@@ -1,13 +1,12 @@
 import Link from "next/link";
 
 const includedScreens = [
-  { name: "Analytics", href: "/dashboard/analytics" },
-  { name: "CRM", href: "/dashboard/crm" },
-  { name: "Finance", href: "/dashboard/finance" },
   { name: "E-commerce", href: "/dashboard/ecommerce" },
-  { name: "Productivity", href: "/dashboard/productivity" },
-  { name: "File manager", href: "/dashboard/file-manager" },
   { name: "Calendar", href: "/dashboard/calendar" },
+  { name: "Kanban", href: "/dashboard/kanban" },
+  { name: "Tasks", href: "/dashboard/tasks" },
+  { name: "Invoice", href: "/dashboard/invoice" },
+  { name: "Users", href: "/dashboard/users" },
 ];
 
 const editions = [

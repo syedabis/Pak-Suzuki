@@ -1,0 +1,342 @@
+[
+  {
+    "id": "#MZ-8104",
+    "date": "2026-10-12T14:42:00",
+    "customer": "Mrs. Shaista Khan",
+    "area": "H-42, Gulshan Block 4, Karachi",
+    "agent": "Bilal Khan (Agent #01)",
+    "payment": "Cash",
+    "total": "Rs. 2,450",
+    "items": "1x 5L Meezan Cooking Oil Can",
+    "fulfillment": "Delivered",
+    "survey": {
+      "currentBrand": "Dalda",
+      "monthlyLiters": 10,
+      "reasonOrFeedback": "Switched for promotion bundle and aroma quality",
+      "decisionMaker": "Housewife"
+    }
+  },
+  {
+    "id": "#MZ-8103",
+    "date": "2026-10-12T14:35:00",
+    "customer": "Mohammad Usman",
+    "area": "Flat 2B, Gulistan-e-Johar, Block 12",
+    "agent": "Hamza Tariq (Agent #08)",
+    "payment": "Raast / Digital",
+    "total": "Rs. 2,000",
+    "items": "4x 1L Meezan Banaspati Pouch",
+    "fulfillment": "Delivered",
+    "survey": {
+      "currentBrand": "Sufi",
+      "monthlyLiters": 6,
+      "reasonOrFeedback": "Appreciated door-to-door delivery & Raast payment",
+      "decisionMaker": "Joint Decision"
+    }
+  },
+  {
+    "id": "#MZ-8102",
+    "date": "2026-10-12T14:28:00",
+    "customer": "Dr. Arshad Malik",
+    "area": "Khayaban-e-Shamsheer, DHA Phase 5",
+    "agent": "Zeeshan Ali (Agent #15)",
+    "payment": "Raast / Digital",
+    "total": "Rs. 4,900",
+    "items": "2x 5L Meezan Canola Oil",
+    "fulfillment": "Delivered",
+    "survey": {
+      "currentBrand": "Habib Canola",
+      "monthlyLiters": 12,
+      "reasonOrFeedback": "Heart-health conscious; liked zero-cholesterol check",
+      "decisionMaker": "Customer"
+    }
+  },
+  {
+    "id": "#MZ-8101",
+    "date": "2026-10-12T14:15:00",
+    "customer": "Mrs. Nusrat Jehan",
+    "area": "H-19, North Nazimabad Block B",
+    "agent": "Kashif Raza (Agent #22)",
+    "payment": "Cash",
+    "total": "Rs. 1,500",
+    "items": "3x 1L Meezan Cooking Oil Pouch",
+    "fulfillment": "Delivered",
+    "survey": {
+      "currentBrand": "Kisan",
+      "monthlyLiters": 5,
+      "reasonOrFeedback": "Trial purchase to test clarity & taste",
+      "decisionMaker": "Housewife"
+    }
+  },
+  {
+    "id": "#MZ-8100",
+    "date": "2026-10-12T14:02:00",
+    "customer": "Syed Farhan",
+    "area": "Sector 11-A, North Karachi",
+    "agent": "Adeel Ahmed (Agent #31)",
+    "payment": "Follow-up",
+    "total": "Rs. 0",
+    "items": "1x 250ml Free Promo Trial Sample",
+    "fulfillment": "Sample Given",
+    "survey": {
+      "currentBrand": "Dalda",
+      "monthlyLiters": 8,
+      "reasonOrFeedback": "Requested sample first; will order on next round",
+      "decisionMaker": "Husband"
+    }
+  },
+  {
+    "id": "#MZ-8099",
+    "date": "2026-10-12T13:48:00",
+    "customer": "Mrs. Bushra Qazi",
+    "area": "PECHS Block 2, Karachi",
+    "agent": "Owais Siddiqui (Agent #44)",
+    "payment": "Cash",
+    "total": "Rs. 3,500",
+    "items": "7x 1L Meezan Cooking Oil Pouch",
+    "fulfillment": "Delivered",
+    "survey": {
+      "currentBrand": "Meezan",
+      "monthlyLiters": 10,
+      "reasonOrFeedback": "Existing loyal customer; welcomed regular supply",
+      "decisionMaker": "Housewife"
+    }
+  },
+  {
+    "id": "#MZ-8098",
+    "date": "2026-10-12T13:35:00",
+    "customer": "Tariq Jamil",
+    "area": "Block 13, F.B. Area, Karachi",
+    "agent": "Shoaib Akhtar (Agent #19)",
+    "payment": "Follow-up",
+    "total": "Rs. 2,450",
+    "items": "1x 5L Cooking Oil Can (Requested 5 PM)",
+    "fulfillment": "Revisit Scheduled",
+    "survey": {
+      "currentBrand": "Habib",
+      "monthlyLiters": 7,
+      "reasonOrFeedback": "Cash not available currently; requested return in evening",
+      "decisionMaker": "Head of Family"
+    }
+  },
+  {
+    "id": "#MZ-8097",
+    "date": "2026-10-12T13:20:00",
+    "customer": "Mrs. Samina",
+    "area": "26th Street, DHA Phase 5",
+    "agent": "Zeeshan Ali (Agent #15)",
+    "payment": "Raast / Digital",
+    "total": "Rs. 7,350",
+    "items": "3x 5L Meezan Cooking Oil Can",
+    "fulfillment": "Delivered",
+    "survey": {
+      "currentBrand": "Dalda",
+      "monthlyLiters": 15,
+      "reasonOrFeedback": "Stocking up for catering and family event",
+      "decisionMaker": "Customer"
+    }
+  },
+  {
+    "id": "#MZ-8096",
+    "date": "2026-10-12T13:05:00",
+    "customer": "Kamran Waheed",
+    "area": "Block 7, Gulshan-e-Iqbal",
+    "agent": "Bilal Khan (Agent #01)",
+    "payment": "Cash",
+    "total": "Rs. 1,000",
+    "items": "2x 1L Meezan Banaspati Pouch",
+    "fulfillment": "Delivered",
+    "survey": {
+      "currentBrand": "Sufi",
+      "monthlyLiters": 4,
+      "reasonOrFeedback": "Prompt service, bought for sweet dish making",
+      "decisionMaker": "Customer"
+    }
+  },
+  {
+    "id": "#MZ-8095",
+    "date": "2026-10-12T12:50:00",
+    "customer": "Mrs. Hina Atif",
+    "area": "Shadman Town, North Karachi",
+    "agent": "Adeel Ahmed (Agent #31)",
+    "payment": "Cash",
+    "total": "Rs. 2,500",
+    "items": "5x 1L Meezan Cooking Oil Pouch",
+    "fulfillment": "Delivered",
+    "survey": {
+      "currentBrand": "Habib",
+      "monthlyLiters": 8,
+      "reasonOrFeedback": "Good packaging quality and intact seal",
+      "decisionMaker": "Housewife"
+    }
+  },
+  {
+    "id": "#MZ-8094",
+    "date": "2026-10-12T12:35:00",
+    "customer": "Asif Mehmood",
+    "area": "Block 15, Gulistan-e-Johar",
+    "agent": "Hamza Tariq (Agent #08)",
+    "payment": "Follow-up",
+    "total": "Rs. 0",
+    "items": "Survey Completed (Current: Dalda)",
+    "fulfillment": "Sample Given",
+    "survey": {
+      "currentBrand": "Dalda",
+      "monthlyLiters": 6,
+      "reasonOrFeedback": "Has half tin at home; promised to buy in 2 weeks",
+      "decisionMaker": "Spouse"
+    }
+  },
+  {
+    "id": "#MZ-8093",
+    "date": "2026-10-12T12:15:00",
+    "customer": "Mrs. Naila Rizvi",
+    "area": "Block J, North Nazimabad",
+    "agent": "Kashif Raza (Agent #22)",
+    "payment": "Raast / Digital",
+    "total": "Rs. 2,450",
+    "items": "1x 5L Meezan Cooking Oil Can",
+    "fulfillment": "Delivered",
+    "survey": {
+      "currentBrand": "Dalda",
+      "monthlyLiters": 7,
+      "reasonOrFeedback": "Loved the instant digital payment QR",
+      "decisionMaker": "Housewife"
+    }
+  },
+  {
+    "id": "#MZ-8092",
+    "date": "2026-10-12T11:58:00",
+    "customer": "Irfan Haider",
+    "area": "Bahadurabad, PECHS",
+    "agent": "Owais Siddiqui (Agent #44)",
+    "payment": "Cash",
+    "total": "Rs. 3,000",
+    "items": "6x 1L Meezan Banaspati Pouch",
+    "fulfillment": "Delivered",
+    "survey": {
+      "currentBrand": "Sufi",
+      "monthlyLiters": 9,
+      "reasonOrFeedback": "Impressed by agent's hygiene & manners",
+      "decisionMaker": "Head of Family"
+    }
+  },
+  {
+    "id": "#MZ-8091",
+    "date": "2026-10-12T11:40:00",
+    "customer": "Mrs. Saira Bano",
+    "area": "Block 8, F.B. Area",
+    "agent": "Shoaib Akhtar (Agent #19)",
+    "payment": "Cash",
+    "total": "Rs. 2,000",
+    "items": "4x 1L Meezan Cooking Oil Pouch",
+    "fulfillment": "Delivered",
+    "survey": {
+      "currentBrand": "Meezan",
+      "monthlyLiters": 8,
+      "reasonOrFeedback": "Regular monthly consumer",
+      "decisionMaker": "Housewife"
+    }
+  },
+  {
+    "id": "#MZ-8090",
+    "date": "2026-10-12T11:20:00",
+    "customer": "Majid Hussain",
+    "area": "Clifton Block 2",
+    "agent": "Zeeshan Ali (Agent #15)",
+    "payment": "Raast / Digital",
+    "total": "Rs. 4,900",
+    "items": "2x 5L Meezan Cooking Oil Can",
+    "fulfillment": "Delivered",
+    "survey": {
+      "currentBrand": "Habib",
+      "monthlyLiters": 10,
+      "reasonOrFeedback": "Convenience of home doorstep drop-off",
+      "decisionMaker": "Customer"
+    }
+  },
+  {
+    "id": "#MZ-8089",
+    "date": "2026-10-12T11:05:00",
+    "customer": "Mrs. Zahida",
+    "area": "Block 2, Gulshan-e-Iqbal",
+    "agent": "Bilal Khan (Agent #01)",
+    "payment": "Follow-up",
+    "total": "Rs. 2,450",
+    "items": "Husband Decision Maker (Call Evening)",
+    "fulfillment": "Revisit Scheduled",
+    "survey": {
+      "currentBrand": "Dalda",
+      "monthlyLiters": 8,
+      "reasonOrFeedback": "Husband decides grocery brand; asked to return at 6:30 PM",
+      "decisionMaker": "Husband"
+    }
+  },
+  {
+    "id": "#MZ-8088",
+    "date": "2026-10-12T10:45:00",
+    "customer": "Rehan Siddiqui",
+    "area": "Block 1, Gulistan-e-Johar",
+    "agent": "Hamza Tariq (Agent #08)",
+    "payment": "Cash",
+    "total": "Rs. 1,500",
+    "items": "3x 1L Meezan Canola Oil Pouch",
+    "fulfillment": "Delivered",
+    "survey": {
+      "currentBrand": "Eva",
+      "monthlyLiters": 5,
+      "reasonOrFeedback": "Switched for verified purity & price",
+      "decisionMaker": "Customer"
+    }
+  },
+  {
+    "id": "#MZ-8087",
+    "date": "2026-10-12T10:25:00",
+    "customer": "Mrs. Shaheen",
+    "area": "Block C, North Nazimabad",
+    "agent": "Kashif Raza (Agent #22)",
+    "payment": "Cash",
+    "total": "Rs. 2,450",
+    "items": "1x 5L Meezan Cooking Oil Can",
+    "fulfillment": "Delivered",
+    "survey": {
+      "currentBrand": "Dalda",
+      "monthlyLiters": 7,
+      "reasonOrFeedback": "Good promotional rate compared to local utility store",
+      "decisionMaker": "Housewife"
+    }
+  },
+  {
+    "id": "#MZ-8086",
+    "date": "2026-10-12T10:10:00",
+    "customer": "Waseem Akram",
+    "area": "Block 14, F.B. Area",
+    "agent": "Shoaib Akhtar (Agent #19)",
+    "payment": "Raast / Digital",
+    "total": "Rs. 1,000",
+    "items": "2x 1L Meezan Cooking Oil Pouch",
+    "fulfillment": "Delivered",
+    "survey": {
+      "currentBrand": "Sufi",
+      "monthlyLiters": 6,
+      "reasonOrFeedback": "Paid via Raast; seamless experience",
+      "decisionMaker": "Customer"
+    }
+  },
+  {
+    "id": "#MZ-8085",
+    "date": "2026-10-12T09:50:00",
+    "customer": "Mrs. Lubna",
+    "area": "Tariq Road Area, PECHS",
+    "agent": "Owais Siddiqui (Agent #44)",
+    "payment": "Cash",
+    "total": "Rs. 5,000",
+    "items": "10x 1L Meezan Banaspati Pouch",
+    "fulfillment": "Delivered",
+    "survey": {
+      "currentBrand": "Meezan",
+      "monthlyLiters": 12,
+      "reasonOrFeedback": "Bulk home purchase for joint family kitchen",
+      "decisionMaker": "Housewife"
+    }
+  }
+]

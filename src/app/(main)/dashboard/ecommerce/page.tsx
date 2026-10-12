@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { Settings2 } from "lucide-react";
+import { Download, SlidersHorizontal } from "lucide-react";
 import type { Metadata } from "next";
 
 import { Button } from "@/components/ui/button";
@@ -7,17 +7,16 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { Separator } from "@/components/ui/separator";
 
 import { CustomerReviews } from "./_components/customer-reviews";
-import { Inventory } from "./_components/inventory";
 import { KpiStrip } from "./_components/kpi-strip";
-import { RecentOrders } from "./_components/recent-orders";
+import { NonConversionReasons } from "./_components/non-conversion-reasons";
 import { StoreTraffic } from "./_components/store-traffic";
 import { TopProducts } from "./_components/top-products";
 import { TrafficSources } from "./_components/traffic-sources";
 
 export const metadata: Metadata = {
-  title: "Open Source E-commerce Dashboard with shadcn/ui",
+  title: "Meezan Oil - Field Sales & Door-to-Door Operations Dashboard",
   description:
-    "Explore an open source e-commerce dashboard with sales metrics, orders, store traffic, inventory, products, and reviews.",
+    "Direct-to-consumer field sales, doorstep surveys, and inventory distribution tracking for 50 agents selling Meezan Oil.",
   alternates: {
     canonical: "/dashboard/ecommerce",
   },
@@ -30,44 +29,56 @@ export default function Page() {
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="flex flex-col gap-1">
-          <h1 className="text-3xl leading-none tracking-tight">Store Overview</h1>
-          <p className="text-muted-foreground text-sm">{formattedDate}</p>
+          <div className="flex items-center gap-2">
+            <h1 className="text-3xl leading-none tracking-tight">Meezan Oil • D2D Field Sales</h1>
+            <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 font-medium text-emerald-700 text-xs dark:text-emerald-400">
+              50 Agents Deployed
+            </span>
+          </div>
+          <p className="text-muted-foreground text-sm">
+            {formattedDate} • Real-time door-to-door sales & consumer survey intelligence
+          </p>
         </div>
 
         <div className="flex flex-wrap items-end justify-end gap-2 lg:w-fit">
-          <Select defaultValue="this-month">
-            <SelectTrigger className="w-34" id="ecommerce-period" size="sm">
-              <SelectValue placeholder="This Month" />
+          <Select defaultValue="today">
+            <SelectTrigger className="w-36" id="field-shift-period" size="sm">
+              <SelectValue placeholder="Today's Shift" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
+                <SelectItem value="today">Today's Shift</SelectItem>
+                <SelectItem value="yesterday">Yesterday</SelectItem>
+                <SelectItem value="last-7-days">Last 7 Days</SelectItem>
                 <SelectItem value="this-month">This Month</SelectItem>
-                <SelectItem value="last-month">Last Month</SelectItem>
-                <SelectItem value="last-30-days">Last 30 Days</SelectItem>
-                <SelectItem value="year-to-date">Year to Date</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
 
-          <Select defaultValue="all-channels">
-            <SelectTrigger className="w-40" id="ecommerce-channel" size="sm">
-              <SelectValue placeholder="All Channels" />
+          <Select defaultValue="all-territories">
+            <SelectTrigger className="w-48" id="field-territory" size="sm">
+              <SelectValue placeholder="All Territories" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="all-channels">All Channels</SelectItem>
-                <SelectItem value="online-store">Online Store</SelectItem>
-                <SelectItem value="marketplace">Marketplace</SelectItem>
-                <SelectItem value="social">Social</SelectItem>
-                <SelectItem value="retail">Retail</SelectItem>
+                <SelectItem value="all-territories">All Areas (50 Agents)</SelectItem>
+                <SelectItem value="gulshan">Gulshan-e-Iqbal (8 Agents)</SelectItem>
+                <SelectItem value="dha-clifton">DHA & Clifton (10 Agents)</SelectItem>
+                <SelectItem value="north-nazimabad">North Nazimabad (8 Agents)</SelectItem>
+                <SelectItem value="johar">Gulistan-e-Johar (8 Agents)</SelectItem>
+                <SelectItem value="fb-area">F.B. Area (8 Agents)</SelectItem>
+                <SelectItem value="saddar">Saddar & PECHS (8 Agents)</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
 
           <Separator orientation="vertical" />
 
-          <Button size="icon-sm" variant="outline">
-            <Settings2 />
+          <Button size="icon-sm" variant="outline" title="Export Daily Field Report">
+            <Download />
+          </Button>
+          <Button size="icon-sm" variant="outline" title="Shift Settings">
+            <SlidersHorizontal />
           </Button>
         </div>
       </div>
@@ -84,13 +95,10 @@ export default function Page() {
           <TopProducts />
         </div>
         <div className="xl:col-span-4">
-          <Inventory />
+          <NonConversionReasons />
         </div>
         <div className="xl:col-span-4">
           <CustomerReviews />
-        </div>
-        <div className="xl:col-span-12">
-          <RecentOrders />
         </div>
       </div>
     </div>

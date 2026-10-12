@@ -3,25 +3,17 @@ import type React from "react";
 import type { OrderFilter } from "./schema";
 
 export function formatOrderCount(filter: OrderFilter, count: number) {
-  const orderLabel = count === 1 ? "order" : "orders";
+  const visitLabel = count === 1 ? "doorstep sale" : "doorstep sales";
 
   if (filter === "All") {
-    return `${count.toLocaleString()} ${orderLabel}`;
+    return `${count.toLocaleString()} ${visitLabel}`;
   }
 
-  if (filter === "Needs action") {
-    return `${count.toLocaleString()} ${orderLabel} need action`;
-  }
-
-  if (filter === "Returns") {
-    return `${count.toLocaleString()} ${count === 1 ? "return" : "returns"}`;
-  }
-
-  return `${count.toLocaleString()} ${filter.toLowerCase()} ${orderLabel}`;
+  return `${count.toLocaleString()} ${filter.toLowerCase()} ${visitLabel}`;
 }
 
 export function formatSelectedOrderCount(count: number) {
-  const orderLabel = count === 1 ? "order" : "orders";
+  const orderLabel = count === 1 ? "record" : "records";
 
   return `${count.toLocaleString()} ${orderLabel} selected`;
 }

@@ -1,8 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 
-import { Command } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
 import {
@@ -21,7 +21,6 @@ import { usePreferencesStore } from "@/stores/preferences/preferences-provider";
 
 import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
-import { SupportCard } from "./support-card";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { sidebarVariant, sidebarCollapsible, isSynced } = usePreferencesStore(
@@ -40,10 +39,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <Link prefetch={false} href="/dashboard/default">
-                <Command />
-                <span className="font-semibold text-base">{APP_CONFIG.name}</span>
+            <SidebarMenuButton asChild size="lg" className="h-12 hover:bg-sidebar-accent/50">
+              <Link prefetch={false} href="/dashboard/ecommerce" className="flex items-center gap-2.5">
+                <div className="relative flex h-8 w-14 shrink-0 items-center justify-center">
+                  <Image
+                    src="/meezan_logo.png"
+                    alt="Meezan Oil"
+                    width={56}
+                    height={26}
+                    className="h-6.5 w-auto object-contain"
+                    priority
+                  />
+                </div>
+                <div className="flex flex-col leading-tight group-data-[collapsible=icon]:hidden">
+                  <span className="font-bold text-foreground text-sm tracking-tight">{APP_CONFIG.name}</span>
+                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Field Sales Ops</span>
+                </div>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -53,7 +64,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={sidebarItems} />
       </SidebarContent>
       <SidebarFooter>
-        <SupportCard />
         <NavUser user={rootUser} />
       </SidebarFooter>
     </Sidebar>

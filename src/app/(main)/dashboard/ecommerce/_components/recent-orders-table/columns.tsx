@@ -19,27 +19,31 @@ import type { DataTableFeatures } from "@/lib/data-table-features";
 import type { OrderRow } from "./schema";
 
 function formatOrderDate(date: string) {
-  return format(parseISO(date), "h:mm a, d MMM yyyy");
+  try {
+    return format(parseISO(date), "h:mm a, d MMM");
+  } catch {
+    return date;
+  }
 }
 
 function PaymentBadge({ status }: { status: OrderRow["payment"] }) {
-  if (status === "Paid") {
+  if (status === "Cash") {
     return (
       <Badge
         className="border-green-700/25 text-green-700 dark:border-green-300/25 dark:text-green-300"
         variant="outline"
       >
         <span className="size-1.5 rounded-full bg-current" />
-        Paid
+        Cash
       </Badge>
     );
   }
 
-  if (status === "Refunded") {
+  if (status === "Raast / Digital") {
     return (
-      <Badge variant="destructive">
+      <Badge className="border-blue-700/25 text-blue-700 dark:border-blue-300/25 dark:text-blue-300" variant="outline">
         <span className="size-1.5 rounded-full bg-current" />
-        Refunded
+        Raast / Digital
       </Badge>
     );
   }
@@ -50,37 +54,40 @@ function PaymentBadge({ status }: { status: OrderRow["payment"] }) {
       variant="outline"
     >
       <span className="size-1.5 rounded-full bg-current" />
-      Pending
+      Follow-up
     </Badge>
   );
 }
 
 function FulfillmentBadge({ status }: { status: OrderRow["fulfillment"] }) {
-  if (status === "Fulfilled") {
+  if (status === "Delivered") {
     return (
       <Badge
         className="border-green-700/25 text-green-700 dark:border-green-300/25 dark:text-green-300"
         variant="outline"
       >
         <span className="size-1.5 rounded-full bg-current" />
-        Fulfilled
+        Delivered
       </Badge>
     );
   }
 
-  if (status === "Returned") {
+  if (status === "Sample Given") {
     return (
-      <Badge variant="destructive">
+      <Badge className="border-blue-700/25 text-blue-700 dark:border-blue-300/25 dark:text-blue-300" variant="outline">
         <span className="size-1.5 rounded-full bg-current" />
-        Returned
+        Sample Given
       </Badge>
     );
   }
 
   return (
-    <Badge variant="destructive">
+    <Badge
+      className="border-orange-700/25 text-orange-700 dark:border-orange-300/25 dark:text-orange-300"
+      variant="outline"
+    >
       <span className="size-1.5 rounded-full bg-current" />
-      Unfulfilled
+      Revisit
     </Badge>
   );
 }
@@ -99,7 +106,7 @@ export const recentOrdersColumns: ColumnDef<DataTableFeatures, OrderRow>[] = [
         >
           {(checked) => (
             <Checkbox
-              aria-label="Select all orders"
+              aria-label="Select all visits"
               checked={checked}
               onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
             />
@@ -112,7 +119,7 @@ export const recentOrdersColumns: ColumnDef<DataTableFeatures, OrderRow>[] = [
         <Subscribe source={row.table.atoms.rowSelection} selector={(selection) => Boolean(selection?.[row.id])}>
           {(checked) => (
             <Checkbox
-              aria-label={`Select order ${row.original.id}`}
+              aria-label={`Select visit ${row.original.id}`}
               checked={checked}
               onCheckedChange={(value) => row.toggleSelected(!!value)}
             />
@@ -125,10 +132,10 @@ export const recentOrdersColumns: ColumnDef<DataTableFeatures, OrderRow>[] = [
   },
   {
     accessorKey: "id",
-    header: "Order",
+    header: "Receipt / SKU",
     cell: ({ row }) => (
       <div className="flex flex-col gap-0.5">
-        <div className="font-medium leading-none">{row.original.id}</div>
+        <div className="font-medium font-mono text-xs leading-none">{row.original.id}</div>
         <div className="text-muted-foreground text-xs">{row.original.items}</div>
       </div>
     ),
@@ -136,51 +143,54 @@ export const recentOrdersColumns: ColumnDef<DataTableFeatures, OrderRow>[] = [
   },
   {
     accessorKey: "customer",
-    header: "Customer",
+    header: "Household & Address",
+  },
+  {
+    accessorKey: "agent",
+    header: "Field Agent",
+    cell: ({ row }) => (
+      <div className="flex items-center gap-1.5">
+        <span className="font-medium text-xs">{row.original.agent}</span>
+      </div>
+    ),
   },
   {
     id: "statusSummary",
     header: "Status",
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
-        <PaymentBadge status={row.original.payment} />
         <FulfillmentBadge status={row.original.fulfillment} />
+        <PaymentBadge status={row.original.payment} />
       </div>
     ),
     filterFn: (row, _columnId, value) => {
-      if (value === "Needs action") {
-        return (
-          row.original.payment === "Pending" ||
-          row.original.payment === "Refunded" ||
-          row.original.fulfillment === "Unfulfilled" ||
-          row.original.fulfillment === "Returned"
-        );
+      if (value === "Delivered") {
+        return row.original.fulfillment === "Delivered";
       }
-
-      if (value === "Unfulfilled") {
-        return row.original.fulfillment === "Unfulfilled";
+      if (value === "Sample Given") {
+        return row.original.fulfillment === "Sample Given";
       }
-
-      if (value === "Unpaid") {
-        return row.original.payment === "Pending";
+      if (value === "Revisit Scheduled") {
+        return row.original.fulfillment === "Revisit Scheduled";
       }
-
-      if (value === "Returns") {
-        return row.original.payment === "Refunded" || row.original.fulfillment === "Returned";
+      if (value === "Digital Pay") {
+        return row.original.payment === "Raast / Digital";
       }
-
+      if (value === "Cash") {
+        return row.original.payment === "Cash";
+      }
       return true;
     },
   },
   {
     accessorKey: "total",
-    header: () => <div className="w-28">Total</div>,
-    cell: ({ row }) => <div className="w-28 tabular-nums">{row.original.total}</div>,
+    header: () => <div className="w-24">Total (PKR)</div>,
+    cell: ({ row }) => <div className="w-24 font-medium tabular-nums">{row.original.total}</div>,
   },
   {
     accessorKey: "date",
-    header: () => <div className="w-44">Date</div>,
-    cell: ({ row }) => <div className="w-44 text-muted-foreground">{formatOrderDate(row.original.date)}</div>,
+    header: () => <div className="w-36">Time</div>,
+    cell: ({ row }) => <div className="w-36 text-muted-foreground text-xs">{formatOrderDate(row.original.date)}</div>,
   },
   {
     id: "actions",
@@ -189,17 +199,18 @@ export const recentOrdersColumns: ColumnDef<DataTableFeatures, OrderRow>[] = [
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <div className="flex w-full justify-end">
-            <Button aria-label="Open order actions" size="icon-sm" variant="ghost">
+            <Button aria-label="Open visit actions" size="icon-sm" variant="ghost">
               <MoreHorizontal />
             </Button>
           </div>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-40">
-          <DropdownMenuLabel>Order Actions</DropdownMenuLabel>
+        <DropdownMenuContent align="end" className="w-44">
+          <DropdownMenuLabel>Visit Actions</DropdownMenuLabel>
           <DropdownMenuGroup>
-            <DropdownMenuItem>View order</DropdownMenuItem>
-            <DropdownMenuItem>Contact customer</DropdownMenuItem>
-            <DropdownMenuItem>Copy order ID</DropdownMenuItem>
+            <DropdownMenuItem>View Survey Answers</DropdownMenuItem>
+            <DropdownMenuItem>View Customer Profile</DropdownMenuItem>
+            <DropdownMenuItem>Contact Field Agent</DropdownMenuItem>
+            <DropdownMenuItem>Print Cash Receipt</DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>

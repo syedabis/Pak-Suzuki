@@ -1,15 +1,14 @@
+import Image from "next/image";
 import Link from "next/link";
 
-import { Command } from "lucide-react";
 import type { Metadata } from "next";
 
 import { LoginForm } from "../../_components/login-form";
 import { GoogleButton } from "../../_components/social-auth/google-button";
 
 export const metadata: Metadata = {
-  title: "Open Source Split Screen Login Page with shadcn/ui",
-  description:
-    "Explore an open source split screen login page with email and password fields, social sign-in, and a registration link.",
+  title: "Meezan Oil - Staff & Field Agent Login",
+  description: "Sign in to Meezan Oil Field Sales & Operations Dashboard",
   alternates: {
     canonical: "/auth/v1/login",
   },
@@ -21,10 +20,12 @@ export default function LoginV1() {
       <div className="hidden bg-primary lg:block lg:w-1/3">
         <div className="flex h-full flex-col items-center justify-center p-12 text-center">
           <div className="space-y-6">
-            <Command className="mx-auto size-12 text-primary-foreground" />
+            <div className="relative mx-auto h-16 w-36">
+              <Image src="/meezan_logo.png" alt="Meezan Oil" fill className="object-contain" priority />
+            </div>
             <div className="space-y-2">
-              <h1 className="font-light text-5xl text-primary-foreground">Hello again</h1>
-              <p className="text-primary-foreground/80 text-xl">Login to continue</p>
+              <h1 className="font-light text-5xl text-primary-foreground">Meezan Oil</h1>
+              <p className="text-primary-foreground/80 text-xl">Field Sales Portal</p>
             </div>
           </div>
         </div>

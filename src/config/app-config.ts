@@ -3,12 +3,12 @@ import packageJson from "../../package.json";
 const currentYear = new Date().getFullYear();
 
 export const APP_CONFIG = {
-  name: "Studio Admin",
+  name: "Meezan Oil",
   version: packageJson.version,
-  copyright: `© ${currentYear}, Studio Admin.`,
+  logo: "/meezan_logo.png",
+  copyright: `© ${currentYear}, Paracha Textile Mills Ltd. (Meezan Oil).`,
   meta: {
-    title: "Studio Admin: Open Source Admin Dashboard with shadcn/ui",
-    description:
-      "A polished open source shadcn/ui admin dashboard with 25+ screens and editions for Radix UI, Base UI, React Aria, and TanStack Start.",
+    title: "Meezan Oil • D2D Field Sales & Market Intelligence",
+    description: "Direct-to-consumer field sales, doorstep surveys, and distribution tracking for Meezan Oil.",
   },
 };

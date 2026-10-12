@@ -1,28 +1,4 @@
-import {
-  Banknote,
-  Calendar,
-  ChartBar,
-  CheckSquare,
-  Fingerprint,
-  FolderOpen,
-  Forklift,
-  Gauge,
-  GraduationCap,
-  HeartPulse,
-  Kanban,
-  LayoutDashboard,
-  ListTodo,
-  Lock,
-  type LucideIcon,
-  Mail,
-  MessageSquare,
-  ReceiptText,
-  Server,
-  ShoppingBag,
-  SquareArrowUpRight,
-  UserRound,
-  Users,
-} from "lucide-react";
+import { type LucideIcon, ReceiptText, ShoppingBag, SquareArrowUpRight, Users } from "lucide-react";
 
 export type NavBadge = "new" | "soon";
 
@@ -68,73 +44,26 @@ export const sidebarItems: NavGroup[] = [
     label: "Dashboards",
     items: [
       {
-        id: "default",
-        title: "Default",
-        url: "/dashboard/default",
-        icon: LayoutDashboard,
-      },
-      {
-        id: "crm",
-        title: "CRM",
-        url: "/dashboard/crm",
-        icon: ChartBar,
-      },
-      {
-        id: "finance",
-        title: "Finance",
-        url: "/dashboard/finance",
-        icon: Banknote,
-      },
-      {
-        id: "analytics",
-        title: "Analytics",
-        url: "/dashboard/analytics",
-        icon: Gauge,
-      },
-      {
-        id: "productivity",
-        title: "Productivity",
-        url: "/dashboard/productivity",
-        icon: ListTodo,
-      },
-      {
         id: "ecommerce",
-        title: "E-commerce",
+        title: "Meezan Field Sales",
         url: "/dashboard/ecommerce",
         icon: ShoppingBag,
       },
       {
-        id: "academy",
-        title: "Academy",
-        url: "/dashboard/academy",
-        icon: GraduationCap,
+        id: "field-logs",
+        title: "Sales & Visit Logs",
+        url: "/dashboard/field-logs",
+        icon: ReceiptText,
       },
       {
-        id: "logistics",
-        title: "Logistics",
-        url: "/dashboard/logistics",
-        icon: Forklift,
-      },
-      {
-        id: "infrastructure",
-        title: "Infrastructure",
-        url: "/dashboard/infrastructure",
-        icon: Server,
-      },
-      {
-        id: "file-manager",
-        title: "File Manager",
-        url: "/dashboard/file-manager",
-        icon: FolderOpen,
-      },
-      {
-        id: "patient-monitoring",
-        title: "Patient Monitoring",
-        url: "/dashboard/patient-monitoring",
-        icon: HeartPulse,
+        id: "performance",
+        title: "Team & Agent Performance",
+        url: "/dashboard/performance",
+        icon: Users,
       },
     ],
   },
+  /*
   {
     id: 2,
     label: "Pages",
@@ -206,24 +135,9 @@ export const sidebarItems: NavGroup[] = [
       },
     ],
   },
+  */
   {
     id: 3,
-    label: "Legacy",
-    items: [
-      {
-        id: "legacy-dashboards",
-        title: "Dashboards",
-        subItems: [
-          { id: "legacy-default", title: "Default V1", url: "/dashboard/default-v1" },
-          { id: "legacy-crm", title: "CRM V1", url: "/dashboard/crm-v1" },
-          { id: "legacy-finance", title: "Finance V1", url: "/dashboard/finance-v1" },
-          { id: "legacy-analytics", title: "Analytics V1", url: "/dashboard/analytics-v1" },
-        ],
-      },
-    ],
-  },
-  {
-    id: 4,
     label: "Misc",
     items: [
       {

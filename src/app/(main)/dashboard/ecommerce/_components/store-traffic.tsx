@@ -1,10 +1,7 @@
 "use client";
 
-import { useState } from "react";
-
-import { format, subMinutes } from "date-fns";
 import { ArrowUpRight } from "lucide-react";
-import { Area, AreaChart, CartesianGrid, Line, XAxis, YAxis } from "recharts";
+import { Area, CartesianGrid, ComposedChart, Line, XAxis, YAxis } from "recharts";
 
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -16,150 +13,38 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
-const trafficIntervalMinutes = 15;
-
-const trafficPoints = [
-  { visitors: 280, anomalies: 8 },
-  { visitors: 420, anomalies: 4 },
-  { visitors: 360, anomalies: 3 },
-  { visitors: 140, anomalies: 2 },
-  { visitors: 80, anomalies: 1 },
-  { visitors: 600, anomalies: 4 },
-  { visitors: 260, anomalies: 3 },
-  { visitors: 70, anomalies: 2 },
-  { visitors: 90, anomalies: 1 },
-  { visitors: 180, anomalies: 4 },
-  { visitors: 150, anomalies: 3 },
-  { visitors: 60, anomalies: 2 },
-  { visitors: 430, anomalies: 1 },
-  { visitors: 110, anomalies: 4 },
-  { visitors: 260, anomalies: 3 },
-  { visitors: 120, anomalies: 2 },
-  { visitors: 90, anomalies: 1 },
-  { visitors: 40, anomalies: 8 },
-  { visitors: 75, anomalies: 3 },
-  { visitors: 0, anomalies: 2 },
-  { visitors: 15, anomalies: 1 },
-  { visitors: 35, anomalies: 4 },
-  { visitors: 60, anomalies: 3 },
-  { visitors: 95, anomalies: 2 },
-  { visitors: 105, anomalies: 1 },
-  { visitors: 120, anomalies: 4 },
-  { visitors: 0, anomalies: 3 },
-  { visitors: 25, anomalies: 2 },
-  { visitors: 70, anomalies: 1 },
-  { visitors: 110, anomalies: 4 },
-  { visitors: 0, anomalies: 3 },
-  { visitors: 140, anomalies: 2 },
-  { visitors: 310, anomalies: 1 },
-  { visitors: 120, anomalies: 4 },
-  { visitors: 160, anomalies: 8 },
-  { visitors: 30, anomalies: 2 },
-  { visitors: 20, anomalies: 1 },
-  { visitors: 0, anomalies: 4 },
-  { visitors: 120, anomalies: 3 },
-  { visitors: 210, anomalies: 2 },
-  { visitors: 110, anomalies: 1 },
-  { visitors: 190, anomalies: 4 },
-  { visitors: 0, anomalies: 3 },
-  { visitors: 85, anomalies: 2 },
-  { visitors: 250, anomalies: 1 },
-  { visitors: 40, anomalies: 4 },
-  { visitors: 110, anomalies: 3 },
-  { visitors: 0, anomalies: 2 },
-  { visitors: 140, anomalies: 1 },
-  { visitors: 95, anomalies: 4 },
-  { visitors: 180, anomalies: 3 },
-  { visitors: 620, anomalies: 18 },
-  { visitors: 35, anomalies: 1 },
-  { visitors: 330, anomalies: 4 },
-  { visitors: 45, anomalies: 3 },
-  { visitors: 0, anomalies: 2 },
-  { visitors: 160, anomalies: 1 },
-  { visitors: 190, anomalies: 4 },
-  { visitors: 260, anomalies: 3 },
-  { visitors: 90, anomalies: 2 },
-  { visitors: 70, anomalies: 1 },
-  { visitors: 180, anomalies: 4 },
-  { visitors: 150, anomalies: 3 },
-  { visitors: 280, anomalies: 2 },
-  { visitors: 160, anomalies: 1 },
-  { visitors: 20, anomalies: 4 },
-  { visitors: 120, anomalies: 3 },
-  { visitors: 200, anomalies: 2 },
-  { visitors: 45, anomalies: 8 },
-  { visitors: 115, anomalies: 4 },
-  { visitors: 145, anomalies: 3 },
-  { visitors: 40, anomalies: 2 },
-  { visitors: 160, anomalies: 1 },
-  { visitors: 170, anomalies: 4 },
-  { visitors: 95, anomalies: 3 },
-  { visitors: 140, anomalies: 2 },
-  { visitors: 70, anomalies: 1 },
-  { visitors: 230, anomalies: 4 },
-  { visitors: 120, anomalies: 3 },
-  { visitors: 65, anomalies: 2 },
-  { visitors: 35, anomalies: 1 },
-  { visitors: 0, anomalies: 4 },
-  { visitors: 80, anomalies: 3 },
-  { visitors: 180, anomalies: 2 },
-  { visitors: 95, anomalies: 1 },
-  { visitors: 140, anomalies: 8 },
-  { visitors: 270, anomalies: 3 },
-  { visitors: 110, anomalies: 2 },
-  { visitors: 50, anomalies: 1 },
-  { visitors: 230, anomalies: 18 },
-  { visitors: 115, anomalies: 3 },
-  { visitors: 80, anomalies: 2 },
-  { visitors: 260, anomalies: 1 },
-  { visitors: 20, anomalies: 4 },
-  { visitors: 120, anomalies: 3 },
-  { visitors: 5, anomalies: 2 },
-] as const;
-
-function getTrafficData() {
-  const now = new Date();
-
-  return trafficPoints.map((point, index) => ({
-    ...point,
-    timestamp: subMinutes(now, (trafficPoints.length - 1 - index) * trafficIntervalMinutes).toISOString(),
-  }));
-}
+const hourlyFieldActivity = [
+  { time: "9 AM", visits: 140, callbacks: 12 },
+  { time: "10 AM", visits: 220, callbacks: 18 },
+  { time: "11 AM", visits: 310, callbacks: 24 },
+  { time: "12 PM", visits: 360, callbacks: 28 },
+  { time: "1 PM", visits: 280, callbacks: 22 },
+  { time: "2 PM", visits: 190, callbacks: 15 },
+  { time: "3 PM", visits: 250, callbacks: 20 },
+  { time: "4 PM", visits: 390, callbacks: 32 },
+  { time: "5 PM", visits: 350, callbacks: 29 },
+  { time: "6 PM", visits: 230, callbacks: 19 },
+  { time: "7 PM", visits: 120, callbacks: 10 },
+];
 
 const trafficConfig = {
-  visitors: {
-    label: "Visitors",
+  visits: {
+    label: "Door Knocks / Visits",
     color: "var(--chart-3)",
   },
-  anomalies: {
-    label: "Anomalies",
-    color: "var(--destructive)",
+  callbacks: {
+    label: "Re-visits / Callbacks",
+    color: "var(--chart-1)",
   },
 } satisfies ChartConfig;
 
-function formatTrafficTooltipLabel(value: string) {
-  return format(new Date(value), "h:mm a, do MMMM yyyy");
-}
-
 export function StoreTraffic() {
-  const [trafficData] = useState(() => getTrafficData());
-  const firstTrafficTimestamp = trafficData[0].timestamp;
-  const lastTrafficTimestamp = trafficData.at(-1)?.timestamp ?? "";
-
-  function formatTrafficTick(value: string) {
-    if (value === firstTrafficTimestamp) {
-      return "24h ago";
-    }
-
-    return value === lastTrafficTimestamp ? "now" : "";
-  }
-
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
-        <CardTitle className="font-normal text-muted-foreground text-sm">Store Traffic</CardTitle>
+        <CardTitle className="font-normal text-muted-foreground text-sm">Door Knocks & Visit Pace</CardTitle>
         <CardDescription className="text-foreground text-xl tabular-nums leading-none tracking-tight">
-          12.9K visits
+          2,840 visits logged today
         </CardDescription>
         <CardAction>
           <ArrowUpRight className="size-4" />
@@ -168,48 +53,61 @@ export function StoreTraffic() {
 
       <CardContent>
         <ChartContainer config={trafficConfig} className="h-54 w-full">
-          <AreaChart accessibilityLayer data={trafficData} margin={{ bottom: 0, left: 0, right: 0, top: 8 }}>
+          <ComposedChart
+            accessibilityLayer
+            data={hourlyFieldActivity}
+            margin={{ bottom: 0, left: -14, right: 10, top: 8 }}
+          >
             <defs>
-              <linearGradient id="fillVisitors" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="5%" stopColor="var(--color-visitors)" stopOpacity={0.28} />
-                <stop offset="95%" stopColor="var(--color-visitors)" stopOpacity={0.02} />
+              <linearGradient id="fillVisitsPace" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="5%" stopColor="var(--color-visits, var(--chart-3))" stopOpacity={0.35} />
+                <stop offset="95%" stopColor="var(--color-visits, var(--chart-3))" stopOpacity={0.02} />
               </linearGradient>
             </defs>
-            <CartesianGrid vertical={false} />
-            <XAxis
+            <CartesianGrid vertical={false} strokeDasharray="3 3" />
+            <XAxis dataKey="time" axisLine={false} tickLine={false} tickMargin={8} tick={{ fontSize: 11 }} />
+            <YAxis
               axisLine={false}
-              dataKey="timestamp"
-              tick={{ fontSize: 11 }}
-              tickFormatter={formatTrafficTick}
               tickLine={false}
-              tickMargin={10}
-              ticks={[trafficData[0].timestamp, trafficData.at(-1)?.timestamp ?? ""]}
+              tickMargin={6}
+              tick={{ fontSize: 11 }}
+              width={38}
+              domain={[0, 450]}
             />
-            <YAxis axisLine={false} domain={[0, 650]} tickLine={false} tickMargin={6} width={36} yAxisId="traffic" />
             <ChartTooltip
-              content={<ChartTooltipContent labelFormatter={(value) => formatTrafficTooltipLabel(String(value))} />}
-              cursor={{ stroke: "var(--border)", strokeDasharray: "4 4" }}
+              content={
+                <ChartTooltipContent
+                  formatter={(value, name) => (
+                    <div className="flex w-full items-center justify-between gap-2">
+                      <span className="text-muted-foreground">{String(name)}</span>
+                      <span className="font-medium font-mono text-foreground tabular-nums">{Number(value)} doors</span>
+                    </div>
+                  )}
+                />
+              }
             />
-            <ChartLegend align="right" verticalAlign="top" className="justify-end" content={<ChartLegendContent />} />
+            <ChartLegend
+              align="right"
+              verticalAlign="top"
+              className="justify-end pb-2"
+              content={<ChartLegendContent />}
+            />
             <Area
-              dataKey="visitors"
-              dot={false}
-              fill="url(#fillVisitors)"
-              stroke="var(--color-visitors)"
+              dataKey="visits"
+              type="natural"
+              fill="url(#fillVisitsPace)"
+              stroke="var(--color-visits, var(--chart-3))"
               strokeWidth={2}
-              type="stepAfter"
-              yAxisId="traffic"
             />
             <Line
-              dataKey="anomalies"
-              dot={false}
-              stroke="var(--color-anomalies)"
-              strokeLinecap="round"
-              strokeWidth={1.2}
-              type="stepAfter"
-              yAxisId="traffic"
+              dataKey="callbacks"
+              type="natural"
+              dot={{ r: 2 }}
+              activeDot={{ r: 4 }}
+              stroke="var(--color-callbacks, var(--chart-1))"
+              strokeWidth={2}
             />
-          </AreaChart>
+          </ComposedChart>
         </ChartContainer>
       </CardContent>
     </Card>
