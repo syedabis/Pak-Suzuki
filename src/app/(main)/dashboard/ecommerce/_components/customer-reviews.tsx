@@ -11,51 +11,51 @@ import { Progress } from "@/components/ui/progress";
 
 const surveyVerbatims = [
   {
-    name: "Mrs. Farzana Akhtar",
-    area: "Gulshan-e-Iqbal, Block 4",
-    initials: "FA",
+    name: "Engr. Bilal Sheikh",
+    area: "Clifton 3S, Karachi",
+    initials: "BS",
     comment:
-      "Switched from Dalda because the 5L Meezan can had a great promotional bundle and the oil doesn't smell during frying samosas.",
+      "Took the Swift GLX CVT on the Marine Drive loop. The push-start, cruise control, and responsive CVT transmission won me over. Booked right after the drive.",
+    rating: 5,
+  },
+  {
+    name: "Dr. M. Kamran",
+    area: "Gulberg 3S, Lahore",
+    initials: "MK",
+    comment:
+      "Impressed by the Alto VXL AGS fuel economy on city roads. The sales consultant explained the Meezan Bank car financing scheme with zero processing fee.",
+    rating: 5,
+  },
+  {
+    name: "Syeda Fatima",
+    area: "I-9 3S, Islamabad",
+    initials: "SF",
+    comment:
+      "The 3S showroom had great hospitality. Test drove the new Suzuki Every. It has immense cabin space and smooth air conditioning.",
     rating: 5,
   },
   {
     name: "Tariq Mehmood",
-    area: "North Nazimabad, Block H",
+    area: "University Road 3S, Peshawar",
     initials: "TM",
     comment:
-      "The agent was polite, wore clean uniform, and showed us the trans-fat free certification. Bought 4 pouches of Banaspati on spot.",
-    rating: 5,
-  },
-  {
-    name: "Sadia Kamran",
-    area: "DHA Phase 5",
-    initials: "SK",
-    comment:
-      "Direct doorstep delivery saves a supermarket trip. Very convenient paying via Raast QR code to the sales boy.",
-    rating: 5,
-  },
-  {
-    name: "Haji Abdul Rasheed",
-    area: "F.B. Area, Block 14",
-    initials: "AR",
-    comment:
-      "Quality is top notch. We compared color and clarity with our existing brand. Very pleased with the price.",
+      "Fast-track 15-minute test drive dispatch. Consultant verified my driving license via digital tablet in under a minute.",
     rating: 5,
   },
 ];
 
 const ratingDistribution = [
-  { label: "5 ★", pct: 82, count: "1,853 homes" },
-  { label: "4 ★", pct: 12, count: "271 homes" },
-  { label: "3 ★", pct: 4, count: "90 homes" },
-  { label: "1-2 ★", pct: 2, count: "46 homes" },
+  { label: "5 ★", pct: 86, count: "1,582 reviews" },
+  { label: "4 ★", pct: 10, count: "184 reviews" },
+  { label: "3 ★", pct: 3, count: "55 reviews" },
+  { label: "1-2 ★", pct: 1, count: "19 reviews" },
 ];
 
 const purchaseDrivers = [
-  { label: "Zero Frying Odor", pct: "44%" },
-  { label: "Promo Bundle Value", pct: "31%" },
-  { label: "Trans-Fat Free Cert", pct: "25%" },
-  { label: "Instant Doorstep Delivery", pct: "22%" },
+  { label: "Exceptional Fuel Economy", pct: "48%" },
+  { label: "Nationwide 3S Network", pct: "32%" },
+  { label: "High Resale Value", pct: "26%" },
+  { label: "Instant Bank Approval", pct: "19%" },
 ];
 
 export function CustomerReviews() {
@@ -74,9 +74,9 @@ export function CustomerReviews() {
   return (
     <Card className="h-full">
       <CardHeader>
-        <CardTitle className="font-normal text-muted-foreground text-sm">Consumer Survey Verbatims</CardTitle>
+        <CardTitle className="font-normal text-muted-foreground text-sm">Test Drive Experience & CSI</CardTitle>
         <CardDescription className="text-foreground text-xl tabular-nums leading-none tracking-tight">
-          4.8 / 5.0 Doorstep Sentiment
+          4.8 / 5.0 CSI Satisfaction Score
         </CardDescription>
         <CardAction>
           <ArrowUpRight className="size-4" />
@@ -114,8 +114,8 @@ export function CustomerReviews() {
         {/* Rating Breakdown Bars */}
         <div className="flex flex-col gap-2 rounded-lg border p-3.5">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-medium text-foreground">Doorstep Rating Breakdown</span>
-            <span className="text-[11px] text-muted-foreground tabular-nums">2,260 respondents</span>
+            <span className="font-medium text-foreground">Test Drive CSI Rating Breakdown</span>
+            <span className="text-[11px] text-muted-foreground tabular-nums">1,840 respondents</span>
           </div>
           <div className="flex flex-col gap-2">
             {ratingDistribution.map((item) => (

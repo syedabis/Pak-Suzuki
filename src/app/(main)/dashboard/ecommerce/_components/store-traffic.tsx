@@ -13,27 +13,27 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
-const hourlyFieldActivity = [
-  { time: "9 AM", visits: 140, callbacks: 12 },
-  { time: "10 AM", visits: 220, callbacks: 18 },
-  { time: "11 AM", visits: 310, callbacks: 24 },
-  { time: "12 PM", visits: 360, callbacks: 28 },
-  { time: "1 PM", visits: 280, callbacks: 22 },
-  { time: "2 PM", visits: 190, callbacks: 15 },
-  { time: "3 PM", visits: 250, callbacks: 20 },
-  { time: "4 PM", visits: 390, callbacks: 32 },
-  { time: "5 PM", visits: 350, callbacks: 29 },
-  { time: "6 PM", visits: 230, callbacks: 19 },
-  { time: "7 PM", visits: 120, callbacks: 10 },
+const hourlyShowroomActivity = [
+  { time: "9 AM", visits: 840, appointments: 88 },
+  { time: "10 AM", visits: 1320, appointments: 145 },
+  { time: "11 AM", visits: 1890, appointments: 210 },
+  { time: "12 PM", visits: 2140, appointments: 260 },
+  { time: "1 PM", visits: 1480, appointments: 180 },
+  { time: "2 PM", visits: 1120, appointments: 130 },
+  { time: "3 PM", visits: 1650, appointments: 195 },
+  { time: "4 PM", visits: 2280, appointments: 275 },
+  { time: "5 PM", visits: 2110, appointments: 240 },
+  { time: "6 PM", visits: 1240, appointments: 160 },
+  { time: "7 PM", visits: 570, appointments: 70 },
 ];
 
 const trafficConfig = {
   visits: {
-    label: "Door Knocks / Visits",
+    label: "Showroom Walk-ins",
     color: "var(--chart-3)",
   },
-  callbacks: {
-    label: "Re-visits / Callbacks",
+  appointments: {
+    label: "Booked Test Drives & Consultations",
     color: "var(--chart-1)",
   },
 } satisfies ChartConfig;
@@ -42,9 +42,11 @@ export function StoreTraffic() {
   return (
     <Card className="h-full">
       <CardHeader>
-        <CardTitle className="font-normal text-muted-foreground text-sm">Door Knocks & Visit Pace</CardTitle>
+        <CardTitle className="font-normal text-muted-foreground text-sm">
+          Showroom Footfall & Appointment Pace
+        </CardTitle>
         <CardDescription className="text-foreground text-xl tabular-nums leading-none tracking-tight">
-          2,840 visits logged today
+          15,640 Walk-ins & 1,840 Appointments Today
         </CardDescription>
         <CardAction>
           <ArrowUpRight className="size-4" />
@@ -55,7 +57,7 @@ export function StoreTraffic() {
         <ChartContainer config={trafficConfig} className="h-54 w-full">
           <ComposedChart
             accessibilityLayer
-            data={hourlyFieldActivity}
+            data={hourlyShowroomActivity}
             margin={{ bottom: 0, left: -14, right: 10, top: 8 }}
           >
             <defs>
@@ -72,7 +74,7 @@ export function StoreTraffic() {
               tickMargin={6}
               tick={{ fontSize: 11 }}
               width={38}
-              domain={[0, 450]}
+              domain={[0, 2500]}
             />
             <ChartTooltip
               content={
@@ -80,7 +82,10 @@ export function StoreTraffic() {
                   formatter={(value, name) => (
                     <div className="flex w-full items-center justify-between gap-2">
                       <span className="text-muted-foreground">{String(name)}</span>
-                      <span className="font-medium font-mono text-foreground tabular-nums">{Number(value)} doors</span>
+                      <span className="font-medium font-mono text-foreground tabular-nums">
+                        {Number(value).toLocaleString()}{" "}
+                        {String(name).toLowerCase().includes("walk") ? "visitors" : "appts"}
+                      </span>
                     </div>
                   )}
                 />
@@ -100,11 +105,11 @@ export function StoreTraffic() {
               strokeWidth={2}
             />
             <Line
-              dataKey="callbacks"
+              dataKey="appointments"
               type="natural"
               dot={{ r: 2 }}
               activeDot={{ r: 4 }}
-              stroke="var(--color-callbacks, var(--chart-1))"
+              stroke="var(--color-appointments, var(--chart-1))"
               strokeWidth={2}
             />
           </ComposedChart>

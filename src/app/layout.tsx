@@ -18,11 +18,11 @@ export const metadata: Metadata = {
   description: APP_CONFIG.meta.description,
   icons: {
     icon: [
-      { url: "/meezan_logo.png", type: "image/png" },
+      { url: "/_Logo.png", type: "image/png" },
       { url: "/icon.png", type: "image/png" },
     ],
-    shortcut: "/meezan_logo.png",
-    apple: "/meezan_logo.png",
+    shortcut: "/_Logo.png",
+    apple: "/_Logo.png",
   },
   twitter: {
     card: "summary_large_image",

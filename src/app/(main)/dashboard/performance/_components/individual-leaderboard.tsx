@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { ArrowUpDown, Download, Medal, Search, Trophy, X } from "lucide-react";
+import { ArrowUpDown, Building2, Download, MapPin, Medal, Search, Trophy, X } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,354 +19,402 @@ import {
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
-export type AgentRow = {
+export type BranchRow = {
   rank: number;
   id: string;
   name: string;
-  team: string;
-  knocks: number;
-  converted: number;
+  city: string;
+  region: "South" | "Central" | "North";
+  targetUnits: number;
+  actualUnits: number;
+  quotaPct: number;
+  footfall: number;
+  testDrives: number;
   conversion: number;
-  liters: number;
-  revenue: number;
-  surveys: number;
-  incentive: number;
-  tier: "Gold" | "Silver" | "Bronze" | "Standard";
+  revenueM: number;
+  bayUtilPct: number;
+  tier: "Platinum" | "Gold" | "Silver" | "Bronze";
 };
 
-function getTierVariant(tier: AgentRow["tier"]): "default" | "secondary" | "outline" {
-  if (tier === "Gold") return "default";
-  if (tier === "Silver") return "secondary";
+function getTierVariant(tier: BranchRow["tier"]): "default" | "secondary" | "outline" {
+  if (tier === "Platinum") return "default";
+  if (tier === "Gold") return "secondary";
   return "outline";
 }
 
 function getConversionColor(rate: number): string {
-  if (rate >= 35) return "text-emerald-600 dark:text-emerald-400";
-  if (rate >= 30) return "text-foreground";
+  if (rate >= 14) return "text-emerald-600 dark:text-emerald-400";
+  if (rate >= 11) return "text-foreground";
   return "text-muted-foreground";
 }
 
-const agentsData: AgentRow[] = [
+const branchesData: BranchRow[] = [
   {
     rank: 1,
-    id: "AGT-15",
-    name: "Zeeshan Ali",
-    team: "DHA & Clifton",
-    knocks: 65,
-    converted: 25,
-    conversion: 38.5,
-    liters: 148,
-    revenue: 74000,
-    surveys: 54,
-    incentive: 4440,
-    tier: "Gold",
+    id: "PSMCL-KHI-01",
+    name: "Pak Suzuki Central Motor World",
+    city: "Karachi",
+    region: "South",
+    targetUnits: 35,
+    actualUnits: 38,
+    quotaPct: 108.6,
+    footfall: 382,
+    testDrives: 26,
+    conversion: 14.8,
+    revenueM: 148.5,
+    bayUtilPct: 88.9,
+    tier: "Platinum",
   },
   {
     rank: 2,
-    id: "AGT-01",
-    name: "Bilal Khan",
-    team: "Gulshan-e-Iqbal",
-    knocks: 64,
-    converted: 24,
-    conversion: 37.5,
-    liters: 136,
-    revenue: 68000,
-    surveys: 51,
-    incentive: 4080,
-    tier: "Gold",
+    id: "PSMCL-LHR-02",
+    name: "Suzuki Central Motors (Gulberg)",
+    city: "Lahore",
+    region: "Central",
+    targetUnits: 32,
+    actualUnits: 36,
+    quotaPct: 112.5,
+    footfall: 440,
+    testDrives: 34,
+    conversion: 15.6,
+    revenueM: 140.4,
+    bayUtilPct: 95.5,
+    tier: "Platinum",
   },
   {
     rank: 3,
-    id: "AGT-22",
-    name: "Kashif Raza",
-    team: "North Nazimabad",
-    knocks: 62,
-    converted: 22,
-    conversion: 35.5,
-    liters: 124,
-    revenue: 62000,
-    surveys: 49,
-    incentive: 3720,
-    tier: "Gold",
+    id: "PSMCL-ISB-01",
+    name: "Suzuki Capital Motors (I-9)",
+    city: "Islamabad",
+    region: "North",
+    targetUnits: 25,
+    actualUnits: 28,
+    quotaPct: 112.0,
+    footfall: 275,
+    testDrives: 19,
+    conversion: 13.8,
+    revenueM: 112.0,
+    bayUtilPct: 85.7,
+    tier: "Platinum",
   },
   {
     rank: 4,
-    id: "AGT-19",
-    name: "Shoaib Akhtar",
-    team: "F.B. Area",
-    knocks: 60,
-    converted: 21,
-    conversion: 35.0,
-    liters: 118,
-    revenue: 59000,
-    surveys: 48,
-    incentive: 3540,
-    tier: "Silver",
+    id: "PSMCL-KHI-04",
+    name: "Suzuki South Motors (Clifton)",
+    city: "Karachi",
+    region: "South",
+    targetUnits: 24,
+    actualUnits: 26,
+    quotaPct: 108.3,
+    footfall: 294,
+    testDrives: 18,
+    conversion: 13.2,
+    revenueM: 104.0,
+    bayUtilPct: 92.9,
+    tier: "Platinum",
   },
   {
     rank: 5,
-    id: "AGT-08",
-    name: "Hamza Tariq",
-    team: "Johar Force",
-    knocks: 59,
-    converted: 20,
-    conversion: 33.9,
-    liters: 112,
-    revenue: 56000,
-    surveys: 46,
-    incentive: 3360,
-    tier: "Silver",
+    id: "PSMCL-LHR-07",
+    name: "Suzuki Cantt Motors",
+    city: "Lahore",
+    region: "Central",
+    targetUnits: 22,
+    actualUnits: 24,
+    quotaPct: 109.1,
+    footfall: 310,
+    testDrives: 20,
+    conversion: 12.0,
+    revenueM: 96.0,
+    bayUtilPct: 87.5,
+    tier: "Gold",
   },
   {
     rank: 6,
-    id: "AGT-44",
-    name: "Owais Siddiqui",
-    team: "PECHS & Saddar",
-    knocks: 58,
-    converted: 19,
-    conversion: 32.8,
-    liters: 106,
-    revenue: 53000,
-    surveys: 45,
-    incentive: 3180,
-    tier: "Silver",
+    id: "PSMCL-FSD-01",
+    name: "Suzuki Faisalabad Motors",
+    city: "Faisalabad",
+    region: "Central",
+    targetUnits: 20,
+    actualUnits: 22,
+    quotaPct: 110.0,
+    footfall: 260,
+    testDrives: 16,
+    conversion: 11.2,
+    revenueM: 88.0,
+    bayUtilPct: 92.9,
+    tier: "Gold",
   },
   {
     rank: 7,
-    id: "AGT-12",
-    name: "Farooq Sattar",
-    team: "DHA & Clifton",
-    knocks: 60,
-    converted: 19,
-    conversion: 31.7,
-    liters: 104,
-    revenue: 52000,
-    surveys: 47,
-    incentive: 3120,
-    tier: "Silver",
+    id: "PSMCL-RWP-03",
+    name: "Suzuki Rawal Motors",
+    city: "Rawalpindi",
+    region: "North",
+    targetUnits: 18,
+    actualUnits: 19,
+    quotaPct: 105.6,
+    footfall: 248,
+    testDrives: 14,
+    conversion: 10.4,
+    revenueM: 76.0,
+    bayUtilPct: 91.7,
+    tier: "Gold",
   },
   {
     rank: 8,
-    id: "AGT-03",
-    name: "Usman Ghani",
-    team: "Gulshan-e-Iqbal",
-    knocks: 58,
-    converted: 18,
-    conversion: 31.0,
-    liters: 98,
-    revenue: 49000,
-    surveys: 44,
-    incentive: 2940,
-    tier: "Silver",
+    id: "PSMCL-MUL-01",
+    name: "Suzuki Multan Motors",
+    city: "Multan",
+    region: "Central",
+    targetUnits: 16,
+    actualUnits: 18,
+    quotaPct: 112.5,
+    footfall: 215,
+    testDrives: 13,
+    conversion: 11.8,
+    revenueM: 72.0,
+    bayUtilPct: 83.3,
+    tier: "Gold",
   },
   {
     rank: 9,
-    id: "AGT-31",
-    name: "Adeel Ahmed",
-    team: "North Nazimabad",
-    knocks: 56,
-    converted: 17,
-    conversion: 30.4,
-    liters: 96,
-    revenue: 48000,
-    surveys: 42,
-    incentive: 2880,
-    tier: "Silver",
+    id: "PSMCL-KHI-09",
+    name: "Suzuki Defence Motors",
+    city: "Karachi",
+    region: "South",
+    targetUnits: 18,
+    actualUnits: 18,
+    quotaPct: 100.0,
+    footfall: 230,
+    testDrives: 15,
+    conversion: 11.5,
+    revenueM: 72.0,
+    bayUtilPct: 81.8,
+    tier: "Gold",
   },
   {
     rank: 10,
-    id: "AGT-27",
-    name: "Mubashir Lucman",
-    team: "F.B. Area",
-    knocks: 55,
-    converted: 17,
-    conversion: 30.9,
-    liters: 94,
-    revenue: 47000,
-    surveys: 43,
-    incentive: 2820,
-    tier: "Bronze",
+    id: "PSMCL-PEW-02",
+    name: "Suzuki Khyber Motors",
+    city: "Peshawar",
+    region: "North",
+    targetUnits: 16,
+    actualUnits: 15,
+    quotaPct: 93.8,
+    footfall: 192,
+    testDrives: 9,
+    conversion: 8.6,
+    revenueM: 60.0,
+    bayUtilPct: 70.0,
+    tier: "Silver",
   },
   {
     rank: 11,
-    id: "AGT-14",
-    name: "Daniyal Qureshi",
-    team: "DHA & Clifton",
-    knocks: 57,
-    converted: 17,
-    conversion: 29.8,
-    liters: 92,
-    revenue: 46000,
-    surveys: 45,
-    incentive: 2760,
-    tier: "Bronze",
+    id: "PSMCL-GUJ-01",
+    name: "Suzuki Gujranwala Motors",
+    city: "Gujranwala",
+    region: "Central",
+    targetUnits: 14,
+    actualUnits: 14,
+    quotaPct: 100.0,
+    footfall: 185,
+    testDrives: 11,
+    conversion: 10.5,
+    revenueM: 56.0,
+    bayUtilPct: 80.0,
+    tier: "Silver",
   },
   {
     rank: 12,
-    id: "AGT-05",
-    name: "Fahad Mustafa",
-    team: "Gulshan-e-Iqbal",
-    knocks: 56,
-    converted: 16,
-    conversion: 28.6,
-    liters: 90,
-    revenue: 45000,
-    surveys: 42,
-    incentive: 2700,
-    tier: "Bronze",
+    id: "PSMCL-HYD-01",
+    name: "Suzuki Mehran Motors",
+    city: "Hyderabad",
+    region: "South",
+    targetUnits: 14,
+    actualUnits: 13,
+    quotaPct: 92.9,
+    footfall: 178,
+    testDrives: 10,
+    conversion: 9.8,
+    revenueM: 52.0,
+    bayUtilPct: 75.0,
+    tier: "Silver",
   },
   {
     rank: 13,
-    id: "AGT-39",
-    name: "Kamran Akmal",
-    team: "Johar Force",
-    knocks: 54,
-    converted: 16,
-    conversion: 29.6,
-    liters: 88,
-    revenue: 44000,
-    surveys: 41,
-    incentive: 2640,
-    tier: "Bronze",
+    id: "PSMCL-SKT-01",
+    name: "Suzuki Sialkot Motors",
+    city: "Sialkot",
+    region: "Central",
+    targetUnits: 12,
+    actualUnits: 12,
+    quotaPct: 100.0,
+    footfall: 160,
+    testDrives: 9,
+    conversion: 10.2,
+    revenueM: 48.0,
+    bayUtilPct: 77.8,
+    tier: "Silver",
   },
   {
     rank: 14,
-    id: "AGT-47",
-    name: "Saad Rafique",
-    team: "PECHS & Saddar",
-    knocks: 53,
-    converted: 15,
-    conversion: 28.3,
-    liters: 86,
-    revenue: 43000,
-    surveys: 40,
-    incentive: 2580,
-    tier: "Bronze",
+    id: "PSMCL-QTA-01",
+    name: "Suzuki Bolan Motors",
+    city: "Quetta",
+    region: "South",
+    targetUnits: 10,
+    actualUnits: 10,
+    quotaPct: 100.0,
+    footfall: 140,
+    testDrives: 7,
+    conversion: 11.2,
+    revenueM: 40.0,
+    bayUtilPct: 75.0,
+    tier: "Silver",
   },
   {
     rank: 15,
-    id: "AGT-25",
-    name: "Waqar Younis",
-    team: "North Nazimabad",
-    knocks: 55,
-    converted: 15,
-    conversion: 27.3,
-    liters: 84,
-    revenue: 42000,
-    surveys: 41,
-    incentive: 2520,
-    tier: "Standard",
+    id: "PSMCL-ABT-01",
+    name: "Suzuki Pine Motors",
+    city: "Abbottabad",
+    region: "North",
+    targetUnits: 8,
+    actualUnits: 8,
+    quotaPct: 100.0,
+    footfall: 125,
+    testDrives: 6,
+    conversion: 9.6,
+    revenueM: 32.0,
+    bayUtilPct: 66.7,
+    tier: "Silver",
   },
   {
     rank: 16,
-    id: "AGT-17",
-    name: "Haris Rauf",
-    team: "DHA & Clifton",
-    knocks: 54,
-    converted: 15,
-    conversion: 27.8,
-    liters: 82,
-    revenue: 41000,
-    surveys: 40,
-    incentive: 2460,
-    tier: "Standard",
+    id: "PSMCL-BWP-01",
+    name: "Suzuki Bahawalpur Motors",
+    city: "Bahawalpur",
+    region: "Central",
+    targetUnits: 8,
+    actualUnits: 7,
+    quotaPct: 87.5,
+    footfall: 110,
+    testDrives: 5,
+    conversion: 8.8,
+    revenueM: 28.0,
+    bayUtilPct: 62.5,
+    tier: "Bronze",
   },
   {
     rank: 17,
-    id: "AGT-09",
-    name: "Naseem Shah",
-    team: "Gulshan-e-Iqbal",
-    knocks: 52,
-    converted: 14,
-    conversion: 26.9,
-    liters: 80,
-    revenue: 40000,
-    surveys: 39,
-    incentive: 2400,
-    tier: "Standard",
+    id: "PSMCL-SUK-01",
+    name: "Suzuki Sukkur Motors",
+    city: "Sukkur",
+    region: "South",
+    targetUnits: 8,
+    actualUnits: 7,
+    quotaPct: 87.5,
+    footfall: 105,
+    testDrives: 5,
+    conversion: 8.5,
+    revenueM: 28.0,
+    bayUtilPct: 60.0,
+    tier: "Bronze",
   },
   {
     rank: 18,
-    id: "AGT-33",
-    name: "Iftikhar Ahmed",
-    team: "F.B. Area",
-    knocks: 51,
-    converted: 14,
-    conversion: 27.5,
-    liters: 78,
-    revenue: 39000,
-    surveys: 38,
-    incentive: 2340,
-    tier: "Standard",
+    id: "PSMCL-MIR-01",
+    name: "Suzuki Kashmir Motors",
+    city: "Mirpur (AJK)",
+    region: "North",
+    targetUnits: 6,
+    actualUnits: 6,
+    quotaPct: 100.0,
+    footfall: 95,
+    testDrives: 4,
+    conversion: 9.4,
+    revenueM: 24.0,
+    bayUtilPct: 71.4,
+    tier: "Silver",
   },
   {
     rank: 19,
-    id: "AGT-41",
-    name: "Shan Masood",
-    team: "Johar Force",
-    knocks: 50,
-    converted: 13,
-    conversion: 26.0,
-    liters: 76,
-    revenue: 38000,
-    surveys: 37,
-    incentive: 2280,
-    tier: "Standard",
+    id: "PSMCL-SGD-01",
+    name: "Suzuki Sargodha Motors",
+    city: "Sargodha",
+    region: "Central",
+    targetUnits: 6,
+    actualUnits: 5,
+    quotaPct: 83.3,
+    footfall: 88,
+    testDrives: 4,
+    conversion: 8.0,
+    revenueM: 20.0,
+    bayUtilPct: 58.3,
+    tier: "Bronze",
   },
   {
     rank: 20,
-    id: "AGT-50",
-    name: "Sarfaraz Ahmed",
-    team: "PECHS & Saddar",
-    knocks: 49,
-    converted: 13,
-    conversion: 26.5,
-    liters: 74,
-    revenue: 37000,
-    surveys: 36,
-    incentive: 2220,
-    tier: "Standard",
+    id: "PSMCL-LRK-01",
+    name: "Suzuki Larkana Motors",
+    city: "Larkana",
+    region: "South",
+    targetUnits: 5,
+    actualUnits: 4,
+    quotaPct: 80.0,
+    footfall: 76,
+    testDrives: 3,
+    conversion: 7.8,
+    revenueM: 16.0,
+    bayUtilPct: 50.0,
+    tier: "Bronze",
   },
 ];
 
+type SortKey = "rank" | "actualUnits" | "quotaPct" | "footfall" | "conversion" | "revenueM";
+
 export function IndividualLeaderboard() {
   const [search, setSearch] = React.useState("");
-  const [selectedTeam, setSelectedTeam] = React.useState("all");
-  const [sortField, setSortField] = React.useState<keyof AgentRow>("rank");
+  const [selectedRegion, setSelectedRegion] = React.useState("all");
+  const [sortKey, setSortKey] = React.useState<SortKey>("rank");
   const [sortAsc, setSortAsc] = React.useState(true);
   const [page, setPage] = React.useState(1);
   const pageSize = 10;
 
-  const filteredAgents = React.useMemo(() => {
-    let list = agentsData;
-    if (selectedTeam !== "all") {
-      list = list.filter((a) => a.team.toLowerCase().includes(selectedTeam.toLowerCase()));
-    }
+  const filteredBranches = React.useMemo(() => {
+    let list = [...branchesData];
+
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(
-        (a) => a.name.toLowerCase().includes(q) || a.id.toLowerCase().includes(q) || a.team.toLowerCase().includes(q),
+        (b) => b.name.toLowerCase().includes(q) || b.id.toLowerCase().includes(q) || b.city.toLowerCase().includes(q),
       );
     }
-    return list.sort((a, b) => {
-      const valA = a[sortField];
-      const valB = b[sortField];
-      if (typeof valA === "number" && typeof valB === "number") {
-        return sortAsc ? valA - valB : valB - valA;
-      }
-      return sortAsc ? String(valA).localeCompare(String(valB)) : String(valB).localeCompare(String(valA));
+
+    if (selectedRegion !== "all") {
+      list = list.filter((b) => b.region.toLowerCase() === selectedRegion.toLowerCase());
+    }
+
+    list.sort((a, b) => {
+      const diff = a[sortKey] - b[sortKey];
+      return sortAsc ? diff : -diff;
     });
-  }, [search, selectedTeam, sortField, sortAsc]);
 
-  const totalPages = Math.ceil(filteredAgents.length / pageSize);
-  const pageNumbers = React.useMemo(() => Array.from({ length: totalPages }, (_, i) => i + 1), [totalPages]);
-  const paginatedAgents = filteredAgents.slice((page - 1) * pageSize, page * pageSize);
+    return list;
+  }, [search, selectedRegion, sortKey, sortAsc]);
 
-  const handleSort = (field: keyof AgentRow) => {
-    if (sortField === field) {
-      setSortAsc(!sortAsc);
+  const totalPages = Math.ceil(filteredBranches.length / pageSize) || 1;
+
+  const paginatedBranches = React.useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return filteredBranches.slice(start, start + pageSize);
+  }, [filteredBranches, page]);
+
+  const handleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortAsc((prev) => !prev);
     } else {
-      setSortField(field);
+      setSortKey(key);
       setSortAsc(false);
     }
   };
@@ -377,22 +425,23 @@ export function IndividualLeaderboard() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
-              <CardTitle className="font-semibold text-lg">Individual Agent Performance Leaderboard</CardTitle>
+              <CardTitle className="font-semibold text-lg">3S Branch & Showroom Performance Directory</CardTitle>
               <Badge variant="outline" className="text-xs">
-                50 Agents Tracked
+                156 Authorized Facilities
               </Badge>
             </div>
             <CardDescription className="text-muted-foreground text-xs">
-              Individual door knocks, conversion rates, litres sold, and commission earned
+              Live ranking of dealership branches by vehicle quota completion, footfall conversion, and workshop
+              utilization
             </CardDescription>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <div className="relative w-full sm:w-60">
+            <div className="relative w-full sm:w-64">
               <Search className="absolute top-2.5 left-2.5 size-4 text-muted-foreground" />
               <Input
                 className="pl-8 text-xs"
-                placeholder="Search agent name, ID..."
+                placeholder="Search branch name, code, city..."
                 value={search}
                 onChange={(e) => {
                   setSearch(e.target.value);
@@ -411,24 +460,21 @@ export function IndividualLeaderboard() {
             </div>
 
             <Select
-              value={selectedTeam}
+              value={selectedRegion}
               onValueChange={(val) => {
-                setSelectedTeam(val);
+                setSelectedRegion(val);
                 setPage(1);
               }}
             >
               <SelectTrigger className="w-40" size="sm">
-                <SelectValue placeholder="All Teams" />
+                <SelectValue placeholder="All Regions" />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectItem value="all">All Teams</SelectItem>
-                  <SelectItem value="DHA">DHA & Clifton</SelectItem>
-                  <SelectItem value="Gulshan">Gulshan-e-Iqbal</SelectItem>
-                  <SelectItem value="Nazimabad">North Nazimabad</SelectItem>
-                  <SelectItem value="Johar">Johar Force</SelectItem>
-                  <SelectItem value="F.B.">F.B. Area</SelectItem>
-                  <SelectItem value="PECHS">PECHS & Saddar</SelectItem>
+                  <SelectItem value="all">All Regions</SelectItem>
+                  <SelectItem value="South">South Region</SelectItem>
+                  <SelectItem value="Central">Central Region</SelectItem>
+                  <SelectItem value="North">North Region</SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>
@@ -455,17 +501,36 @@ export function IndividualLeaderboard() {
                     Rank <ArrowUpDown className="size-3" />
                   </button>
                 </TableHead>
-                <TableHead>Agent Name & ID</TableHead>
-                <TableHead>Assigned Squad</TableHead>
+                <TableHead>Dealership Branch</TableHead>
+                <TableHead>Region & Hub</TableHead>
                 <TableHead className="text-right">
                   <button
                     type="button"
                     className="inline-flex items-center gap-1 hover:text-foreground"
-                    onClick={() => handleSort("knocks")}
+                    onClick={() => handleSort("actualUnits")}
                   >
-                    Knocks <ArrowUpDown className="size-3" />
+                    Units Booked <ArrowUpDown className="size-3" />
                   </button>
                 </TableHead>
+                <TableHead className="text-right">
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1 hover:text-foreground"
+                    onClick={() => handleSort("quotaPct")}
+                  >
+                    Quota % <ArrowUpDown className="size-3" />
+                  </button>
+                </TableHead>
+                <TableHead className="text-right">
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1 hover:text-foreground"
+                    onClick={() => handleSort("footfall")}
+                  >
+                    Walk-ins <ArrowUpDown className="size-3" />
+                  </button>
+                </TableHead>
+                <TableHead className="text-right">Test Drives</TableHead>
                 <TableHead className="text-right">
                   <button
                     type="button"
@@ -479,73 +544,83 @@ export function IndividualLeaderboard() {
                   <button
                     type="button"
                     className="inline-flex items-center gap-1 hover:text-foreground"
-                    onClick={() => handleSort("liters")}
+                    onClick={() => handleSort("revenueM")}
                   >
-                    Litres Sold <ArrowUpDown className="size-3" />
+                    Revenue (PKR M) <ArrowUpDown className="size-3" />
                   </button>
                 </TableHead>
-                <TableHead className="text-right">
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-1 hover:text-foreground"
-                    onClick={() => handleSort("revenue")}
-                  >
-                    Sales (PKR) <ArrowUpDown className="size-3" />
-                  </button>
-                </TableHead>
-                <TableHead className="text-right">Surveys</TableHead>
-                <TableHead className="text-right">Incentive (PKR)</TableHead>
+                <TableHead className="text-right">Workshop Bay Util</TableHead>
                 <TableHead className="text-center">Tier</TableHead>
               </TableRow>
             </TableHeader>
 
             <TableBody>
-              {paginatedAgents.length > 0 ? (
-                paginatedAgents.map((agent) => (
-                  <TableRow key={agent.id} className="hover:bg-muted/40">
+              {paginatedBranches.length > 0 ? (
+                paginatedBranches.map((branch) => (
+                  <TableRow key={branch.id} className="hover:bg-muted/40">
                     <TableCell className="font-semibold tabular-nums">
                       <div className="flex items-center gap-1.5">
-                        {agent.rank === 1 && <Trophy className="size-4 shrink-0 text-amber-500" />}
-                        {agent.rank === 2 && <Medal className="size-4 shrink-0 text-slate-400" />}
-                        {agent.rank === 3 && <Medal className="size-4 shrink-0 text-amber-700" />}
-                        <span>#{agent.rank}</span>
+                        {branch.rank === 1 && <Trophy className="size-4 shrink-0 text-amber-500" />}
+                        {branch.rank === 2 && <Medal className="size-4 shrink-0 text-slate-400" />}
+                        {branch.rank === 3 && <Medal className="size-4 shrink-0 text-amber-700" />}
+                        <span>#{branch.rank}</span>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col gap-0.5">
-                        <span className="font-medium text-foreground text-xs">{agent.name}</span>
-                        <span className="font-mono text-[11px] text-muted-foreground">{agent.id}</span>
+                        <span className="font-medium text-foreground text-xs">{branch.name}</span>
+                        <span className="font-mono text-[11px] text-muted-foreground">{branch.id}</span>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <span className="text-muted-foreground text-xs">{agent.team}</span>
+                      <div className="flex items-center gap-1 text-xs">
+                        <MapPin className="size-3 text-muted-foreground" />
+                        <span>
+                          {branch.city} • <span className="text-muted-foreground">{branch.region}</span>
+                        </span>
+                      </div>
                     </TableCell>
-                    <TableCell className="text-right font-medium text-xs tabular-nums">{agent.knocks} doors</TableCell>
+                    <TableCell className="text-right font-bold text-xs tabular-nums">
+                      {branch.actualUnits}{" "}
+                      <span className="font-normal text-muted-foreground">/ {branch.targetUnits}</span>
+                    </TableCell>
                     <TableCell className="text-right font-semibold text-xs tabular-nums">
-                      <span className={getConversionColor(agent.conversion)}>{agent.conversion}%</span>
-                      <span className="font-normal text-[11px] text-muted-foreground"> ({agent.converted})</span>
+                      <span
+                        className={branch.quotaPct >= 100 ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600"}
+                      >
+                        {branch.quotaPct}%
+                      </span>
                     </TableCell>
-                    <TableCell className="text-right font-bold text-xs tabular-nums">{agent.liters} L</TableCell>
+                    <TableCell className="text-right font-medium text-xs tabular-nums">{branch.footfall}</TableCell>
+                    <TableCell className="text-right text-xs tabular-nums">{branch.testDrives}</TableCell>
+                    <TableCell className="text-right font-semibold text-xs tabular-nums">
+                      <span className={getConversionColor(branch.conversion)}>{branch.conversion}%</span>
+                    </TableCell>
                     <TableCell className="text-right font-medium text-xs tabular-nums">
-                      Rs. {agent.revenue.toLocaleString()}
+                      PKR {branch.revenueM.toFixed(1)}M
                     </TableCell>
-                    <TableCell className="text-right text-muted-foreground text-xs tabular-nums">
-                      {agent.surveys}
-                    </TableCell>
-                    <TableCell className="text-right font-semibold text-emerald-600 text-xs tabular-nums dark:text-emerald-400">
-                      Rs. {agent.incentive.toLocaleString()}
+                    <TableCell className="text-right text-xs tabular-nums">
+                      <span
+                        className={
+                          branch.bayUtilPct >= 85
+                            ? "text-emerald-600 dark:text-emerald-400 font-medium"
+                            : "text-foreground"
+                        }
+                      >
+                        {branch.bayUtilPct}%
+                      </span>
                     </TableCell>
                     <TableCell className="text-center">
-                      <Badge variant={getTierVariant(agent.tier)} className="text-[10px]">
-                        {agent.tier}
+                      <Badge variant={getTierVariant(branch.tier)} className="text-[10px]">
+                        {branch.tier}
                       </Badge>
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={10} className="h-24 text-center text-muted-foreground">
-                    No agents found matching your query.
+                  <TableCell colSpan={11} className="h-24 text-center text-muted-foreground">
+                    No dealership branches found matching your search.
                   </TableCell>
                 </TableRow>
               )}
@@ -556,8 +631,8 @@ export function IndividualLeaderboard() {
         {totalPages > 1 && (
           <div className="flex items-center justify-between px-4 pt-2">
             <div className="text-muted-foreground text-xs tabular-nums">
-              Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, filteredAgents.length)} of{" "}
-              {filteredAgents.length} agents
+              Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, filteredBranches.length)} of{" "}
+              {filteredBranches.length} dealership branches
             </div>
 
             <Pagination className="mx-0 w-auto">
@@ -572,8 +647,8 @@ export function IndividualLeaderboard() {
                     }}
                   />
                 </PaginationItem>
-                {pageNumbers.map((pageNumber) => (
-                  <PaginationItem key={`leaderboard-page-${pageNumber}`}>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
+                  <PaginationItem key={`branch-page-${pageNumber}`}>
                     <PaginationLink
                       href="#"
                       isActive={page === pageNumber}

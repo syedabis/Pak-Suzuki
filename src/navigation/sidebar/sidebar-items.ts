@@ -45,19 +45,19 @@ export const sidebarItems: NavGroup[] = [
     items: [
       {
         id: "ecommerce",
-        title: "Meezan Field Sales",
+        title: "National Sales & Appointments",
         url: "/dashboard/ecommerce",
         icon: ShoppingBag,
       },
       {
         id: "field-logs",
-        title: "Sales & Visit Logs",
+        title: "Gala & Expo Activity Logs",
         url: "/dashboard/field-logs",
         icon: ReceiptText,
       },
       {
         id: "performance",
-        title: "Team & Agent Performance",
+        title: "Branch & Showroom Performance",
         url: "/dashboard/performance",
         icon: Users,
       },

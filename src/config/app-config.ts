@@ -3,12 +3,13 @@ import packageJson from "../../package.json";
 const currentYear = new Date().getFullYear();
 
 export const APP_CONFIG = {
-  name: "Meezan Oil",
+  name: "Pak Suzuki",
   version: packageJson.version,
-  logo: "/meezan_logo.png",
-  copyright: `© ${currentYear}, Paracha Textile Mills Ltd. (Meezan Oil).`,
+  logo: "/_Logo.png",
+  copyright: `© ${currentYear}, Pak Suzuki Motor Company Ltd. (PSMCL).`,
   meta: {
-    title: "Meezan Oil • D2D Field Sales & Market Intelligence",
-    description: "Direct-to-consumer field sales, doorstep surveys, and distribution tracking for Meezan Oil.",
+    title: "Pak Suzuki • Operational Intelligence & Regional Benchmarking",
+    description:
+      "Centralized operational intelligence, showroom footfall, and business benchmarking across 3S dealerships and mega galas.",
   },
 };

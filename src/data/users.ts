@@ -1,9 +1,9 @@
 export const users = [
   {
     id: "user-1",
-    name: "Meezan Administrator",
+    name: "Pak Suzuki Administrator",
     username: "admin",
-    email: "admin@wavex.com",
+    email: "admin@wavex.ltd",
     avatar: "",
     role: "administrator",
   },

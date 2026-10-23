@@ -6,41 +6,41 @@ import { Bar, BarChart, LabelList, type LabelProps, XAxis, YAxis } from "rechart
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { type ChartConfig, ChartContainer } from "@/components/ui/chart";
 
-const brandSurveyData = [
+const oemMarketShareData = [
   {
-    name: "Dalda",
-    households: "1,020 homes",
-    share: 36,
-    change: "-4%",
-    badge: "36%",
+    name: "Pak Suzuki (PSMCL)",
+    households: "Rank #1 • Alto, Swift, Cultus, Every",
+    share: 48,
+    change: "+3.2%",
+    badge: "47.6%",
   },
   {
-    name: "Habib",
-    households: "680 homes",
+    name: "Toyota Indus (IMC)",
+    households: "Rank #2 • Yaris, Corolla, Fortuner",
     share: 24,
-    change: "-3%",
-    badge: "24%",
+    change: "-1.4%",
+    badge: "24.2%",
   },
   {
-    name: "Sufi",
-    households: "510 homes",
-    share: 18,
-    change: "-2%",
-    badge: "18%",
-  },
-  {
-    name: "Meezan (Loyalists)",
-    households: "395 homes",
+    name: "Honda Atlas Cars",
+    households: "Rank #3 • City, Civic, BR-V",
     share: 14,
-    change: "+8%",
-    badge: "14%",
+    change: "-0.8%",
+    badge: "13.5%",
   },
   {
-    name: "Others / Loose",
-    households: "235 homes",
+    name: "Changan Master Motors",
+    households: "Rank #4 • Alsvin, Karvaan MPV",
     share: 8,
-    change: "-1%",
-    badge: "8%",
+    change: "+0.6%",
+    badge: "8.4%",
+  },
+  {
+    name: "Hyundai / Kia / Others",
+    households: "Rank #5 • Tucson, Sportage, Stonic",
+    share: 6,
+    change: "-1.6%",
+    badge: "6.3%",
   },
 ] as const;
 
@@ -64,7 +64,7 @@ function BrandNameLabel({ height, index, x, y }: SourceLabelProps) {
     return null;
   }
 
-  const brand = brandSurveyData[index];
+  const brand = oemMarketShareData[index];
   const xValue = getNumber(x);
   const yValue = getNumber(y);
   const heightValue = getNumber(height);
@@ -94,12 +94,12 @@ function BrandShareLabel({ height, index, value, y }: SourceLabelProps & { value
     return null;
   }
 
-  const brand = typeof index === "number" ? brandSurveyData[index] : undefined;
-  const isMeezan = brand?.name.toLowerCase().includes("meezan");
+  const brand = typeof index === "number" ? oemMarketShareData[index] : undefined;
+  const isSuzuki = brand?.name.toLowerCase().includes("suzuki");
 
   return (
     <text
-      className={isMeezan ? "fill-emerald-600 font-bold dark:fill-emerald-400" : "fill-foreground font-semibold"}
+      className={isSuzuki ? "fill-emerald-600 font-bold dark:fill-emerald-400" : "fill-foreground font-semibold"}
       dominantBaseline="middle"
       dx={-4}
       fontSize={13}
@@ -107,7 +107,7 @@ function BrandShareLabel({ height, index, value, y }: SourceLabelProps & { value
       x="100%"
       y={yValue + heightValue / 2}
     >
-      {shareVal}%
+      {brand?.badge ?? `${shareVal}%`}
     </text>
   );
 }
@@ -117,10 +117,10 @@ export function TrafficSources() {
     <Card className="h-full">
       <CardHeader>
         <CardTitle className="font-normal text-muted-foreground text-sm">
-          Doorstep Survey • Current Brand Market Share
+          Pakistan OEM Market Share (PAMA Benchmark)
         </CardTitle>
         <CardDescription className="text-foreground text-xl tabular-nums leading-none tracking-tight">
-          2,840 households surveyed
+          47.6% National Market Share • Rank #1 OEM
         </CardDescription>
         <CardAction>
           <ArrowUpRight className="size-4" />
@@ -132,15 +132,15 @@ export function TrafficSources() {
           <BarChart
             accessibilityLayer
             barCategoryGap={12}
-            data={brandSurveyData}
+            data={oemMarketShareData}
             layout="vertical"
-            margin={{ bottom: 0, left: 130, right: 60, top: 0 }}
+            margin={{ bottom: 0, left: 190, right: 60, top: 0 }}
           >
-            <XAxis dataKey="share" domain={[0, 45]} hide type="number" />
+            <XAxis dataKey="share" domain={[0, 55]} hide type="number" />
             <YAxis
               axisLine={false}
               dataKey="name"
-              domain={[-0.5, brandSurveyData.length - 0.5]}
+              domain={[-0.5, oemMarketShareData.length - 0.5]}
               hide
               interval={0}
               tickLine={false}

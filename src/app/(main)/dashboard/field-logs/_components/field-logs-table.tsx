@@ -107,7 +107,7 @@ export function FieldLogsTable() {
         <CardHeader>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-col gap-1">
-              <CardTitle className="font-semibold text-lg">Door-to-Door Sales & Visit Logs</CardTitle>
+              <CardTitle className="font-semibold text-lg">Mega Gala & Expo Live Activity Log</CardTitle>
               <CardDescription className="text-foreground text-sm tabular-nums leading-none">
                 {orderCountDescription}
               </CardDescription>
@@ -118,7 +118,7 @@ export function FieldLogsTable() {
                 <Search className="absolute top-2.5 left-2.5 size-4 text-muted-foreground" />
                 <Input
                   className="pl-8 text-xs"
-                  placeholder="Search household, agent, SKU..."
+                  placeholder="Search attendee, vehicle, VIN/token, hall..."
                   value={globalFilter}
                   onChange={(e) => {
                     setGlobalFilter(e.target.value);
@@ -208,7 +208,7 @@ export function FieldLogsTable() {
                 ) : (
                   <TableRow>
                     <TableCell className="h-24 text-center text-muted-foreground" colSpan={columns.length}>
-                      No visit records found matching your query.
+                      No gala records found matching your query.
                     </TableCell>
                   </TableRow>
                 )}
@@ -275,12 +275,12 @@ export function FieldLogsTable() {
         </CardContent>
       </Card>
 
-      {/* Doorstep Survey Details Modal */}
+      {/* Gala Inspection & Buyer Details Modal */}
       <Dialog open={Boolean(selectedVisit)} onOpenChange={(open) => !open && setSelectedVisit(null)}>
         <DialogContent className="max-w-md">
           <DialogHeader>
             <div className="flex items-center gap-2">
-              <DialogTitle className="text-lg">Doorstep Visit & Survey Details</DialogTitle>
+              <DialogTitle className="text-lg">Gala Transaction & 130-Pt Diagnostic Details</DialogTitle>
               <Badge variant="outline" className="font-mono text-xs">
                 {selectedVisit?.id}
               </Badge>
@@ -303,35 +303,37 @@ export function FieldLogsTable() {
 
               <div className="flex flex-col gap-2">
                 <div className="font-semibold text-muted-foreground text-xs uppercase tracking-wider">
-                  Doorstep Consumer Survey Answers
+                  130-Point Diagnostic Appraisal & Buyer Profile
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div className="rounded border p-2">
-                    <span className="text-muted-foreground">Previous Oil Brand:</span>
+                    <span className="text-muted-foreground">Trade-In / Current Car:</span>
                     <div className="font-medium text-foreground text-sm">
-                      {selectedVisit.survey?.currentBrand ?? "Not specified"}
+                      {selectedVisit.survey?.currentBrand ?? "None (First-time Buyer)"}
                     </div>
                   </div>
                   <div className="rounded border p-2">
-                    <span className="text-muted-foreground">Monthly Consumption:</span>
+                    <span className="text-muted-foreground">Verified Mileage / Odo:</span>
                     <div className="font-medium text-foreground text-sm">
-                      {selectedVisit.survey?.monthlyLiters ?? 8} Litres / Month
+                      {selectedVisit.survey?.monthlyLiters?.toLocaleString() ?? "N/A"} km
                     </div>
                   </div>
                 </div>
 
                 <div className="rounded border p-2 text-xs">
-                  <span className="text-muted-foreground">Primary Decision Maker:</span>
+                  <span className="text-muted-foreground">Buyer Intent & Status:</span>
                   <div className="font-medium text-foreground">
-                    {selectedVisit.survey?.decisionMaker ?? "Household Head"}
+                    {selectedVisit.survey?.decisionMaker ?? "On-Spot Booking"}
                   </div>
                 </div>
 
                 <div className="rounded border bg-card p-3 text-xs">
-                  <span className="text-muted-foreground">Agent Verbatim & Feedback:</span>
+                  <span className="text-muted-foreground">Diagnostic Findings & Consultant Notes:</span>
                   <p className="mt-1 font-medium text-foreground italic">
-                    "{selectedVisit.survey?.reasonOrFeedback ?? "Customer satisfied with product presentation."}"
+                    "
+                    {selectedVisit.survey?.reasonOrFeedback ?? "Vehicle verified through Pak Suzuki inspection funnel."}
+                    "
                   </p>
                 </div>
               </div>

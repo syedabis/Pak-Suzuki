@@ -3,7 +3,7 @@ import type React from "react";
 import type { OrderFilter } from "./schema";
 
 export function formatOrderCount(filter: OrderFilter, count: number) {
-  const visitLabel = count === 1 ? "doorstep record" : "doorstep records";
+  const visitLabel = count === 1 ? "gala record" : "gala records";
 
   if (filter === "All") {
     return `${count.toLocaleString()} ${visitLabel}`;

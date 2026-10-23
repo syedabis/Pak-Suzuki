@@ -44,8 +44,8 @@ export function AppSidebar({ user, ...props }: React.ComponentProps<typeof Sideb
               <Link prefetch={false} href="/dashboard/ecommerce" className="flex items-center gap-2.5">
                 <div className="relative flex h-8 w-14 shrink-0 items-center justify-center">
                   <Image
-                    src="/meezan_logo.png"
-                    alt="Meezan Oil"
+                    src="/_Logo.png"
+                    alt="Pak Suzuki"
                     width={56}
                     height={26}
                     className="h-6.5 w-auto object-contain"
@@ -54,7 +54,7 @@ export function AppSidebar({ user, ...props }: React.ComponentProps<typeof Sideb
                 </div>
                 <div className="flex flex-col leading-tight group-data-[collapsible=icon]:hidden">
                   <span className="font-bold text-foreground text-sm tracking-tight">{APP_CONFIG.name}</span>
-                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Field Sales Ops</span>
+                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Operational Intel</span>
                 </div>
               </Link>
             </SidebarMenuButton>

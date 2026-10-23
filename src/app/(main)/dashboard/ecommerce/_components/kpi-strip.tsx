@@ -1,7 +1,7 @@
 "use client";
 
 import { format, parse } from "date-fns";
-import { ArrowUpRight, ClipboardCheck, Droplets, Home, Percent, PieChart, UserCheck } from "lucide-react";
+import { ArrowUpRight, Calendar, Car, Percent, PieChart, UserCheck, Users } from "lucide-react";
 import { Area, Bar, CartesianGrid, ComposedChart, XAxis, YAxis } from "recharts";
 
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -52,11 +52,11 @@ const salesOverviewData = getRollingSalesBuckets().flatMap(({ month, values }) =
 
 const salesOverviewConfig = {
   revenue: {
-    label: "Sales (PKR)",
+    label: "Vehicle Sales Value (PKR)",
     color: "var(--foreground)",
   },
   volume: {
-    label: "Litres Sold",
+    label: "Units Delivered",
     color: "var(--muted-foreground)",
   },
 } satisfies ChartConfig;
@@ -83,10 +83,10 @@ function formatTooltipLabel(value: string) {
 
 function formatValue(value: unknown, name: string | undefined) {
   if (typeof value !== "number") return String(value ?? "");
-  if (name?.toLowerCase().includes("litres")) {
-    return `${value.toLocaleString()} L`;
+  if (name?.toLowerCase().includes("unit")) {
+    return `${value.toLocaleString()} Units`;
   }
-  return `Rs. ${value.toLocaleString()}`;
+  return `PKR ${value.toLocaleString()}`;
 }
 
 export function KpiStrip() {
@@ -97,45 +97,45 @@ export function KpiStrip() {
           <div className="grid grid-cols-1 md:grid-cols-2 md:grid-rows-3 xl:col-span-5 xl:border-r">
             <Card className="h-full rounded-none border-0 border-border border-b ring-0 md:border-r">
               <CardHeader>
-                <CardTitle className="font-normal text-sm">Total Volume Sold</CardTitle>
+                <CardTitle className="font-normal text-sm">Vehicle Units Booked</CardTitle>
                 <CardDescription className="text-3xl text-foreground tabular-nums leading-none tracking-tight">
-                  4,820 L
+                  468 Units
                 </CardDescription>
                 <CardAction className="grid size-6 place-items-center rounded-sm bg-muted">
-                  <Droplets className="size-3 text-foreground" />
+                  <Car className="size-3 text-foreground" />
                 </CardAction>
               </CardHeader>
               <CardContent>
                 <div className="text-sm">
-                  <span className="text-green-700 dark:text-green-300">Rs. 2,410,000</span>
-                  <span className="text-muted-foreground"> (+15.8% vs target)</span>
+                  <span className="text-green-700 dark:text-green-300">PKR 1.84 Billion</span>
+                  <span className="text-muted-foreground"> (+14.2% vs target)</span>
                 </div>
               </CardContent>
             </Card>
 
             <Card className="h-full rounded-none border-0 border-border border-b ring-0">
               <CardHeader>
-                <CardTitle className="font-normal text-sm">Doors Visited Today</CardTitle>
+                <CardTitle className="font-normal text-sm">Showroom Walk-ins</CardTitle>
                 <CardDescription className="text-3xl text-foreground tabular-nums leading-none tracking-tight">
-                  2,840
+                  15,640
                 </CardDescription>
                 <CardAction className="grid size-6 place-items-center rounded-sm bg-muted">
-                  <Home className="size-3 text-foreground" />
+                  <Users className="size-3 text-foreground" />
                 </CardAction>
               </CardHeader>
               <CardContent>
                 <div className="text-sm">
-                  <span className="text-green-700 dark:text-green-300">88.8%</span>
-                  <span className="text-muted-foreground"> of 3,200 daily target</span>
+                  <span className="text-green-700 dark:text-green-300">92.5%</span>
+                  <span className="text-muted-foreground"> of 16,900 network daily capacity</span>
                 </div>
               </CardContent>
             </Card>
 
             <Card className="h-full rounded-none border-0 border-border border-b ring-0 md:border-r">
               <CardHeader>
-                <CardTitle className="font-normal text-sm">Doorstep Conversion</CardTitle>
+                <CardTitle className="font-normal text-sm">Footfall-to-Booking</CardTitle>
                 <CardDescription className="text-3xl text-foreground tabular-nums leading-none tracking-tight">
-                  31.4%
+                  12.8%
                 </CardDescription>
                 <CardAction className="grid size-6 place-items-center rounded-sm bg-muted">
                   <Percent className="size-3 text-foreground" />
@@ -143,17 +143,17 @@ export function KpiStrip() {
               </CardHeader>
               <CardContent>
                 <div className="text-sm">
-                  <span className="text-green-700 dark:text-green-300">892 households</span>
-                  <span className="text-muted-foreground"> purchased on visit</span>
+                  <span className="text-green-700 dark:text-green-300">1,998 buyers</span>
+                  <span className="text-muted-foreground"> quoted or tokened</span>
                 </div>
               </CardContent>
             </Card>
 
             <Card className="h-full rounded-none border-0 border-border border-b ring-0">
               <CardHeader>
-                <CardTitle className="font-normal text-sm">Active Field Agents</CardTitle>
+                <CardTitle className="font-normal text-sm">Active Consultation Desks</CardTitle>
                 <CardDescription className="text-3xl text-foreground tabular-nums leading-none tracking-tight">
-                  48 / 50
+                  482 / 510
                 </CardDescription>
                 <CardAction className="grid size-6 place-items-center rounded-sm bg-muted">
                   <UserCheck className="size-3 text-foreground" />
@@ -161,35 +161,35 @@ export function KpiStrip() {
               </CardHeader>
               <CardContent>
                 <div className="text-sm">
-                  <span className="text-green-700 dark:text-green-300">96% deployed</span>
-                  <span className="text-muted-foreground"> in 6 city sectors</span>
+                  <span className="text-green-700 dark:text-green-300">94.5% active</span>
+                  <span className="text-muted-foreground"> across 156 3S facilities</span>
                 </div>
               </CardContent>
             </Card>
 
             <Card className="h-full rounded-none border-0 border-border border-b ring-0 md:border-r md:border-b-0">
               <CardHeader>
-                <CardTitle className="font-normal text-sm">Surveys Completed</CardTitle>
+                <CardTitle className="font-normal text-sm">Appointments Completed</CardTitle>
                 <CardDescription className="text-3xl text-foreground tabular-nums leading-none tracking-tight">
-                  2,260
+                  1,840
                 </CardDescription>
                 <CardAction className="grid size-6 place-items-center rounded-sm bg-muted">
-                  <ClipboardCheck className="size-3 text-foreground" />
+                  <Calendar className="size-3 text-foreground" />
                 </CardAction>
               </CardHeader>
               <CardContent>
                 <div className="text-sm">
-                  <span className="text-green-700 dark:text-green-300">79.5%</span>
-                  <span className="text-muted-foreground"> customer questionnaire rate</span>
+                  <span className="text-green-700 dark:text-green-300">88.5%</span>
+                  <span className="text-muted-foreground"> test drive & visit fulfillment</span>
                 </div>
               </CardContent>
             </Card>
 
             <Card className="h-full rounded-none border-0 ring-0">
               <CardHeader>
-                <CardTitle className="font-normal text-sm">Market Share</CardTitle>
+                <CardTitle className="font-normal text-sm">Pakistan Market Share</CardTitle>
                 <CardDescription className="text-3xl text-foreground tabular-nums leading-none tracking-tight">
-                  34.8%
+                  47.6%
                 </CardDescription>
                 <CardAction className="grid size-6 place-items-center rounded-sm bg-muted">
                   <PieChart className="size-3 text-foreground" />
@@ -197,8 +197,8 @@ export function KpiStrip() {
               </CardHeader>
               <CardContent>
                 <div className="text-sm">
-                  <span className="text-green-700 dark:text-green-300">+4.2%</span>
-                  <span className="text-muted-foreground"> across surveyed households</span>
+                  <span className="text-green-700 dark:text-green-300">Rank #1 OEM</span>
+                  <span className="text-muted-foreground"> across PAMA segments</span>
                 </div>
               </CardContent>
             </Card>
@@ -207,9 +207,9 @@ export function KpiStrip() {
           <Card className="h-full rounded-none border-0 ring-0 xl:col-span-7">
             <CardHeader>
               <div className="flex flex-col gap-1">
-                <CardTitle className="font-normal">Daily Field Revenue & Volume Trend</CardTitle>
+                <CardTitle className="font-normal">Daily Vehicle Sales Revenue & Delivery Volume</CardTitle>
                 <p className="text-muted-foreground text-xs">
-                  Cumulative daily sales in PKR with total litres distributed by 50 field agents
+                  Cumulative daily vehicle booking value in PKR with delivery unit volume across 156 3S dealerships
                 </p>
               </div>
               <CardAction>

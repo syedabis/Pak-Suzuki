@@ -6,46 +6,39 @@ import { Separator } from "@/components/ui/separator";
 
 const objectionReasons = [
   {
-    reason: "Pantry Already Stocked",
-    count: "682 homes",
-    share: 35,
-    detail: "Recently bought monthly ration; scheduled callback",
+    reason: "Bank Lease / KIBOR Sensitivity",
+    count: "540 prospects",
+    share: 38,
+    detail: "High bank interest rates; awaiting PSMCL subvention financing",
     color: "var(--chart-3)",
   },
   {
-    reason: "Loyal to Dalda / Habib",
-    count: "487 homes",
-    share: 25,
-    detail: "Long-time habit; requested free sample sachet",
+    reason: "Chassis Delivery Queue",
+    count: "340 prospects",
+    share: 24,
+    detail: "Prospect seeking ready on-spot delivery vs 4-6 week factory wait",
     color: "var(--chart-2)",
   },
   {
-    reason: "Price Sensitivity",
-    count: "273 homes",
-    share: 14,
-    detail: "Awaiting wholesale bundle or promotional discount",
+    reason: "Used Car Trade-In Valuation",
+    count: "256 prospects",
+    share: 18,
+    detail: "Awaiting 130-point evaluation score & fair trade-in valuation",
     color: "var(--chart-1)",
   },
   {
-    reason: "Prefers Ghee / Banaspati",
-    count: "195 homes",
-    share: 10,
-    detail: "Only cooks in Banaspati; agent oil stock in bag",
+    reason: "Color / Trim Out of Stock",
+    count: "156 prospects",
+    share: 11,
+    detail: "Requesting Swift Phoenix Red or Alto Metallic Grey allocation",
     color: "var(--chart-4)",
   },
   {
-    reason: "Decision Maker Absent",
-    count: "175 homes",
+    reason: "Corporate / Fleet Sign-Off",
+    count: "128 prospects",
     share: 9,
-    detail: "Spouse or elder buys groceries; requested evening visit",
+    detail: "Corporate procurement approval pending committee review",
     color: "var(--chart-5)",
-  },
-  {
-    reason: "Prefers Kiryana Store Credit",
-    count: "136 homes",
-    share: 7,
-    detail: "Buys on monthly khata at local corner store",
-    color: "var(--chart-1)",
   },
 ] as const;
 
@@ -53,9 +46,9 @@ export function NonConversionReasons() {
   return (
     <Card className="flex h-full flex-col">
       <CardHeader>
-        <CardTitle className="font-normal text-muted-foreground text-sm">Reasons Customer Did Not Buy</CardTitle>
+        <CardTitle className="font-normal text-muted-foreground text-sm">Reasons for Postponed Booking</CardTitle>
         <CardDescription className="text-foreground text-xl tabular-nums leading-none tracking-tight">
-          1,948 Doorstep Objections
+          1,420 Showroom Walkout Objections
         </CardDescription>
         <CardAction>
           <Button aria-label="View all objections" size="icon-sm" variant="ghost">

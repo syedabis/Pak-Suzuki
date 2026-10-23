@@ -27,56 +27,101 @@ function formatOrderDate(date: string) {
 }
 
 function PaymentBadge({ status }: { status: OrderRow["payment"] }) {
-  if (status === "Cash") {
+  if (status === "Bank Financing (Meezan)") {
     return (
       <Badge
-        className="border-green-700/25 text-green-700 dark:border-green-300/25 dark:text-green-300"
+        className="border-emerald-700/25 text-emerald-700 dark:border-emerald-300/25 dark:text-emerald-300"
         variant="outline"
       >
         <span className="size-1.5 rounded-full bg-current" />
-        Cash
+        Meezan Ijarah
       </Badge>
     );
   }
 
-  if (status === "Raast / Digital") {
+  if (status === "Bank Financing (Alfalah)") {
     return (
       <Badge className="border-blue-700/25 text-blue-700 dark:border-blue-300/25 dark:text-blue-300" variant="outline">
         <span className="size-1.5 rounded-full bg-current" />
-        Raast / Digital
+        Alfalah Auto
+      </Badge>
+    );
+  }
+
+  if (status === "Pay Order / PayPro") {
+    return (
+      <Badge
+        className="border-purple-700/25 text-purple-700 dark:border-purple-300/25 dark:text-purple-300"
+        variant="outline"
+      >
+        <span className="size-1.5 rounded-full bg-current" />
+        Pay Order
+      </Badge>
+    );
+  }
+
+  if (status === "Trade-In Advance") {
+    return (
+      <Badge className="border-sky-700/25 text-sky-700 dark:border-sky-300/25 dark:text-sky-300" variant="outline">
+        <span className="size-1.5 rounded-full bg-current" />
+        Trade-In Equity
       </Badge>
     );
   }
 
   return (
     <Badge
-      className="border-yellow-700/25 text-yellow-700 dark:border-yellow-300/25 dark:text-yellow-300"
+      className="border-amber-700/25 text-amber-700 dark:border-amber-300/25 dark:text-amber-300"
       variant="outline"
     >
       <span className="size-1.5 rounded-full bg-current" />
-      Follow-up
+      Token Advance
     </Badge>
   );
 }
 
 function FulfillmentBadge({ status }: { status: OrderRow["fulfillment"] }) {
-  if (status === "Delivered") {
+  if (status === "Certified Booked") {
     return (
       <Badge
         className="border-green-700/25 text-green-700 dark:border-green-300/25 dark:text-green-300"
         variant="outline"
       >
         <span className="size-1.5 rounded-full bg-current" />
-        Delivered
+        Certified Booked
       </Badge>
     );
   }
 
-  if (status === "Sample Given") {
+  if (status === "130-Pt Inspected") {
     return (
       <Badge className="border-blue-700/25 text-blue-700 dark:border-blue-300/25 dark:text-blue-300" variant="outline">
         <span className="size-1.5 rounded-full bg-current" />
-        Sample Given
+        130-Pt Certified
+      </Badge>
+    );
+  }
+
+  if (status === "Test Drive Completed") {
+    return (
+      <Badge
+        className="border-purple-700/25 text-purple-700 dark:border-purple-300/25 dark:text-purple-300"
+        variant="outline"
+      >
+        <span className="size-1.5 rounded-full bg-current" />
+        Test Drive Done
+      </Badge>
+    );
+  }
+
+  if (status === "Financing Approved") {
+    return (
+      <Badge
+        className="border-emerald-700/25 text-emerald-700 dark:border-emerald-300/25 dark:text-emerald-300"
+        variant="outline"
+      >
+        <span className="size-1.5 rounded-full bg-current" />
+        Lease Approved
       </Badge>
     );
   }
@@ -87,7 +132,7 @@ function FulfillmentBadge({ status }: { status: OrderRow["fulfillment"] }) {
       variant="outline"
     >
       <span className="size-1.5 rounded-full bg-current" />
-      Revisit
+      Trade-In Appraised
     </Badge>
   );
 }
@@ -135,7 +180,7 @@ export function createFieldLogsColumns(
     },
     {
       accessorKey: "id",
-      header: "Receipt / SKU",
+      header: "Token & Vehicle",
       cell: ({ row }) => (
         <div className="flex flex-col gap-0.5">
           <div className="font-medium font-mono text-xs leading-none">{row.original.id}</div>
@@ -146,7 +191,7 @@ export function createFieldLogsColumns(
     },
     {
       accessorKey: "customer",
-      header: "Household & Address",
+      header: "Attendee & Venue Hall",
       cell: ({ row }) => (
         <div className="flex flex-col gap-0.5">
           <div className="font-medium text-foreground text-xs">{row.original.customer}</div>
@@ -156,7 +201,7 @@ export function createFieldLogsColumns(
     },
     {
       accessorKey: "agent",
-      header: "Field Agent",
+      header: "Consultant / Inspector",
       cell: ({ row }) => (
         <div className="flex items-center gap-1.5">
           <span className="font-medium text-xs">{row.original.agent}</span>
@@ -165,7 +210,7 @@ export function createFieldLogsColumns(
     },
     {
       id: "statusSummary",
-      header: "Status",
+      header: "Gala Activity & Settlement",
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
           <FulfillmentBadge status={row.original.fulfillment} />
@@ -173,32 +218,32 @@ export function createFieldLogsColumns(
         </div>
       ),
       filterFn: (row, _columnId, value) => {
-        if (value === "Delivered") {
-          return row.original.fulfillment === "Delivered";
+        if (value === "Certified Booked") {
+          return row.original.fulfillment === "Certified Booked";
         }
-        if (value === "Sample Given") {
-          return row.original.fulfillment === "Sample Given";
+        if (value === "130-Pt Inspected") {
+          return row.original.fulfillment === "130-Pt Inspected";
         }
-        if (value === "Revisit Scheduled") {
-          return row.original.fulfillment === "Revisit Scheduled";
+        if (value === "Test Drive Completed") {
+          return row.original.fulfillment === "Test Drive Completed";
         }
-        if (value === "Digital Pay") {
-          return row.original.payment === "Raast / Digital";
+        if (value === "Financing Approved") {
+          return row.original.fulfillment === "Financing Approved";
         }
-        if (value === "Cash") {
-          return row.original.payment === "Cash";
+        if (value === "Trade-in Appraised") {
+          return row.original.fulfillment === "Trade-in Appraised";
         }
         return true;
       },
     },
     {
       accessorKey: "total",
-      header: () => <div className="w-24">Total (PKR)</div>,
-      cell: ({ row }) => <div className="w-24 font-medium tabular-nums">{row.original.total}</div>,
+      header: () => <div className="w-28">Valuation / Lease</div>,
+      cell: ({ row }) => <div className="w-28 font-medium tabular-nums">{row.original.total}</div>,
     },
     {
       accessorKey: "date",
-      header: () => <div className="w-36">Time</div>,
+      header: () => <div className="w-36">Timestamp</div>,
       cell: ({ row }) => <div className="w-36 text-muted-foreground text-xs">{formatOrderDate(row.original.date)}</div>,
     },
     {
@@ -213,13 +258,15 @@ export function createFieldLogsColumns(
               </Button>
             </div>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuLabel>Visit Actions</DropdownMenuLabel>
+          <DropdownMenuContent align="end" className="w-52">
+            <DropdownMenuLabel>Gala Actions</DropdownMenuLabel>
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => onSelectVisit?.(row.original)}>View Survey Answers</DropdownMenuItem>
-              <DropdownMenuItem>Call Field Agent</DropdownMenuItem>
-              <DropdownMenuItem>Print Cash Memo</DropdownMenuItem>
-              <DropdownMenuItem>Copy Receipt ID</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onSelectVisit?.(row.original)}>
+                View 130-Pt Diagnostic & Notes
+              </DropdownMenuItem>
+              <DropdownMenuItem>Verify Inspection Certificate</DropdownMenuItem>
+              <DropdownMenuItem>Print Token Receipt</DropdownMenuItem>
+              <DropdownMenuItem>Copy Token ID</DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>

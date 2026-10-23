@@ -12,10 +12,10 @@ export default function Layout({ children }: Readonly<{ children: ReactNode }>) 
         <div className="relative order-2 hidden h-full rounded-3xl bg-primary lg:flex">
           <div className="absolute top-10 space-y-2 px-10 text-primary-foreground">
             <div className="relative h-12 w-28">
-              <Image src="/meezan_logo.png" alt="Meezan Oil" fill className="object-contain" priority />
+              <Image src="/_Logo.png" alt="Pak Suzuki" fill className="object-contain" priority />
             </div>
             <h1 className="font-bold text-2xl">{APP_CONFIG.name}</h1>
-            <p className="text-sm">Direct-to-Consumer Field Sales Portal</p>
+            <p className="text-sm">Operational Intelligence Portal</p>
           </div>
 
           <div className="absolute bottom-10 flex w-full justify-between px-10">

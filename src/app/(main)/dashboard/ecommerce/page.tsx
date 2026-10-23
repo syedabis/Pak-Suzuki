@@ -14,9 +14,9 @@ import { TopProducts } from "./_components/top-products";
 import { TrafficSources } from "./_components/traffic-sources";
 
 export const metadata: Metadata = {
-  title: "Meezan Oil - Field Sales & Door-to-Door Operations Dashboard",
+  title: "Pak Suzuki • National Sales & Showroom Appointments",
   description:
-    "Direct-to-consumer field sales, doorstep surveys, and inventory distribution tracking for 50 agents selling Meezan Oil.",
+    "Real-time showroom footfall, booked test drives, scheduled consultations, and vehicle booking velocity across 156 3S dealerships.",
   alternates: {
     canonical: "/dashboard/ecommerce",
   },
@@ -30,13 +30,13 @@ export default function Page() {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
-            <h1 className="text-3xl leading-none tracking-tight">Meezan Oil • D2D Field Sales</h1>
+            <h1 className="text-3xl leading-none tracking-tight">Pak Suzuki • Sales & Appointments</h1>
             <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 font-medium text-emerald-700 text-xs dark:text-emerald-400">
-              50 Agents Deployed
+              156 Dealerships Live
             </span>
           </div>
           <p className="text-muted-foreground text-sm">
-            {formattedDate} • Real-time door-to-door sales & consumer survey intelligence
+            {formattedDate} • Real-time showroom footfall, booked test drives & vehicle sales velocity
           </p>
         </div>
 
@@ -56,18 +56,15 @@ export default function Page() {
           </Select>
 
           <Select defaultValue="all-territories">
-            <SelectTrigger className="w-48" id="field-territory" size="sm">
+            <SelectTrigger className="w-56" id="field-territory" size="sm">
               <SelectValue placeholder="All Territories" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="all-territories">All Areas (50 Agents)</SelectItem>
-                <SelectItem value="gulshan">Gulshan-e-Iqbal (8 Agents)</SelectItem>
-                <SelectItem value="dha-clifton">DHA & Clifton (10 Agents)</SelectItem>
-                <SelectItem value="north-nazimabad">North Nazimabad (8 Agents)</SelectItem>
-                <SelectItem value="johar">Gulistan-e-Johar (8 Agents)</SelectItem>
-                <SelectItem value="fb-area">F.B. Area (8 Agents)</SelectItem>
-                <SelectItem value="saddar">Saddar & PECHS (8 Agents)</SelectItem>
+                <SelectItem value="all-territories">National Network (156 3S Facilities)</SelectItem>
+                <SelectItem value="south">South Region (Karachi, Sindh, Balochistan)</SelectItem>
+                <SelectItem value="central">Central Region (Lahore, Punjab)</SelectItem>
+                <SelectItem value="north">North Region (Islamabad, Rawalpindi, KPK)</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>

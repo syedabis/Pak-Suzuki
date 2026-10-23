@@ -12,9 +12,9 @@ import { FieldLogsSummary } from "./_components/field-logs-summary";
 import { FieldLogsTable } from "./_components/field-logs-table";
 
 export const metadata: Metadata = {
-  title: "Door-to-Door Sales & Visit Logs • Meezan Oil",
+  title: "Mega Gala & Expo Activity Logs • Pak Suzuki",
   description:
-    "Complete log of doorstep sales, consumer surveys, SKU deliveries, and payment settlements from 50 field agents.",
+    "Real-time stream of attendee check-ins, 130-point vehicle inspections, test drive dispatches, and on-spot bookings across Suzuki Mega Galas.",
   alternates: {
     canonical: "/dashboard/field-logs",
   },
@@ -33,44 +33,45 @@ export default function FieldLogsPage() {
                 <ArrowLeft className="size-4" />
               </Link>
             </Button>
-            <h1 className="font-semibold text-3xl tracking-tight">Door-to-Door Sales & Visit Logs</h1>
+            <h1 className="font-semibold text-3xl tracking-tight">Mega Gala & Expo Activity Logs</h1>
             <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 font-medium text-emerald-700 text-xs dark:text-emerald-400">
               Live Feed
             </span>
           </div>
           <p className="text-muted-foreground text-sm">
-            {formattedDate} • Detailed transaction logs & survey questionnaires recorded by 50 field agents
+            {formattedDate} • Detailed transaction logs, 130-pt inspection tokens & bank financing recorded across expo
+            halls
           </p>
         </div>
 
         <div className="flex flex-wrap items-center justify-end gap-2">
-          <Select defaultValue="all-territories">
-            <SelectTrigger className="w-44" id="log-territory" size="sm">
-              <SelectValue placeholder="All Territories" />
+          <Select defaultValue="all-venues">
+            <SelectTrigger className="w-52" id="log-territory" size="sm">
+              <SelectValue placeholder="All Expo Venues" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="all-territories">All Areas (50 Agents)</SelectItem>
-                <SelectItem value="gulshan">Gulshan-e-Iqbal</SelectItem>
-                <SelectItem value="dha-clifton">DHA & Clifton</SelectItem>
-                <SelectItem value="north-nazimabad">North Nazimabad</SelectItem>
-                <SelectItem value="johar">Gulistan-e-Johar</SelectItem>
-                <SelectItem value="fb-area">F.B. Area</SelectItem>
-                <SelectItem value="pechs">PECHS & Saddar</SelectItem>
+                <SelectItem value="all-venues">All Expo Venues (National)</SelectItem>
+                <SelectItem value="expo-karachi">Expo Centre Karachi (Halls 1-3)</SelectItem>
+                <SelectItem value="expo-lahore">Expo Centre Lahore (Halls 1-2)</SelectItem>
+                <SelectItem value="pak-china-isb">Pak-China Centre (Islamabad)</SelectItem>
+                <SelectItem value="peshawar-arena">Peshawar Sports Arena</SelectItem>
+                <SelectItem value="multan-complex">Multan Stadium Complex</SelectItem>
+                <SelectItem value="faisalabad-club">Faisalabad Club Ground</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
 
           <Select defaultValue="today">
-            <SelectTrigger className="w-32" id="log-shift" size="sm">
+            <SelectTrigger className="w-36" id="log-shift" size="sm">
               <SelectValue placeholder="Today's Shift" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="today">Today</SelectItem>
-                <SelectItem value="yesterday">Yesterday</SelectItem>
-                <SelectItem value="last-7-days">Last 7 Days</SelectItem>
-                <SelectItem value="this-month">This Month</SelectItem>
+                <SelectItem value="today">Today (Day 2 Live)</SelectItem>
+                <SelectItem value="yesterday">Day 1 (Inauguration)</SelectItem>
+                <SelectItem value="weekend">Full Gala Weekend</SelectItem>
+                <SelectItem value="last-expo">Previous Expo (Lahore)</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>

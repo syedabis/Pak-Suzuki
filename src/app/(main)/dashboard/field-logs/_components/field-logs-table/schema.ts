@@ -1,4 +1,11 @@
-export const orderFilters = ["All", "Delivered", "Sample Given", "Revisit Scheduled", "Digital Pay", "Cash"] as const;
+export const orderFilters = [
+  "All",
+  "Certified Booked",
+  "130-Pt Inspected",
+  "Test Drive Completed",
+  "Financing Approved",
+  "Trade-in Appraised",
+] as const;
 
 export type OrderFilter = (typeof orderFilters)[number];
 
@@ -15,9 +22,19 @@ export type OrderRow = {
   customer: string;
   area: string;
   agent: string;
-  payment: "Cash" | "Raast / Digital" | "Follow-up";
+  payment:
+    | "Bank Financing (Meezan)"
+    | "Bank Financing (Alfalah)"
+    | "Pay Order / PayPro"
+    | "Trade-In Advance"
+    | "Token Advance";
   total: string;
   items: string;
-  fulfillment: "Delivered" | "Sample Given" | "Revisit Scheduled";
+  fulfillment:
+    | "Certified Booked"
+    | "130-Pt Inspected"
+    | "Test Drive Completed"
+    | "Financing Approved"
+    | "Trade-in Appraised";
   survey?: VisitSurvey;
 };

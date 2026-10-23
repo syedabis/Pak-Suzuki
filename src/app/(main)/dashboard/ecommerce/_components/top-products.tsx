@@ -5,62 +5,62 @@ import { Separator } from "@/components/ui/separator";
 
 const categories = [
   {
-    name: "Cooking Oil (38.5%)",
-    share: 42,
+    name: "Economy (Alto 660cc)",
+    share: 48,
     color: "var(--chart-3)",
   },
   {
-    name: "Banaspati Ghee (31.2%)",
-    share: 26,
+    name: "Premium (Swift 1.2L)",
+    share: 25,
     color: "var(--chart-2)",
   },
   {
-    name: "Canola Oil (22.4%)",
-    share: 18,
+    name: "Family (Cultus VXL)",
+    share: 16,
     color: "var(--chart-1)",
   },
   {
-    name: "Sunflower Oil (16.8%)",
-    share: 14,
+    name: "Commercial (Every/Ravi)",
+    share: 11,
     color: "var(--chart-4)",
   },
 ] as const;
 
 const products = [
   {
-    name: "Meezan Cooking Oil (1L Pouch)",
-    category: "Cooking Oil • 2,024 units sold",
-    marketShare: "38.5%",
-    trend: "+3.8%",
-    sales: "Rs. 1,012,000",
+    name: "Suzuki Alto VXL AGS",
+    category: "660cc Hatchback • 228 units booked",
+    marketShare: "48.2%",
+    trend: "+4.8%",
+    sales: "PKR 704.5M",
   },
   {
-    name: "Meezan Banaspati (1kg Pouch)",
-    category: "Banaspati Ghee • 1,350 units sold",
-    marketShare: "31.2%",
-    trend: "+2.4%",
-    sales: "Rs. 675,000",
+    name: "Suzuki Swift GLX CVT",
+    category: "1.2L Dual VVT • 114 units booked",
+    marketShare: "24.5%",
+    trend: "+6.2%",
+    sales: "PKR 538.0M",
   },
   {
-    name: "Meezan Cooking Oil (5L Can)",
-    category: "Cooking Oil • 174 cans sold",
-    marketShare: "24.6%",
+    name: "Suzuki Cultus VXL",
+    category: "1.0L K-Series • 76 units booked",
+    marketShare: "16.4%",
     trend: "+1.9%",
-    sales: "Rs. 434,000",
+    sales: "PKR 311.6M",
   },
   {
-    name: "Meezan Canola Oil (1L Pouch)",
-    category: "Canola Oil • 578 units sold",
-    marketShare: "19.4%",
-    trend: "+4.1%",
-    sales: "Rs. 289,000",
+    name: "Suzuki Every VX (New MPV)",
+    category: "660cc Commercial MPV • 38 units",
+    marketShare: "8.1%",
+    trend: "+12.4%",
+    sales: "PKR 106.4M",
   },
   {
-    name: "Meezan Sunflower Oil (1L Pouch)",
-    category: "Sunflower Oil • 412 units sold",
-    marketShare: "16.8%",
-    trend: "+2.8%",
-    sales: "Rs. 206,000",
+    name: "Suzuki Ravi Pickup",
+    category: "800cc LCV • 12 units booked",
+    marketShare: "2.8%",
+    trend: "+1.1%",
+    sales: "PKR 22.8M",
   },
 ] as const;
 
@@ -68,14 +68,14 @@ export function TopProducts() {
   return (
     <Card className="h-full">
       <CardHeader>
-        <CardTitle className="font-normal text-muted-foreground text-sm">Product Market Share %</CardTitle>
+        <CardTitle className="font-normal text-muted-foreground text-sm">Vehicle Segment Share & Sales</CardTitle>
         <div className="flex items-baseline justify-between gap-2">
           <CardDescription className="text-foreground text-xl tabular-nums leading-none tracking-tight">
-            34.8% Overall Market Share
+            468 Units Booked Today
           </CardDescription>
           <span className="inline-flex items-center gap-1 font-medium text-emerald-600 text-xs dark:text-emerald-400">
             <TrendingUp className="size-3" />
-            +4.2% penetration
+            +5.4% volume growth
           </span>
         </div>
         <CardAction>
