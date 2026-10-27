@@ -65,14 +65,18 @@ const MODEL_TRIM_VARIANTS: Record<string, { name: string; share: number; leads: 
   "GR 150": [{ name: "GR 150 Dual Sport Special", share: 100, leads: 150 }],
 };
 
+// Coolors palette: 001219-005f73-0a9396-94d2bd-e9d8a6-ee9b00-ca6702-bb3e03-ae2012-9b2226
 const CHART_PALETTE = [
-  "var(--chart-1)",
-  "var(--chart-2)",
-  "var(--chart-3)",
-  "var(--chart-4)",
-  "var(--chart-5)",
-  "var(--primary)",
-  "var(--secondary-foreground)",
+  "#005f73",
+  "#0a9396",
+  "#ee9b00",
+  "#ca6702",
+  "#94d2bd",
+  "#e9d8a6",
+  "#bb3e03",
+  "#ae2012",
+  "#9b2226",
+  "#001219",
 ];
 
 interface InquiryAnalyticsChartsProps {
@@ -166,13 +170,13 @@ export function InquiryAnalyticsCharts({ selectedCity = "all-venues", onResetCit
           name: "Cars",
           value: carsTotal,
           percentage: carsPercent,
-          fill: "var(--chart-1)",
+          fill: "#0a9396",
         },
         {
           name: "Bikes",
           value: bikesTotal,
           percentage: bikesPercent,
-          fill: "var(--chart-2)",
+          fill: "#ee9b00",
         },
       ];
 
@@ -180,12 +184,12 @@ export function InquiryAnalyticsCharts({ selectedCity = "all-venues", onResetCit
         Cars: {
           label: "Cars (4-Wheelers)",
           icon: Car,
-          color: "var(--chart-1)",
+          color: "#0a9396",
         },
         Bikes: {
           label: "Bikes (2-Wheelers)",
           icon: Bike,
-          color: "var(--chart-2)",
+          color: "#ee9b00",
         },
       };
 
@@ -317,26 +321,26 @@ export function InquiryAnalyticsCharts({ selectedCity = "all-venues", onResetCit
   const modelChartConfig = {
     testDrive: {
       label: "Test Drives",
-      color: "var(--chart-1)",
+      color: "#0a9396",
     },
     salesEnquiry: {
       label: "Sales Inquiries",
-      color: "var(--chart-2)",
+      color: "#ee9b00",
     },
     freeEvaluation: {
       label: "Trade-In Appraisals",
-      color: "var(--chart-4)",
+      color: "#ca6702",
     },
   } satisfies ChartConfig;
 
   const cityChartConfig = {
     footfall: {
       label: "Verified Footfall",
-      color: "var(--chart-1)",
+      color: "#0a9396",
     },
     testDrives: {
       label: "Test Drives Dispatched",
-      color: "var(--chart-2)",
+      color: "#ee9b00",
     },
   } satisfies ChartConfig;
 
@@ -401,7 +405,7 @@ export function InquiryAnalyticsCharts({ selectedCity = "all-venues", onResetCit
           {pieChartData.map((variant) => (
             <div
               key={variant.name}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-background px-2.5 py-0.5 shadow-2xs text-[11px]"
+              className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-background px-2.5 py-0.5 text-[11px] shadow-2xs"
             >
               <span className="size-2 rounded-full" style={{ backgroundColor: variant.fill }} />
               <span className="font-medium text-foreground">{variant.name}:</span>
@@ -433,9 +437,9 @@ export function InquiryAnalyticsCharts({ selectedCity = "all-venues", onResetCit
         {/* Graph 1: 4W Demand & Test Drive Distribution by Model (7 cols) */}
         <Card className="shadow-xs lg:col-span-7">
           <CardHeader className="pb-2">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                <CardTitle className="flex items-center gap-2 font-semibold text-base">
                   <Car className="size-4 text-primary" />
                   Vehicle Demand &amp; Inquiries by Model
                 </CardTitle>
@@ -445,18 +449,18 @@ export function InquiryAnalyticsCharts({ selectedCity = "all-venues", onResetCit
                 </CardDescription>
               </div>
 
-              <div className="flex items-center gap-1.5 flex-wrap">
+              <div className="flex flex-wrap items-center gap-1.5">
                 {isCityFiltered && (
                   <Badge
                     variant="outline"
-                    className="w-fit gap-1 text-xs bg-primary/10 text-primary border-primary/30 font-normal"
+                    className="w-fit gap-1 border-primary/30 bg-primary/10 font-normal text-primary text-xs"
                   >
                     <span>City:</span>
                     <strong className="text-foreground">{selectedCity}</strong>
                     <Button
                       size="icon-xs"
                       variant="ghost"
-                      className="size-4 p-0 ml-1 text-muted-foreground hover:text-foreground"
+                      className="ml-1 size-4 p-0 text-muted-foreground hover:text-foreground"
                       onClick={onResetCity}
                       title="Clear city filter"
                     >
@@ -465,13 +469,13 @@ export function InquiryAnalyticsCharts({ selectedCity = "all-venues", onResetCit
                   </Badge>
                 )}
                 {selectedModel && (
-                  <Badge variant="secondary" className="w-fit gap-1 text-xs font-normal">
+                  <Badge variant="secondary" className="w-fit gap-1 font-normal text-xs">
                     <span>Model:</span>
                     <strong className="text-foreground">{selectedModel}</strong>
                     <Button
                       size="icon-xs"
                       variant="ghost"
-                      className="size-4 p-0 ml-1 text-muted-foreground hover:text-foreground"
+                      className="ml-1 size-4 p-0 text-muted-foreground hover:text-foreground"
                       onClick={handleResetToOverview}
                       title="Clear filter"
                     >
@@ -502,7 +506,7 @@ export function InquiryAnalyticsCharts({ selectedCity = "all-venues", onResetCit
                 <ChartLegend content={<ChartLegendContent />} />
                 <Bar
                   dataKey="testDrive"
-                  fill="var(--chart-1)"
+                  fill="var(--color-testDrive, #0a9396)"
                   radius={[4, 4, 0, 0]}
                   onClick={(_, index) => {
                     const item = modelDemandData[index];
@@ -511,7 +515,7 @@ export function InquiryAnalyticsCharts({ selectedCity = "all-venues", onResetCit
                 />
                 <Bar
                   dataKey="salesEnquiry"
-                  fill="var(--chart-2)"
+                  fill="var(--color-salesEnquiry, #ee9b00)"
                   radius={[4, 4, 0, 0]}
                   onClick={(_, index) => {
                     const item = modelDemandData[index];
@@ -520,7 +524,7 @@ export function InquiryAnalyticsCharts({ selectedCity = "all-venues", onResetCit
                 />
                 <Bar
                   dataKey="freeEvaluation"
-                  fill="var(--chart-4)"
+                  fill="var(--color-freeEvaluation, #ca6702)"
                   radius={[4, 4, 0, 0]}
                   onClick={(_, index) => {
                     const item = modelDemandData[index];
@@ -533,11 +537,11 @@ export function InquiryAnalyticsCharts({ selectedCity = "all-venues", onResetCit
         </Card>
 
         {/* Graph 2: Vehicle Segment Share & Variant Drill-Down (5 cols) */}
-        <Card className="shadow-xs lg:col-span-5 flex flex-col justify-between">
+        <Card className="flex flex-col justify-between shadow-xs lg:col-span-5">
           <CardHeader className="pb-2">
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                <CardTitle className="flex items-center gap-2 font-semibold text-base">
                   {renderCardIcon()}
                   {currentTitle}
                 </CardTitle>
@@ -547,7 +551,7 @@ export function InquiryAnalyticsCharts({ selectedCity = "all-venues", onResetCit
                     size="xs"
                     variant="ghost"
                     onClick={handleGoBack}
-                    className="h-7 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground"
+                    className="h-7 gap-1 px-2 text-muted-foreground text-xs hover:text-foreground"
                     title="Go back up one level"
                   >
                     <ArrowLeft className="size-3.5" />
@@ -625,9 +629,9 @@ export function InquiryAnalyticsCharts({ selectedCity = "all-venues", onResetCit
       {/* Row 2: Caravan Tour Stop Footfall & Engagement Corridor (Full Width) */}
       <Card className="shadow-xs">
         <CardHeader className="pb-2">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <CardTitle className="flex items-center gap-2 text-base font-semibold">
+              <CardTitle className="flex items-center gap-2 font-semibold text-base">
                 <MapPin className="size-4 text-primary" />
                 Caravan Tour Stop Footfall &amp; Engagement Corridor (15 Tour Cities)
               </CardTitle>
@@ -635,7 +639,7 @@ export function InquiryAnalyticsCharts({ selectedCity = "all-venues", onResetCit
                 City-by-city comparison of verified customer footfall vs test drives dispatched across ROS &amp; ROSP
               </CardDescription>
             </div>
-            <div className="text-xs text-muted-foreground">
+            <div className="text-muted-foreground text-xs">
               Master Stop: <strong className="text-foreground">Usta Muhammad (168 Visitors • 76 Drives)</strong>
             </div>
           </div>
@@ -656,11 +660,11 @@ export function InquiryAnalyticsCharts({ selectedCity = "all-venues", onResetCit
               <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11 }} />
               <ChartTooltip content={<ChartTooltipContent />} />
               <ChartLegend content={<ChartLegendContent />} />
-              <Bar dataKey="footfall" fill="var(--chart-1)" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="testDrives" fill="var(--chart-2)" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="footfall" fill="var(--color-footfall, #0a9396)" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="testDrives" fill="var(--color-testDrives, #ee9b00)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ChartContainer>
-          <div className="mt-2 flex flex-wrap items-center justify-between text-xs text-muted-foreground px-2">
+          <div className="mt-2 flex flex-wrap items-center justify-between px-2 text-muted-foreground text-xs">
             <span>
               Peak Turnout: <strong>Khairpur (174)</strong>, <strong>Usta Muhammad (168)</strong>,{" "}
               <strong>Badin (165)</strong>

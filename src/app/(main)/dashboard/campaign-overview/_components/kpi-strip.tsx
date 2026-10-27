@@ -1,17 +1,7 @@
 "use client";
 
-import {
-  CheckCircle2,
-  ChevronRight,
-  FileSpreadsheet,
-  MapPin,
-  Sparkles,
-  TrendingUp,
-  Truck,
-  Users,
-  Wrench,
-} from "lucide-react";
-import { Area, Bar, CartesianGrid, ComposedChart, Line, XAxis, YAxis } from "recharts";
+import { CheckCircle2, FileSpreadsheet, MapPin, Sparkles, Truck, Users, Wrench } from "lucide-react";
+import { Bar, CartesianGrid, ComposedChart, Line, XAxis, YAxis } from "recharts";
 
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -42,15 +32,15 @@ const tourCityData = [
 const tourChartConfig = {
   footfall: {
     label: "Caravan Footfall",
-    color: "var(--primary)",
+    color: "#0a9396",
   },
   testDrives: {
     label: "Test Drives (4W/2W)",
-    color: "var(--chart-2)",
+    color: "#ee9b00",
   },
   inquiries: {
     label: "Sales Inquiries",
-    color: "var(--chart-1)",
+    color: "#ee9b00",
   },
 } satisfies ChartConfig;
 
@@ -74,7 +64,7 @@ export function KpiStrip() {
               </CardHeader>
               <CardContent>
                 <div className="text-sm">
-                  <span className="text-emerald-600 dark:text-emerald-400 font-medium">+18.4%</span>
+                  <span className="font-medium text-emerald-600 dark:text-emerald-400">+18.4%</span>
                   <span className="text-muted-foreground"> above rural attendance target</span>
                 </div>
               </CardContent>
@@ -93,7 +83,7 @@ export function KpiStrip() {
               </CardHeader>
               <CardContent>
                 <div className="text-sm">
-                  <span className="text-emerald-600 dark:text-emerald-400 font-medium">4W &amp; 2W</span>
+                  <span className="font-medium text-emerald-600 dark:text-emerald-400">4W &amp; 2W</span>
                   <span className="text-muted-foreground"> (K-Carry, Alto, Every, GD/GS)</span>
                 </div>
               </CardContent>
@@ -112,7 +102,7 @@ export function KpiStrip() {
               </CardHeader>
               <CardContent>
                 <div className="text-sm">
-                  <span className="text-amber-600 dark:text-amber-400 font-medium">312 Hot</span>
+                  <span className="font-medium text-amber-600 dark:text-amber-400">312 Hot</span>
                   <span className="text-muted-foreground"> · 486 Warm · 186 Cold</span>
                 </div>
               </CardContent>
@@ -131,7 +121,7 @@ export function KpiStrip() {
               </CardHeader>
               <CardContent>
                 <div className="text-sm">
-                  <span className="text-emerald-600 dark:text-emerald-400 font-medium">100% Free</span>
+                  <span className="font-medium text-emerald-600 dark:text-emerald-400">100% Free</span>
                   <span className="text-muted-foreground"> clinic inspections &amp; oil checks</span>
                 </div>
               </CardContent>
@@ -150,7 +140,7 @@ export function KpiStrip() {
               </CardHeader>
               <CardContent>
                 <div className="text-sm">
-                  <span className="text-emerald-600 dark:text-emerald-400 font-medium">PKR 142.5M</span>
+                  <span className="font-medium text-emerald-600 dark:text-emerald-400">PKR 142.5M</span>
                   <span className="text-muted-foreground"> direct event tokens</span>
                 </div>
               </CardContent>
@@ -169,7 +159,7 @@ export function KpiStrip() {
               </CardHeader>
               <CardContent>
                 <div className="text-sm">
-                  <span className="text-primary font-medium">Old Ravi &amp; Bolan</span>
+                  <span className="font-medium text-primary">Old Ravi &amp; Bolan</span>
                   <span className="text-muted-foreground"> trade-in assessments</span>
                 </div>
               </CardContent>
@@ -180,7 +170,7 @@ export function KpiStrip() {
           <Card className="h-full rounded-none border-0 ring-0 xl:col-span-7">
             <CardHeader className="pb-2">
               <div className="flex flex-col gap-1">
-                <CardTitle className="font-normal text-base flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 font-normal text-base">
                   <MapPin className="size-4 text-primary" />
                   Phase 1 Caravan Performance by Tour City
                 </CardTitle>
@@ -214,7 +204,8 @@ export function KpiStrip() {
                     type="monotone"
                     dataKey="inquiries"
                     stroke="var(--color-inquiries)"
-                    strokeWidth={2.5}
+                    strokeWidth={2}
+                    strokeDasharray="4 4"
                     dot={{ r: 3, fill: "var(--color-inquiries)" }}
                   />
                 </ComposedChart>

@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from "react";
+
+import { Compass } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,51 +14,104 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const branchClusterData = [
-  { cluster: "Karachi Metro", target: 140, actual: 154, conversion: 14.2 },
-  { cluster: "Lahore City", target: 120, actual: 138, conversion: 15.6 },
-  { cluster: "ISB & Rawalpindi", target: 80, actual: 86, conversion: 13.8 },
-  { cluster: "FSD & Central", target: 60, actual: 62, conversion: 11.2 },
-  { cluster: "Multan & South", target: 40, actual: 42, conversion: 11.8 },
-  { cluster: "Peshawar & KP", target: 40, actual: 38, conversion: 9.8 },
-];
+import { getRegionalCaravanSummaries } from "./performance-data";
 
-const teamChartConfig = {
-  actual: {
-    label: "Actual Bookings (Units)",
-    color: "var(--chart-3)",
+const regionalChartConfig = {
+  footfall: {
+    label: "Caravan Footfall",
+    color: "#0a9396",
   },
-  target: {
-    label: "Target Quota (Units)",
-    color: "var(--muted-foreground)",
+  testDrives: {
+    label: "Test Drives Dispatched",
+    color: "#ee9b00",
+  },
+  salesInquiries: {
+    label: "Sales & Trade Inquiries",
+    color: "#ca6702",
+  },
+  freeCheckups: {
+    label: "Mobile 3S Clinic Inspections",
+    color: "#005f73",
+  },
+  freeOilChanges: {
+    label: "Free Oil Changes",
+    color: "#94d2bd",
   },
 } satisfies ChartConfig;
 
 export function TeamPerformanceChart() {
+  const [metricView, setMetricView] = useState<"engagement" | "services">("engagement");
+  const regionSummaries = getRegionalCaravanSummaries();
+
+  const chartData = regionSummaries.map((r) => ({
+    region: r.region,
+    regionLabel: r.label.split(" ")[0],
+    footfall: r.footfall,
+    target: r.footfallTarget,
+    testDrives: r.testDrives,
+    salesInquiries: r.salesInquiries,
+    freeCheckups: r.freeCheckups,
+    freeOilChanges: r.freeOilChanges,
+    status: r.status,
+  }));
+
+  const totalPhase1Footfall = regionSummaries
+    .filter((r) => r.status === "Active")
+    .reduce((sum, r) => sum + r.footfall, 0);
+
+  const totalPhase1TestDrives = regionSummaries
+    .filter((r) => r.status === "Active")
+    .reduce((sum, r) => sum + r.testDrives, 0);
+
   return (
-    <Card className="h-full">
-      <CardHeader>
-        <CardTitle className="font-normal text-muted-foreground text-sm">
-          Branch Clusters: Monthly Sales Quota vs Actual (Units)
-        </CardTitle>
-        <CardDescription className="text-foreground text-xl tabular-nums leading-none tracking-tight">
-          520 Units Booked / 480 Quota (108.3% Network Target Achieved)
-        </CardDescription>
+    <Card className="h-full shadow-xs">
+      <CardHeader className="flex flex-col gap-3 pb-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-1">
+          <CardTitle className="flex items-center gap-2 font-semibold text-base">
+            <Compass className="size-4 text-primary" />
+            Caravan Regional Operational Legs Comparison
+          </CardTitle>
+          <CardDescription className="text-muted-foreground text-xs">
+            {totalPhase1Footfall.toLocaleString()} Active Tour Footfall &amp; {totalPhase1TestDrives.toLocaleString()}{" "}
+            Test Drives across Phase 1 (ROS &amp; ROSP) vs Phase 2 Benchmarks
+          </CardDescription>
+        </div>
+
+        <Tabs value={metricView} onValueChange={(v) => setMetricView(v as typeof metricView)}>
+          <TabsList className="h-8">
+            <TabsTrigger value="engagement" className="px-2.5 text-xs">
+              Footfall &amp; Inquiries
+            </TabsTrigger>
+            <TabsTrigger value="services" className="px-2.5 text-xs">
+              Mobile 3S Clinic Services
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
       </CardHeader>
+
       <CardContent>
-        <ChartContainer config={teamChartConfig} className="h-60 w-full">
-          <BarChart accessibilityLayer data={branchClusterData} margin={{ bottom: 0, left: -10, right: 10, top: 10 }}>
+        <ChartContainer config={regionalChartConfig} className="h-64 w-full sm:h-72">
+          <BarChart accessibilityLayer data={chartData} margin={{ bottom: 0, left: -10, right: 10, top: 10 }}>
             <CartesianGrid vertical={false} strokeDasharray="3 3" />
-            <XAxis dataKey="cluster" axisLine={false} tickLine={false} tickMargin={10} tick={{ fontSize: 11 }} />
+            <XAxis
+              dataKey="region"
+              axisLine={false}
+              tickLine={false}
+              tickMargin={10}
+              tick={{ fontSize: 12, fontWeight: 500 }}
+            />
             <YAxis axisLine={false} tickLine={false} tickMargin={6} tick={{ fontSize: 11 }} width={38} />
             <ChartTooltip
               content={
                 <ChartTooltipContent
                   formatter={(value, name) => (
-                    <div className="flex w-full items-center justify-between gap-2">
-                      <span className="text-muted-foreground">{String(name)}</span>
-                      <span className="font-medium font-mono text-foreground tabular-nums">{Number(value)} Units</span>
+                    <div className="flex w-full items-center justify-between gap-3">
+                      <span className="text-muted-foreground text-xs">{String(name)}</span>
+                      <span className="font-mono font-semibold text-foreground text-xs tabular-nums">
+                        {Number(value).toLocaleString()}
+                      </span>
                     </div>
                   )}
                 />
@@ -67,13 +123,19 @@ export function TeamPerformanceChart() {
               className="justify-end pb-2"
               content={<ChartLegendContent />}
             />
-            <Bar dataKey="actual" fill="var(--color-actual, var(--chart-3))" radius={[4, 4, 0, 0]} />
-            <Bar
-              dataKey="target"
-              fill="var(--color-target, var(--muted-foreground))"
-              opacity={0.3}
-              radius={[4, 4, 0, 0]}
-            />
+
+            {metricView === "engagement" ? (
+              <>
+                <Bar dataKey="footfall" fill="var(--color-footfall, #0a9396)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="testDrives" fill="var(--color-testDrives, #ee9b00)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="salesInquiries" fill="var(--color-salesInquiries, #ca6702)" radius={[4, 4, 0, 0]} />
+              </>
+            ) : (
+              <>
+                <Bar dataKey="freeCheckups" fill="var(--color-freeCheckups, #005f73)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="freeOilChanges" fill="var(--color-freeOilChanges, #94d2bd)" radius={[4, 4, 0, 0]} />
+              </>
+            )}
           </BarChart>
         </ChartContainer>
       </CardContent>

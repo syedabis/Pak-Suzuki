@@ -1,12 +1,4 @@
-import {
-  FileSpreadsheet,
-  LayoutDashboard,
-  type LucideIcon,
-  ReceiptText,
-  Sparkles,
-  SquareArrowUpRight,
-  Users,
-} from "lucide-react";
+import { FileSpreadsheet, LayoutDashboard, type LucideIcon, ReceiptText, Sparkles, Users } from "lucide-react";
 
 export type NavBadge = "new" | "soon";
 
@@ -62,13 +54,6 @@ export const sidebarItems: NavGroup[] = [
         title: "K-Carry Survey",
         url: "/dashboard/k-carry-survey",
         icon: Sparkles,
-        badge: "new",
-      },
-      {
-        id: "data-entry",
-        title: "Data Entry",
-        url: "/dashboard/data-entry",
-        icon: FileSpreadsheet,
         badge: "new",
       },
       {
@@ -163,12 +148,11 @@ export const sidebarItems: NavGroup[] = [
     label: "Misc",
     items: [
       {
-        id: "others",
-        title: "Others",
-        url: "/dashboard/coming-soon",
-        icon: SquareArrowUpRight,
-        badge: "soon",
-        disabled: true,
+        id: "data-entry",
+        title: "Data Entry",
+        url: "/dashboard/data-entry",
+        icon: FileSpreadsheet,
+        badge: "new",
       },
     ],
   },

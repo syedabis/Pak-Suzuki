@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { cn } from "cn";
-import { ChevronLeft, ChevronRight, PlusCircleIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -84,7 +84,8 @@ function hasSubItems(item: NavMainItem): item is NavMainParentItem {
 
 export function NavMain({ items }: NavMainProps) {
   const path = usePathname();
-  const { toggleSidebar } = useSidebar();
+  const { toggleSidebar, state, isMobile } = useSidebar();
+  const isCollapsed = state === "collapsed" && !isMobile;
 
   const isItemActive = (item: NavMainItem) => {
     if (hasSubItems(item)) {
@@ -104,27 +105,68 @@ export function NavMain({ items }: NavMainProps) {
 
   return (
     <>
-      <SidebarGroup>
-        <SidebarGroupContent className="flex flex-col gap-2">
+      <SidebarGroup className="pb-1">
+        <SidebarGroupContent>
           <SidebarMenu>
-            <SidebarMenuItem className="flex items-center gap-2">
-              <SidebarMenuButton
-                tooltip="Quick Create"
-                className="min-w-8 bg-primary text-primary-foreground duration-200 ease-linear hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground"
-              >
-                <PlusCircleIcon />
-                <span>Quick Create</span>
-              </SidebarMenuButton>
-              <Button
-                size="icon"
-                className="h-9 w-9 shrink-0 group-data-[collapsible=icon]:opacity-0 hover:bg-sidebar-accent"
-                variant="outline"
-                onClick={toggleSidebar}
-                title="Close sidebar"
-              >
-                <ChevronLeft className="size-4" />
-                <span className="sr-only">Close sidebar</span>
-              </Button>
+            <SidebarMenuItem className="flex items-center gap-1.5">
+              {isCollapsed ? (
+                <SidebarMenuButton
+                  asChild
+                  tooltip="🟢 Phase 1 Live • Stop #6: Usta Muhammad (6/38 Cities)"
+                  className="flex size-8 items-center justify-center rounded-lg bg-emerald-500/15 p-0 text-emerald-600 hover:bg-emerald-500/25 dark:text-emerald-400"
+                >
+                  <Link href="/dashboard/campaign-overview">
+                    <span className="relative flex size-2.5 shrink-0">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                      <span className="relative inline-flex size-2.5 rounded-full bg-emerald-500" />
+                    </span>
+                  </Link>
+                </SidebarMenuButton>
+              ) : (
+                <div className="flex w-full items-stretch gap-1.5">
+                  <Link
+                    href="/dashboard/campaign-overview"
+                    className="flex min-w-0 flex-1 flex-col gap-1 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-2 px-2.5 text-left text-xs transition-all hover:border-emerald-500/50 hover:bg-emerald-500/20 dark:bg-emerald-500/15"
+                    title="View Suzuki Express 38-City Tour Schedule & Overview"
+                  >
+                    <div className="flex items-center justify-between gap-1">
+                      <div className="flex min-w-0 items-center gap-1.5">
+                        <span className="relative flex size-2 shrink-0">
+                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                          <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
+                        </span>
+                        <span className="truncate font-semibold text-emerald-950 text-xs tracking-tight dark:text-emerald-200">
+                          Phase 1 Live • Stop #6
+                        </span>
+                      </div>
+                      <span className="shrink-0 font-mono font-semibold text-[10px] text-emerald-700 dark:text-emerald-400">
+                        6/38
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between text-[11px] text-emerald-800/80 dark:text-emerald-300/80">
+                      <span className="truncate font-medium">Usta Muhammad (ROS)</span>
+                      <span className="shrink-0 font-medium font-mono text-[10px]">16%</span>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className="mt-0.5 h-1 w-full overflow-hidden rounded-full bg-emerald-500/20">
+                      <div className="h-full rounded-full bg-emerald-500 transition-all" style={{ width: "15.8%" }} />
+                    </div>
+                  </Link>
+
+                  <Button
+                    size="icon"
+                    className="h-auto w-7 shrink-0 rounded-lg border border-border/60 hover:bg-sidebar-accent"
+                    variant="ghost"
+                    onClick={toggleSidebar}
+                    title="Close sidebar"
+                  >
+                    <ChevronLeft className="size-3.5 text-muted-foreground" />
+                    <span className="sr-only">Close sidebar</span>
+                  </Button>
+                </div>
+              )}
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroupContent>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, TrendingUp } from "lucide-react";
+import { Clock } from "lucide-react";
 import { Area, CartesianGrid, ComposedChart, Line, XAxis, YAxis } from "recharts";
 
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,11 +28,11 @@ const hourlyCaravanActivity = [
 const trafficConfig = {
   visitors: {
     label: "On-Ground Visitors",
-    color: "var(--primary)",
+    color: "#0a9396",
   },
   testDrives: {
     label: "Test Drives Conducted",
-    color: "var(--chart-2)",
+    color: "#ee9b00",
   },
 } satisfies ChartConfig;
 
@@ -40,14 +40,14 @@ export function StoreTraffic() {
   return (
     <Card className="h-full">
       <CardHeader>
-        <CardTitle className="font-normal text-muted-foreground text-sm flex items-center gap-1.5">
+        <CardTitle className="flex items-center gap-1.5 font-normal text-muted-foreground text-sm">
           <Clock className="size-4 text-primary" />
           Caravan Ground Activity Pace
         </CardTitle>
         <CardDescription className="text-foreground text-xl tabular-nums leading-none tracking-tight">
           Hourly Tour Stop Footfall &amp; Test Drive Run Rate
         </CardDescription>
-        <CardAction className="text-xs text-muted-foreground">10:00 AM – 6:00 PM Active Camp</CardAction>
+        <CardAction className="text-muted-foreground text-xs">10:00 AM – 6:00 PM Active Camp</CardAction>
       </CardHeader>
 
       <CardContent>

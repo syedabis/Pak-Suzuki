@@ -2,13 +2,20 @@
 
 import { useMemo } from "react";
 
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from "recharts";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { K_CARRY_SURVEY_DATA } from "@/data/suzuki-express/k-carry-survey-data";
 
 const TOTAL_RESPONSES = K_CARRY_SURVEY_DATA.length;
+
+// Coolors palette: 001219-005f73-0a9396-94d2bd-e9d8a6-ee9b00-ca6702-bb3e03-ae2012-9b2226
+const OCCUPATION_COLORS = ["#0a9396", "#ee9b00", "#005f73", "#ca6702", "#94d2bd", "#e9d8a6"];
+const REQUIREMENT_COLORS = ["#005f73", "#0a9396", "#ee9b00", "#ca6702", "#94d2bd", "#e9d8a6"];
+const FLEET_COLORS = ["#0a9396", "#ee9b00", "#ca6702", "#bb3e03", "#94d2bd", "#005f73"];
+const FEATURE_COLORS = ["#005f73", "#0a9396", "#ee9b00", "#ca6702", "#94d2bd", "#e9d8a6"];
+const PROBLEM_COLORS = ["#ae2012", "#bb3e03", "#ca6702", "#9b2226", "#ee9b00", "#0a9396"];
 
 export function UtilityNeedsCharts() {
   // Q1: Main Occupation
@@ -89,35 +96,35 @@ export function UtilityNeedsCharts() {
   const occChartConfig = {
     count: {
       label: "Respondents",
-      color: "var(--chart-1)",
+      color: "#0a9396",
     },
   } satisfies ChartConfig;
 
   const reqChartConfig = {
     count: {
       label: "Respondents",
-      color: "var(--chart-2)",
+      color: "#005f73",
     },
   } satisfies ChartConfig;
 
   const vehicleChartConfig = {
     count: {
       label: "Current Fleet Users",
-      color: "var(--chart-3)",
+      color: "#ee9b00",
     },
   } satisfies ChartConfig;
 
   const featureChartConfig = {
     count: {
       label: "Priority Demand",
-      color: "var(--chart-4)",
+      color: "#ca6702",
     },
   } satisfies ChartConfig;
 
   const problemChartConfig = {
     count: {
       label: "Reported Bottlenecks",
-      color: "var(--chart-5)",
+      color: "#ae2012",
     },
   } satisfies ChartConfig;
 
@@ -128,7 +135,7 @@ export function UtilityNeedsCharts() {
         {/* Q1. Main Occupation */}
         <Card className="shadow-xs">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">Q1: Main Occupation Breakdown</CardTitle>
+            <CardTitle className="font-semibold text-base">Q1: Main Occupation Breakdown</CardTitle>
             <CardDescription className="text-xs">
               Commercial profile of rural and semi-urban survey respondents
             </CardDescription>
@@ -152,10 +159,14 @@ export function UtilityNeedsCharts() {
                   tick={{ fontSize: 11 }}
                 />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="count" fill="var(--chart-1)" radius={[0, 4, 4, 0]} />
+                <Bar dataKey="count" radius={[0, 4, 4, 0]}>
+                  {occupationData.map((_, i) => (
+                    <Cell key={`occ-cell-${i}`} fill={OCCUPATION_COLORS[i % OCCUPATION_COLORS.length]} />
+                  ))}
+                </Bar>
               </BarChart>
             </ChartContainer>
-            <div className="mt-2 text-center text-xs text-muted-foreground">
+            <div className="mt-2 text-center text-muted-foreground text-xs">
               Top segments: <strong className="text-foreground">Farmer / Agri (40%)</strong> &amp;{" "}
               <strong className="text-foreground">Business (34%)</strong>
             </div>
@@ -165,7 +176,7 @@ export function UtilityNeedsCharts() {
         {/* Q2. Primary Requirement */}
         <Card className="shadow-xs">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">Q2: Primary Vehicle Requirement</CardTitle>
+            <CardTitle className="font-semibold text-base">Q2: Primary Vehicle Requirement</CardTitle>
             <CardDescription className="text-xs">
               Main intended operational purpose for acquiring a commercial pickup
             </CardDescription>
@@ -189,10 +200,14 @@ export function UtilityNeedsCharts() {
                   tick={{ fontSize: 11 }}
                 />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="count" fill="var(--chart-2)" radius={[0, 4, 4, 0]} />
+                <Bar dataKey="count" radius={[0, 4, 4, 0]}>
+                  {requirementData.map((_, i) => (
+                    <Cell key={`req-cell-${i}`} fill={REQUIREMENT_COLORS[i % REQUIREMENT_COLORS.length]} />
+                  ))}
+                </Bar>
               </BarChart>
             </ChartContainer>
-            <div className="mt-2 text-center text-xs text-muted-foreground">
+            <div className="mt-2 text-center text-muted-foreground text-xs">
               Core usage: <strong className="text-foreground">Farm Work (35%)</strong> &amp;{" "}
               <strong className="text-foreground">Goods Transport (34%)</strong>
             </div>
@@ -202,7 +217,7 @@ export function UtilityNeedsCharts() {
         {/* Q3. Current Vehicle in Fleet */}
         <Card className="shadow-xs">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">Q3: Current Vehicle in Fleet</CardTitle>
+            <CardTitle className="font-semibold text-base">Q3: Current Vehicle in Fleet</CardTitle>
             <CardDescription className="text-xs">
               Existing vehicle owned or operated (K-CARRY displacement target)
             </CardDescription>
@@ -226,10 +241,14 @@ export function UtilityNeedsCharts() {
                   tick={{ fontSize: 11 }}
                 />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="count" fill="var(--chart-3)" radius={[0, 4, 4, 0]} />
+                <Bar dataKey="count" radius={[0, 4, 4, 0]}>
+                  {vehicleData.slice(0, 6).map((_, i) => (
+                    <Cell key={`fleet-cell-${i}`} fill={FLEET_COLORS[i % FLEET_COLORS.length]} />
+                  ))}
+                </Bar>
               </BarChart>
             </ChartContainer>
-            <div className="mt-2 text-center text-xs text-muted-foreground">
+            <div className="mt-2 text-center text-muted-foreground text-xs">
               Primary target: <strong className="text-foreground">37% existing Suzuki Ravi</strong> owners
             </div>
           </CardContent>
@@ -241,7 +260,7 @@ export function UtilityNeedsCharts() {
         {/* Q4. Most Important Feature */}
         <Card className="shadow-xs">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">Q4: Most Critical Feature Priority</CardTitle>
+            <CardTitle className="font-semibold text-base">Q4: Most Critical Feature Priority</CardTitle>
             <CardDescription className="text-xs">
               Highest-ranked decision criteria when choosing a utility pickup
             </CardDescription>
@@ -265,10 +284,14 @@ export function UtilityNeedsCharts() {
                   tick={{ fontSize: 11 }}
                 />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="count" fill="var(--chart-4)" radius={[0, 4, 4, 0]} />
+                <Bar dataKey="count" radius={[0, 4, 4, 0]}>
+                  {featureData.map((_, i) => (
+                    <Cell key={`feat-cell-${i}`} fill={FEATURE_COLORS[i % FEATURE_COLORS.length]} />
+                  ))}
+                </Bar>
               </BarChart>
             </ChartContainer>
-            <div className="mt-2 text-center text-xs text-muted-foreground">
+            <div className="mt-2 text-center text-muted-foreground text-xs">
               Priority demand: <strong className="text-foreground">Load Capacity (34%)</strong> &amp;{" "}
               <strong className="text-foreground">Fuel Economy (26%)</strong>
             </div>
@@ -278,7 +301,7 @@ export function UtilityNeedsCharts() {
         {/* Q5. Biggest Operational Transport Problem */}
         <Card className="shadow-xs">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">Q5: Biggest Operational Transport Problem</CardTitle>
+            <CardTitle className="font-semibold text-base">Q5: Biggest Operational Transport Problem</CardTitle>
             <CardDescription className="text-xs">
               Key operational pain points faced with existing commercial vehicles
             </CardDescription>
@@ -302,10 +325,14 @@ export function UtilityNeedsCharts() {
                   tick={{ fontSize: 11 }}
                 />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="count" fill="var(--chart-5)" radius={[0, 4, 4, 0]} />
+                <Bar dataKey="count" radius={[0, 4, 4, 0]}>
+                  {problemData.map((_, i) => (
+                    <Cell key={`prob-cell-${i}`} fill={PROBLEM_COLORS[i % PROBLEM_COLORS.length]} />
+                  ))}
+                </Bar>
               </BarChart>
             </ChartContainer>
-            <div className="mt-2 text-center text-xs text-muted-foreground">
+            <div className="mt-2 text-center text-muted-foreground text-xs">
               Major pain points: <strong className="text-foreground">High Fuel Cost (36%)</strong> &amp;{" "}
               <strong className="text-foreground">Limited Load Capacity (26%)</strong>
             </div>

@@ -56,7 +56,7 @@ export function FieldLogsSummary({ selectedCity = "all-venues" }: FieldLogsSumma
       totalFreeCheckups,
       totalOilChanges,
       totalPartsSales,
-      cityDealer: firstRecord?.participatingDealer || "3S Network",
+      cityDealer: firstRecord?.participatingDealer ?? "3S Network",
       citySerial: firstRecord?.serialNo ? `Stop #${firstRecord.serialNo}` : "",
       recordsCount: activeList.length,
     };
@@ -120,27 +120,27 @@ export function FieldLogsSummary({ selectedCity = "all-venues" }: FieldLogsSumma
         return (
           <Card
             key={kpi.title}
-            className="flex flex-col justify-between gap-3 p-4 sm:p-4.5 rounded-xl border border-border/70 shadow-xs hover:border-primary/30 transition-all bg-card"
+            className="flex flex-col justify-between gap-3 rounded-xl border border-border/70 bg-card p-4 shadow-xs transition-all hover:border-primary/30 sm:p-4.5"
           >
             {/* Header: Title and Icon Badge */}
             <div className="flex items-center justify-between gap-2">
               <span
-                className="font-medium text-xs sm:text-sm text-muted-foreground tracking-tight truncate leading-tight"
+                className="truncate font-medium text-muted-foreground text-xs leading-tight tracking-tight sm:text-sm"
                 title={kpi.title}
               >
                 {kpi.title}
               </span>
-              <div className={cn("grid size-7 sm:size-8 place-items-center rounded-lg shrink-0", kpi.bg)}>
+              <div className={cn("grid size-7 shrink-0 place-items-center rounded-lg sm:size-8", kpi.bg)}>
                 <Icon className={cn("size-3.5 sm:size-4", kpi.highlightColor)} />
               </div>
             </div>
 
             {/* Metric Value & Contextual Subtext */}
             <div className="space-y-1">
-              <div className="font-bold text-2xl sm:text-3xl text-foreground tabular-nums tracking-tight leading-none">
+              <div className="font-bold text-2xl text-foreground tabular-nums leading-none tracking-tight sm:text-3xl">
                 {kpi.value}
               </div>
-              <p className="text-xs text-muted-foreground font-medium truncate leading-tight mt-1" title={kpi.subtext}>
+              <p className="mt-1 truncate font-medium text-muted-foreground text-xs leading-tight" title={kpi.subtext}>
                 {kpi.subtext}
               </p>
             </div>

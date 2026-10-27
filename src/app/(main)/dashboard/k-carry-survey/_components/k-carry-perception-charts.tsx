@@ -17,6 +17,9 @@ import { K_CARRY_SURVEY_DATA } from "@/data/suzuki-express/k-carry-survey-data";
 
 const TOTAL_RESPONSES = K_CARRY_SURVEY_DATA.length;
 
+// Coolors palette: 001219-005f73-0a9396-94d2bd-e9d8a6-ee9b00-ca6702-bb3e03-ae2012-9b2226
+const PRICE_BAND_COLORS = ["#0a9396", "#ee9b00", "#ca6702", "#9b2226"];
+
 export function KCarryPerceptionCharts() {
   // Q6: Prior K-CARRY Awareness
   const priorAwarenessData = useMemo(() => {
@@ -26,8 +29,8 @@ export function KCarryPerceptionCharts() {
       else if (r.heardAboutKCarryBefore === "No") counts.No++;
     }
     return [
-      { name: "Yes (Aware)", value: counts.Yes, fill: "var(--chart-2)" },
-      { name: "No (Unaware)", value: counts.No, fill: "var(--chart-4)" },
+      { name: "Yes (Aware)", value: counts.Yes, fill: "#0a9396" },
+      { name: "No (Unaware)", value: counts.No, fill: "#e9d8a6" },
     ];
   }, []);
 
@@ -44,8 +47,8 @@ export function KCarryPerceptionCharts() {
       else if (r.knowsReplacementForRavi === "No") counts.No++;
     }
     return [
-      { name: "Yes (Aware of Succession)", value: counts.Yes, fill: "var(--chart-1)" },
-      { name: "No (Unaware)", value: counts.No, fill: "var(--chart-4)" },
+      { name: "Yes (Aware of Succession)", value: counts.Yes, fill: "#005f73" },
+      { name: "No (Unaware)", value: counts.No, fill: "#e9d8a6" },
     ];
   }, []);
 
@@ -63,9 +66,9 @@ export function KCarryPerceptionCharts() {
       }
     }
     return [
-      { name: "Yes (Endorsed)", value: counts.Yes, fill: "var(--chart-2)" },
-      { name: "Not Sure", value: counts["Not Sure"], fill: "var(--chart-4)" },
-      { name: "No", value: counts.No, fill: "var(--chart-5)" },
+      { name: "Yes (Endorsed)", value: counts.Yes, fill: "#0a9396" },
+      { name: "Not Sure", value: counts["Not Sure"], fill: "#e9d8a6" },
+      { name: "No", value: counts.No, fill: "#bb3e03" },
     ];
   }, []);
 
@@ -124,9 +127,9 @@ export function KCarryPerceptionCharts() {
       }
     }
     return [
-      { name: "Definitely Buy", value: counts["Definitely Yes"], fill: "var(--chart-1)" },
-      { name: "Maybe / Need Info", value: counts["Maybe / Needs More Information"], fill: "var(--chart-3)" },
-      { name: "Not Interested", value: counts.No, fill: "var(--chart-5)" },
+      { name: "Definitely Buy", value: counts["Definitely Yes"], fill: "#0a9396" },
+      { name: "Maybe / Need Info", value: counts["Maybe / Needs More Information"], fill: "#ee9b00" },
+      { name: "Not Interested", value: counts.No, fill: "#bb3e03" },
     ];
   }, []);
 
@@ -139,59 +142,59 @@ export function KCarryPerceptionCharts() {
   const priorChartConfig = {
     "Yes (Aware)": {
       label: "Aware",
-      color: "var(--chart-2)",
+      color: "#0a9396",
     },
     "No (Unaware)": {
       label: "Unaware",
-      color: "var(--chart-4)",
+      color: "#e9d8a6",
     },
   } satisfies ChartConfig;
 
   const replaceAwareChartConfig = {
     "Yes (Aware of Succession)": {
       label: "Aware of Succession",
-      color: "var(--chart-1)",
+      color: "#005f73",
     },
     "No (Unaware)": {
       label: "Unaware",
-      color: "var(--chart-4)",
+      color: "#e9d8a6",
     },
   } satisfies ChartConfig;
 
   const sentimentChartConfig = {
     "Yes (Endorsed)": {
       label: "Suitable",
-      color: "var(--chart-2)",
+      color: "#0a9396",
     },
     "Not Sure": {
       label: "Not Sure",
-      color: "var(--chart-4)",
+      color: "#e9d8a6",
     },
     No: {
       label: "Not Suitable",
-      color: "var(--chart-5)",
+      color: "#bb3e03",
     },
   } satisfies ChartConfig;
 
   const priceChartConfig = {
     count: {
       label: "Respondents",
-      color: "var(--chart-1)",
+      color: "#0a9396",
     },
   } satisfies ChartConfig;
 
   const intentChartConfig = {
     "Definitely Buy": {
       label: "Definitely Buy",
-      color: "var(--chart-1)",
+      color: "#0a9396",
     },
     "Maybe / Need Info": {
       label: "Need More Info",
-      color: "var(--chart-3)",
+      color: "#ee9b00",
     },
     "Not Interested": {
       label: "Not Interested",
-      color: "var(--chart-5)",
+      color: "#bb3e03",
     },
   } satisfies ChartConfig;
 
@@ -202,7 +205,7 @@ export function KCarryPerceptionCharts() {
         {/* Q6. Prior Awareness of K-CARRY */}
         <Card className="shadow-xs">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">Q6: Prior Brand Awareness</CardTitle>
+            <CardTitle className="font-semibold text-base">Q6: Prior Brand Awareness</CardTitle>
             <CardDescription className="text-xs">"Have you heard about Suzuki K-CARRY before today?"</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col items-center">
@@ -224,7 +227,7 @@ export function KCarryPerceptionCharts() {
                 <ChartLegend content={<ChartLegendContent />} />
               </PieChart>
             </ChartContainer>
-            <div className="mt-2 text-center text-xs text-muted-foreground">
+            <div className="mt-2 text-center text-muted-foreground text-xs">
               <strong className="text-foreground">{priorAwarenessPercent}%</strong> of respondents already had prior
               awareness
             </div>
@@ -234,7 +237,7 @@ export function KCarryPerceptionCharts() {
         {/* Q7. Awareness of K-CARRY as Ravi Replacement */}
         <Card className="shadow-xs">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">Q7: Ravi Replacement Awareness</CardTitle>
+            <CardTitle className="font-semibold text-base">Q7: Ravi Replacement Awareness</CardTitle>
             <CardDescription className="text-xs">"Did you know K-CARRY is replacing the legacy Ravi?"</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col items-center">
@@ -256,7 +259,7 @@ export function KCarryPerceptionCharts() {
                 <ChartLegend content={<ChartLegendContent />} />
               </PieChart>
             </ChartContainer>
-            <div className="mt-2 text-center text-xs text-muted-foreground">
+            <div className="mt-2 text-center text-muted-foreground text-xs">
               <strong className="text-foreground">{replacementAwarenessPercent}%</strong> recognized K-CARRY as Ravi's
               successor
             </div>
@@ -266,7 +269,7 @@ export function KCarryPerceptionCharts() {
         {/* Q8. Ravi Replacement Suitability Sentiment */}
         <Card className="shadow-xs">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">Q8: Ravi Replacement Suitability</CardTitle>
+            <CardTitle className="font-semibold text-base">Q8: Ravi Replacement Suitability</CardTitle>
             <CardDescription className="text-xs">
               "Do you feel K-CARRY is a suitable replacement for Ravi?"
             </CardDescription>
@@ -290,7 +293,7 @@ export function KCarryPerceptionCharts() {
                 <ChartLegend content={<ChartLegendContent />} />
               </PieChart>
             </ChartContainer>
-            <div className="mt-2 text-center text-xs text-muted-foreground">
+            <div className="mt-2 text-center text-muted-foreground text-xs">
               <strong className="text-foreground">{raviYesPercent}%</strong> endorsed K-CARRY as a suitable replacement
             </div>
           </CardContent>
@@ -302,7 +305,7 @@ export function KCarryPerceptionCharts() {
         {/* Q9. Price Acceptance Tolerance */}
         <Card className="shadow-xs">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">Q9: Price Acceptance Tolerance</CardTitle>
+            <CardTitle className="font-semibold text-base">Q9: Price Acceptance Tolerance</CardTitle>
             <CardDescription className="text-xs">
               "In your opinion, what would be a reasonable price range for Suzuki K-CARRY?"
             </CardDescription>
@@ -314,10 +317,14 @@ export function KCarryPerceptionCharts() {
                 <XAxis dataKey="band" tickLine={false} axisLine={false} tick={{ fontSize: 11 }} />
                 <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11 }} />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="count" fill="var(--chart-1)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+                  {priceBandData.map((_, i) => (
+                    <Cell key={`price-band-${i}`} fill={PRICE_BAND_COLORS[i % PRICE_BAND_COLORS.length]} />
+                  ))}
+                </Bar>
               </BarChart>
             </ChartContainer>
-            <div className="mt-2 flex justify-between px-2 text-xs text-muted-foreground">
+            <div className="mt-2 flex justify-between px-2 text-muted-foreground text-xs">
               <span>
                 Sweet Spot Range: <strong className="text-foreground">22–24L (42%)</strong>
               </span>
@@ -334,7 +341,7 @@ export function KCarryPerceptionCharts() {
         {/* Q10. Purchase Consideration Intent */}
         <Card className="shadow-xs">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">Q10: Purchase Consideration Intent</CardTitle>
+            <CardTitle className="font-semibold text-base">Q10: Purchase Consideration Intent</CardTitle>
             <CardDescription className="text-xs">
               "Would you consider buying / booking the Suzuki K-CARRY for your business?"
             </CardDescription>
@@ -358,7 +365,7 @@ export function KCarryPerceptionCharts() {
                 <ChartLegend content={<ChartLegendContent />} />
               </PieChart>
             </ChartContainer>
-            <div className="mt-2 text-center text-xs text-muted-foreground">
+            <div className="mt-2 text-center text-muted-foreground text-xs">
               <strong className="text-emerald-600 dark:text-emerald-400">{totalBuyIntentPercent}%</strong> active
               commercial sales pipeline (49% Definite + 36% Warm / Needs Info)
             </div>
