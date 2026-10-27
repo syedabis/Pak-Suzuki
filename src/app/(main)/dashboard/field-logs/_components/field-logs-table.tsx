@@ -38,7 +38,12 @@ import type { DailyInquirySheetRecord } from "@/data/suzuki-express/types";
 
 import { InquirySheetModal } from "./inquiry-sheet-modal";
 
-export function FieldLogsTable() {
+interface FieldLogsTableProps {
+  readonly selectedCity?: string;
+  readonly onCityChange?: (city: string) => void;
+}
+
+export function FieldLogsTable({ selectedCity = "all-venues" }: FieldLogsTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [regionFilter, setRegionFilter] = useState<string>("all");
   const [supervisorFilter, setSupervisorFilter] = useState<string>("all");
@@ -62,7 +67,10 @@ export function FieldLogsTable() {
 
   // Filter and sort records
   const filteredRecords = useMemo(() => {
+    const isCityFiltered = selectedCity !== "all-venues" && selectedCity !== "all-38";
+
     return DAILY_INQUIRY_RECORDS.filter((r) => {
+      const matchesCity = !isCityFiltered || r.city.toLowerCase() === selectedCity.toLowerCase();
       const matchesRegion = regionFilter === "all" || r.region === regionFilter;
       const matchesSupervisor =
         supervisorFilter === "all" || r.supervisorOG === supervisorFilter || r.supervisorPS === supervisorFilter;
@@ -75,7 +83,7 @@ export function FieldLogsTable() {
         r.supervisorOG.toLowerCase().includes(searchTerm.toLowerCase()) ||
         r.supervisorPS.toLowerCase().includes(searchTerm.toLowerCase());
 
-      return matchesRegion && matchesSupervisor && matchesSearch;
+      return matchesCity && matchesRegion && matchesSupervisor && matchesSearch;
     }).sort((a, b) => {
       let comparison = 0;
       if (sortField === "date") {
@@ -87,7 +95,7 @@ export function FieldLogsTable() {
       }
       return sortAsc ? comparison : -comparison;
     });
-  }, [regionFilter, supervisorFilter, searchTerm, sortField, sortAsc]);
+  }, [selectedCity, regionFilter, supervisorFilter, searchTerm, sortField, sortAsc]);
 
   const totalPages = Math.ceil(filteredRecords.length / pageSize) || 1;
   const paginatedRecords = filteredRecords.slice((currentPage - 1) * pageSize, currentPage * pageSize);

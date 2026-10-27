@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { cn } from "cn";
-import { ChevronRight, MailIcon, PlusCircleIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, PlusCircleIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -84,6 +84,7 @@ function hasSubItems(item: NavMainItem): item is NavMainParentItem {
 
 export function NavMain({ items }: NavMainProps) {
   const path = usePathname();
+  const { toggleSidebar } = useSidebar();
 
   const isItemActive = (item: NavMainItem) => {
     if (hasSubItems(item)) {
@@ -116,11 +117,13 @@ export function NavMain({ items }: NavMainProps) {
               </SidebarMenuButton>
               <Button
                 size="icon"
-                className="h-9 w-9 shrink-0 group-data-[collapsible=icon]:opacity-0"
+                className="h-9 w-9 shrink-0 group-data-[collapsible=icon]:opacity-0 hover:bg-sidebar-accent"
                 variant="outline"
+                onClick={toggleSidebar}
+                title="Close sidebar"
               >
-                <MailIcon />
-                <span className="sr-only">Inbox</span>
+                <ChevronLeft className="size-4" />
+                <span className="sr-only">Close sidebar</span>
               </Button>
             </SidebarMenuItem>
           </SidebarMenu>

@@ -4,7 +4,7 @@ const SITE_URL = "https://studio-admin.arhamkhnz.com";
 
 const PUBLIC_ROUTES = [
   "/",
-  "/dashboard/ecommerce",
+  "/dashboard/campaign-overview",
   "/dashboard/field-logs",
   "/dashboard/performance",
   "/dashboard/calendar",

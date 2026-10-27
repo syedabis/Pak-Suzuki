@@ -25,7 +25,7 @@ export function ProfileOverview({ profile }: ProfileOverviewProps) {
         <div className="grid gap-8 sm:grid-cols-2 xl:grid-cols-3 xl:gap-12">
           <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-1">
-              <span className="text-muted-foreground text-xs">Contractor ID</span>
+              <span className="text-muted-foreground text-xs">Staff ID</span>
               <span className="text-sm">{profile.contractorId}</span>
             </div>
             <div className="flex flex-col gap-1">

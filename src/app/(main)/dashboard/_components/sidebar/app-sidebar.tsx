@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+
 import Image from "next/image";
 import Link from "next/link";
 
@@ -13,8 +15,8 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
-import { APP_CONFIG } from "@/config/app-config";
 import { rootUser } from "@/data/users";
 import type { UserSession } from "@/lib/auth/session";
 import { sidebarItems } from "@/navigation/sidebar/sidebar-items";
@@ -24,6 +26,10 @@ import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
 
 export function AppSidebar({ user, ...props }: React.ComponentProps<typeof Sidebar> & { readonly user?: UserSession }) {
+  const { open, setOpen, isMobile } = useSidebar();
+  const wasCollapsedRef = useRef(false);
+  const leaveTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   const { sidebarVariant, sidebarCollapsible, isSynced } = usePreferencesStore(
     useShallow((s) => ({
       sidebarVariant: s.values.sidebar_variant,
@@ -35,26 +41,60 @@ export function AppSidebar({ user, ...props }: React.ComponentProps<typeof Sideb
   const variant = isSynced ? sidebarVariant : props.variant;
   const collapsible = isSynced ? sidebarCollapsible : props.collapsible;
 
+  const handleMouseEnter = () => {
+    if (leaveTimerRef.current) {
+      clearTimeout(leaveTimerRef.current);
+      leaveTimerRef.current = null;
+    }
+    if (!open && !isMobile) {
+      wasCollapsedRef.current = true;
+      setOpen(true);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (wasCollapsedRef.current && !isMobile) {
+      leaveTimerRef.current = setTimeout(() => {
+        setOpen(false);
+        wasCollapsedRef.current = false;
+      }, 200);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (leaveTimerRef.current) {
+        clearTimeout(leaveTimerRef.current);
+      }
+    };
+  }, []);
+
   return (
-    <Sidebar {...props} variant={variant} collapsible={collapsible}>
+    <Sidebar
+      {...props}
+      variant={variant}
+      collapsible={collapsible}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild size="lg" className="h-12 hover:bg-sidebar-accent/50">
-              <Link prefetch={false} href="/dashboard/ecommerce" className="flex items-center gap-2.5">
-                <div className="relative flex h-8 w-14 shrink-0 items-center justify-center">
+            <SidebarMenuButton asChild size="lg" className="h-14 hover:bg-sidebar-accent/50 px-1.5">
+              <Link
+                prefetch={false}
+                href="/dashboard/campaign-overview"
+                className="flex items-center justify-start w-full"
+              >
+                <div className="relative flex h-10 items-center justify-start">
                   <Image
-                    src="/_Logo.png"
+                    src="/air%20baloon%20logos%2012x3-4.png"
                     alt="Pak Suzuki"
-                    width={56}
-                    height={26}
-                    className="h-6.5 w-auto object-contain"
+                    width={180}
+                    height={50}
+                    className="h-10 w-auto object-contain object-left"
                     priority
                   />
-                </div>
-                <div className="flex flex-col leading-tight group-data-[collapsible=icon]:hidden">
-                  <span className="font-bold text-foreground text-sm tracking-tight">{APP_CONFIG.name}</span>
-                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Operational Intel</span>
                 </div>
               </Link>
             </SidebarMenuButton>

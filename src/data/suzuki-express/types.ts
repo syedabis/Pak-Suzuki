@@ -1,4 +1,4 @@
-export type Region = "ROS" | "ROSP";
+export type Region = "ROS" | "ROSP" | "ROCP" | "RON";
 
 export type TourCity = {
   serialNo: number;
@@ -10,6 +10,7 @@ export type TourCity = {
   dealer: string;
   venue: string;
   status: "completed" | "active" | "upcoming";
+  phase: 1 | 2;
   footfall?: number;
   testDrives?: number;
   salesInquiries?: number;

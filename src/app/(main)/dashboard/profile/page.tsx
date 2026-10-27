@@ -1,4 +1,3 @@
-import { LockKeyhole } from "lucide-react";
 import type { Metadata } from "next";
 
 import {
@@ -22,8 +21,8 @@ import { ProfileStatusSidebar } from "./_components/profile-status-sidebar";
 import { TimeOffDetails } from "./_components/profile-time-off-details";
 
 export const metadata: Metadata = {
-  title: "Meezan Oil - Staff & Agent Profile",
-  description: "View and manage staff and field agent profile details, credentials, and employment status.",
+  title: "Staff Profile • Pak Suzuki Operational Intel",
+  description: "View and manage authorized Pak Suzuki staff and field supervisor profile details.",
   alternates: {
     canonical: "/dashboard/profile",
   },
@@ -42,19 +41,11 @@ export default async function Page() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <span>People</span>
+            <span>Administration</span>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <span>Field Staff & Agents</span>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <span>{activeProfile.name}</span>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Profile details</BreadcrumbPage>
+            <BreadcrumbPage>Staff Profile</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -69,7 +60,6 @@ export default async function Page() {
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="personal">Personal</TabsTrigger>
             <TabsTrigger value="employment">Employment</TabsTrigger>
-            <TabsTrigger value="compensation">Compensation</TabsTrigger>
             <TabsTrigger value="time-off">Time off</TabsTrigger>
             <TabsTrigger value="documents">Documents</TabsTrigger>
           </TabsList>
@@ -94,18 +84,6 @@ export default async function Page() {
 
           <TabsContent className="py-4" value="employment">
             <EmploymentDetails profile={activeProfile} />
-          </TabsContent>
-
-          <TabsContent className="py-4" value="compensation">
-            <div className="flex items-start gap-3">
-              <LockKeyhole aria-hidden="true" className="size-4 text-muted-foreground" />
-              <div>
-                <p className="font-medium text-sm">Restricted information</p>
-                <p className="mt-0.5 text-muted-foreground text-sm">
-                  Visible to people administrators and authorized finance roles.
-                </p>
-              </div>
-            </div>
           </TabsContent>
 
           <TabsContent className="py-4" value="time-off">

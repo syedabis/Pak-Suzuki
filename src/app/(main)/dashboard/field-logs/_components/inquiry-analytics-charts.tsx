@@ -75,8 +75,21 @@ const CHART_PALETTE = [
   "var(--secondary-foreground)",
 ];
 
-export function InquiryAnalyticsCharts() {
+interface InquiryAnalyticsChartsProps {
+  readonly selectedCity?: string;
+  readonly onResetCity?: () => void;
+}
+
+export function InquiryAnalyticsCharts({ selectedCity = "all-venues", onResetCity }: InquiryAnalyticsChartsProps) {
   const [drilldown, setDrilldown] = useState<DrilldownState>({ level: "overview" });
+
+  const isCityFiltered = selectedCity !== "all-venues" && selectedCity !== "all-38";
+
+  const activeRecords = useMemo(() => {
+    if (!isCityFiltered) return DAILY_INQUIRY_RECORDS;
+    const filtered = DAILY_INQUIRY_RECORDS.filter((r) => r.city.toLowerCase() === selectedCity.toLowerCase());
+    return filtered.length > 0 ? filtered : DAILY_INQUIRY_RECORDS;
+  }, [selectedCity, isCityFiltered]);
 
   // 1. Model Demand Matrix: Test Drives, Sales Enquiries & Free Evaluations
   const modelDemandData = useMemo(() => {
@@ -91,7 +104,7 @@ export function InquiryAnalyticsCharts() {
         Ravi: { model: "Ravi", testDrive: 0, salesEnquiry: 0, freeEvaluation: 0 },
       };
 
-    for (const record of DAILY_INQUIRY_RECORDS) {
+    for (const record of activeRecords) {
       for (const fw of record.fourWheelers) {
         if (modelMap[fw.model]) {
           modelMap[fw.model].testDrive += fw.testDrive;
@@ -102,11 +115,11 @@ export function InquiryAnalyticsCharts() {
     }
 
     return Object.values(modelMap);
-  }, []);
+  }, [activeRecords]);
 
   // 2. City Caravan Footfall & Dispatched Test Drives
   const cityFootfallData = useMemo(() => {
-    return DAILY_INQUIRY_RECORDS.map((r) => {
+    return activeRecords.map((r) => {
       const drives = r.fourWheelers.reduce((sum, item) => sum + item.testDrive, 0);
       return {
         city: r.city,
@@ -114,7 +127,7 @@ export function InquiryAnalyticsCharts() {
         testDrives: drives,
       };
     });
-  }, []);
+  }, [activeRecords]);
 
   // 3. Computed Totals for Cars & Bikes
   const aggregatedTotals = useMemo(() => {
@@ -123,7 +136,7 @@ export function InquiryAnalyticsCharts() {
     let carsTotal = 0;
     let bikesTotal = 0;
 
-    for (const record of DAILY_INQUIRY_RECORDS) {
+    for (const record of activeRecords) {
       for (const fw of record.fourWheelers) {
         const sum = fw.salesEnquiry + fw.testDrive;
         carsTotal += sum;
@@ -137,7 +150,7 @@ export function InquiryAnalyticsCharts() {
     }
 
     return { carsTotal, bikesTotal, carsByModel, bikesByModel };
-  }, []);
+  }, [activeRecords]);
 
   // 4. Dynamic Pie Chart Data & Config based on current Drilldown state
   const { pieChartData, pieChartConfig, currentTitle, currentSubtitle } = useMemo(() => {
@@ -427,25 +440,46 @@ export function InquiryAnalyticsCharts() {
                   Vehicle Demand &amp; Inquiries by Model
                 </CardTitle>
                 <CardDescription className="text-xs">
-                  Automobile matrix: Test drives, sales inquiries &amp; trade-in appraisals across 15 tour stops
+                  Automobile matrix: Test drives, sales inquiries &amp; trade-in appraisals{" "}
+                  {isCityFiltered ? `for ${selectedCity}` : "across Phase 1 tour stops"}
                 </CardDescription>
               </div>
 
-              {selectedModel && (
-                <Badge variant="secondary" className="w-fit gap-1 text-xs font-normal">
-                  <span>Filtered:</span>
-                  <strong className="text-foreground">{selectedModel}</strong>
-                  <Button
-                    size="icon-xs"
-                    variant="ghost"
-                    className="size-4 p-0 ml-1 text-muted-foreground hover:text-foreground"
-                    onClick={handleResetToOverview}
-                    title="Clear filter"
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {isCityFiltered && (
+                  <Badge
+                    variant="outline"
+                    className="w-fit gap-1 text-xs bg-primary/10 text-primary border-primary/30 font-normal"
                   >
-                    ×
-                  </Button>
-                </Badge>
-              )}
+                    <span>City:</span>
+                    <strong className="text-foreground">{selectedCity}</strong>
+                    <Button
+                      size="icon-xs"
+                      variant="ghost"
+                      className="size-4 p-0 ml-1 text-muted-foreground hover:text-foreground"
+                      onClick={onResetCity}
+                      title="Clear city filter"
+                    >
+                      ×
+                    </Button>
+                  </Badge>
+                )}
+                {selectedModel && (
+                  <Badge variant="secondary" className="w-fit gap-1 text-xs font-normal">
+                    <span>Model:</span>
+                    <strong className="text-foreground">{selectedModel}</strong>
+                    <Button
+                      size="icon-xs"
+                      variant="ghost"
+                      className="size-4 p-0 ml-1 text-muted-foreground hover:text-foreground"
+                      onClick={handleResetToOverview}
+                      title="Clear filter"
+                    >
+                      ×
+                    </Button>
+                  </Badge>
+                )}
+              </div>
             </div>
           </CardHeader>
           <CardContent>
@@ -495,15 +529,6 @@ export function InquiryAnalyticsCharts() {
                 />
               </BarChart>
             </ChartContainer>
-            <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
-              <span>
-                <strong className="text-foreground">K-Carry &amp; Every</strong> led test drives;{" "}
-                <strong className="text-foreground">Alto &amp; Ravi</strong> led trade-ins
-              </span>
-              <span className="hidden sm:inline-block text-[11px] text-primary/80">
-                💡 Click any bar to view variant % on the right
-              </span>
-            </div>
           </CardContent>
         </Card>
 

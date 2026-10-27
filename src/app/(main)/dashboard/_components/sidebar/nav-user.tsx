@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 
-import { CircleUser, CreditCard, EllipsisVertical, LogOut, MessageSquareDot } from "lucide-react";
+import { CircleUser, EllipsisVertical, LogOut, MessageSquareDot } from "lucide-react";
 import { toast } from "sonner";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -85,10 +85,6 @@ export function NavUser({
               <DropdownMenuItem className="cursor-pointer" onClick={() => router.push("/dashboard/profile")}>
                 <CircleUser />
                 Account
-              </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer" onClick={() => router.push("/dashboard/invoice")}>
-                <CreditCard />
-                Billing
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">
                 <MessageSquareDot />

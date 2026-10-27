@@ -1,4 +1,4 @@
-import { BadgeCheck, Ellipsis, Eye, Mail, Pencil, UserRoundX } from "lucide-react";
+import { BadgeCheck, Ellipsis, Eye, Pencil, UserRoundX } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -38,7 +38,7 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
           </svg>
           <Avatar className="col-start-1 row-start-1 size-16 after:border-0 sm:size-20">
             <AvatarImage alt={profile.name} src={profile.avatar} />
-            <AvatarFallback>{profile.initials}</AvatarFallback>
+            <AvatarFallback className="font-semibold text-base">{profile.initials}</AvatarFallback>
           </Avatar>
         </div>
 
@@ -63,25 +63,13 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
               Verified
             </Badge>
             <Badge className="rounded-sm" variant="outline">
-              {profile.employmentType}
-            </Badge>
-            <Badge className="rounded-sm" variant="outline">
               {profile.workplace}
-            </Badge>
-            <Badge className="rounded-sm" variant="outline">
-              {profile.timeZone}
             </Badge>
           </div>
         </div>
       </div>
 
       <div className="flex items-center gap-2">
-        <Button size="sm" asChild variant="outline">
-          <a href={`mailto:${profile.workEmail}`}>
-            <Mail data-icon="inline-start" />
-            Email
-          </a>
-        </Button>
         <Button size="sm">
           <Pencil data-icon="inline-start" />
           Edit profile

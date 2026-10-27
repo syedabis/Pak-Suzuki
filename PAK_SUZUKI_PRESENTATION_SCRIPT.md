@@ -17,7 +17,7 @@
 | Act | Screen | Target Time | Focus |
 | :--- | :--- | :--- | :--- |
 | **Act I** | `/auth/v1/login` | 0:00 – 1:30 | The business challenge & secure entry |
-| **Act II** | `/dashboard/ecommerce` | 1:30 – 5:00 | National sales, footfall & lead channels |
+| **Act II** | `/dashboard/campaign-overview` | 1:30 – 5:00 | National sales, footfall & lead channels |
 | **Act III** | `/dashboard/performance` | 5:00 – 8:00 | 3S branch rankings & consultant triage |
 | **Act IV** | `/dashboard/field-logs` | 8:00 – 11:00 | Master Inquiry Sheets, 15 tour stops & dealer audit |
 | **Act V** | Architecture & ROI | 11:00 – 12:30 | PECA privacy, DMS integration & 4 key ROI wins |
@@ -47,7 +47,7 @@
 
 ## **ACT II: National Sales & Footfall Overview (1:30 – 5:00)**
 
-### `[Screen: http://localhost:3004/dashboard/ecommerce]`
+### `[Screen: http://localhost:3004/dashboard/campaign-overview]`
 
 #### 🎙️ Speaker Script:
 > "This is our **National Sales & Appointments Cockpit**, giving executive leadership an instant pulse of current performance:
@@ -161,6 +161,6 @@
 - [ ] Dev server running: `http://localhost:3004`
 - [ ] Test login: `admin@wavex.ltd` / `admin@wavex.ltd`
 - [ ] Pre-open tabs:
-  1. `/dashboard/ecommerce` *(National Cockpit)*
+  1. `/dashboard/campaign-overview` *(National Cockpit)*
   2. `/dashboard/performance` *(Showroom Leaderboard)*
   3. `/dashboard/field-logs` *(Gala Activity Logs)*

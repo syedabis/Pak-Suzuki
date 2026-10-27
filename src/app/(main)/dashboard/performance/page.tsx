@@ -31,7 +31,7 @@ export default function PerformancePage() {
           <div className="flex items-center gap-2">
             <h1 className="font-semibold text-3xl tracking-tight">Regional & Dealership Tour Performance</h1>
             <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 font-medium text-emerald-700 text-xs dark:text-emerald-400">
-              15 Tour Stops • ROS & ROSP
+              Phase 1: 15 Cities • Total 38 Cities
             </span>
           </div>
           <p className="text-muted-foreground text-sm">

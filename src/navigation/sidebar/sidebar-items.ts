@@ -1,8 +1,8 @@
 import {
   FileSpreadsheet,
+  LayoutDashboard,
   type LucideIcon,
   ReceiptText,
-  ShoppingBag,
   Sparkles,
   SquareArrowUpRight,
   Users,
@@ -52,10 +52,10 @@ export const sidebarItems: NavGroup[] = [
     label: "Suzuki Express 2026",
     items: [
       {
-        id: "ecommerce",
+        id: "campaign-overview",
         title: "Campaign Overview",
-        url: "/dashboard/ecommerce",
-        icon: ShoppingBag,
+        url: "/dashboard/campaign-overview",
+        icon: LayoutDashboard,
       },
       {
         id: "k-carry-survey",

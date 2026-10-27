@@ -7,5 +7,5 @@ export default async function Home() {
   if (!user) {
     redirect("/auth/v1/login");
   }
-  redirect("/dashboard/ecommerce");
+  redirect("/dashboard/campaign-overview");
 }

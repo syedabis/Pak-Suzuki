@@ -23,7 +23,7 @@ export async function middleware(request: NextRequest) {
   // Root path handling
   if (isRoot) {
     if (user) {
-      return NextResponse.redirect(new URL("/dashboard/ecommerce", request.url));
+      return NextResponse.redirect(new URL("/dashboard/campaign-overview", request.url));
     }
     return NextResponse.redirect(new URL("/auth/v1/login", request.url));
   }
@@ -38,7 +38,7 @@ export async function middleware(request: NextRequest) {
 
   // Already authenticated user trying to access login/register
   if (isAuthPage && user) {
-    return NextResponse.redirect(new URL("/dashboard/ecommerce", request.url));
+    return NextResponse.redirect(new URL("/dashboard/campaign-overview", request.url));
   }
 
   return NextResponse.next();

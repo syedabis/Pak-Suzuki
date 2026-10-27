@@ -61,7 +61,7 @@ export function LoginForm() {
       toast.success(`Welcome back, ${res.user?.name ?? "User"}!`);
 
       const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
-      const callbackUrl = params?.get("callbackUrl") ?? "/dashboard/ecommerce";
+      const callbackUrl = params?.get("callbackUrl") ?? "/dashboard/campaign-overview";
 
       router.push(callbackUrl);
       router.refresh();
