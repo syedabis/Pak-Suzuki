@@ -13,9 +13,9 @@ import { TeamPerformanceChart } from "./_components/team-chart";
 import { TeamPerformanceCards } from "./_components/team-performance";
 
 export const metadata: Metadata = {
-  title: "Pak Suzuki • Branch & Showroom Performance",
+  title: "Regional & Dealer Performance • Suzuki Express 2026",
   description:
-    "Executive evaluation of 3S dealership branches, regional sales quotas, showroom footfall, and workshop throughput across Pakistan.",
+    "Executive evaluation of participating 3S dealerships, regional sales conversion quotas, K-Carry customer leads, and workshop throughput across ROS and ROSP tour stops.",
   alternates: {
     canonical: "/dashboard/performance",
   },
@@ -29,14 +29,14 @@ export default function PerformancePage() {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center gap-2">
-            <h1 className="font-semibold text-3xl tracking-tight">Branch & Showroom Performance</h1>
+            <h1 className="font-semibold text-3xl tracking-tight">Regional & Dealership Tour Performance</h1>
             <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 font-medium text-emerald-700 text-xs dark:text-emerald-400">
-              156 3S Dealerships • 3 Regions
+              15 Tour Stops • ROS & ROSP
             </span>
           </div>
           <p className="text-muted-foreground text-sm">
-            {formattedDate} • Monthly vehicle sales quotas, test drive velocity, and workshop efficiency across network
-            branches
+            {formattedDate} • Campaign conversion quotas, K-Carry replacement sentiment, and workshop efficiency across
+            participating dealerships
           </p>
         </div>
 

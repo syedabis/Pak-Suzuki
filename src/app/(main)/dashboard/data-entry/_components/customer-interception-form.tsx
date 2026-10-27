@@ -1,0 +1,244 @@
+"use client";
+
+import { useState } from "react";
+
+import { CheckCircle2, Megaphone, Plus, UserPlus, Users } from "lucide-react";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { CUSTOMER_INTERCEPTIONS } from "@/data/suzuki-express/customer-interceptions";
+import { TOUR_CITIES } from "@/data/suzuki-express/tour-schedule";
+import type { AcquisitionChannel } from "@/data/suzuki-express/types";
+
+const MARKETING_CHANNELS: AcquisitionChannel[] = [
+  "Auto Rickshaw Banner",
+  "Street Banner",
+  "Facebook",
+  "Dealership Calls",
+  "Flyer",
+  "Recorded Calls",
+  "Youtube",
+  "Television",
+];
+
+export function CustomerInterceptionForm() {
+  const [items, setItems] = useState(CUSTOMER_INTERCEPTIONS.slice(0, 8));
+  const [name, setName] = useState("");
+  const [gender, setGender] = useState<"Male" | "Female">("Male");
+  const [age, setAge] = useState("35");
+  const [phone, setPhone] = useState("");
+  const [channel, setChannel] = useState<AcquisitionChannel>("Auto Rickshaw Banner");
+  const [city, setCity] = useState("Usta Muhammad");
+  const [toastMessage, setToastMessage] = useState("");
+
+  const handleAdd = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name || !phone) return;
+
+    const newEntry = {
+      id: `INT-LIVE-${Date.now()}`,
+      sNo: items.length + 1,
+      name,
+      gender,
+      age: parseInt(age) || 30,
+      contactNo: phone,
+      channel,
+      city,
+      eventDate: "2026-11-16",
+    };
+
+    setItems([newEntry, ...items]);
+    setName("");
+    setPhone("");
+    setToastMessage(`Logged ${newEntry.name} successfully!`);
+    setTimeout(() => setToastMessage(""), 3000);
+  };
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+      {/* Entry Form */}
+      <Card className="lg:col-span-5 shadow-sm">
+        <CardHeader className="pb-3 border-b bg-muted/20">
+          <CardTitle className="text-base font-semibold flex items-center gap-2">
+            <UserPlus className="size-4 text-primary" />
+            Visitor Interception Quick-Logger
+          </CardTitle>
+          <CardDescription className="text-xs">
+            Log walk-in attendee demographics and marketing source attribution
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-5">
+          {toastMessage && (
+            <div className="mb-4 flex items-center gap-2 rounded-md bg-emerald-500/10 p-2.5 text-xs text-emerald-700 dark:text-emerald-400">
+              <CheckCircle2 className="size-4" />
+              <span>{toastMessage}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleAdd} className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="visitor-name" className="text-xs font-semibold">
+                Customer Name *
+              </Label>
+              <Input
+                id="visitor-name"
+                placeholder="e.g. Tariq Mehmood"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="h-8 text-xs"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="visitor-gender" className="text-xs font-semibold">
+                  Gender
+                </Label>
+                <Select value={gender} onValueChange={(v) => setGender(v as "Male" | "Female")}>
+                  <SelectTrigger id="visitor-gender" className="h-8 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Male">Male</SelectItem>
+                    <SelectItem value="Female">Female</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="visitor-age" className="text-xs font-semibold">
+                  Age
+                </Label>
+                <Input
+                  id="visitor-age"
+                  type="number"
+                  min="18"
+                  max="80"
+                  value={age}
+                  onChange={(e) => setAge(e.target.value)}
+                  className="h-8 text-xs"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="visitor-phone" className="text-xs font-semibold">
+                Contact Number *
+              </Label>
+              <Input
+                id="visitor-phone"
+                placeholder="0300-1234567"
+                required
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="h-8 text-xs"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="visitor-channel" className="text-xs font-semibold">
+                How did you learn about this event?
+              </Label>
+              <Select value={channel} onValueChange={(v) => setChannel(v as AcquisitionChannel)}>
+                <SelectTrigger id="visitor-channel" className="h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {MARKETING_CHANNELS.map((ch) => (
+                    <SelectItem key={ch} value={ch}>
+                      {ch}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="visitor-city" className="text-xs font-semibold">
+                Tour Stop / City
+              </Label>
+              <Select value={city} onValueChange={setCity}>
+                <SelectTrigger id="visitor-city" className="h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {TOUR_CITIES.map((c) => (
+                    <SelectItem key={c.city} value={c.city}>
+                      {c.city} ({c.region})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Button type="submit" size="sm" className="w-full gap-2 mt-2">
+              <Plus className="size-3.5" />
+              Add Customer Interception
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      {/* Interception Activity Feed */}
+      <Card className="lg:col-span-7 shadow-sm">
+        <CardHeader className="pb-3 border-b">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
+                <Megaphone className="size-4 text-primary" />
+                Live Interception Log Feed
+              </CardTitle>
+              <CardDescription className="text-xs">
+                Real-time stream of intercepted visitors and marketing source verification
+              </CardDescription>
+            </div>
+            <Badge variant="outline" className="text-[11px] font-normal">
+              {items.length} Entries
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="p-4">
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/50 text-[11px]">
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Contact</TableHead>
+                  <TableHead>Channel</TableHead>
+                  <TableHead>City</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {items.map((item) => (
+                  <TableRow key={item.id} className="text-xs">
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <span className="font-medium text-foreground">{item.name}</span>
+                        <span className="text-[10px] text-muted-foreground">
+                          {item.gender}, {item.age} yrs
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="font-mono text-[11px]">{item.contactNo}</TableCell>
+                    <TableCell>
+                      <Badge variant="secondary" className="text-[10px] font-normal">
+                        {item.channel}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground text-[11px]">{item.city}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

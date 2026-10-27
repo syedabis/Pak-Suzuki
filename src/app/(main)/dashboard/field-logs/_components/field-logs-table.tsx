@@ -1,214 +1,397 @@
 "use client";
 
-import * as React from "react";
+import { useMemo, useState } from "react";
 
-import { type ColumnFiltersState, type PaginationState, type SortingState, useTable } from "@tanstack/react-table";
-import { ArrowUpDown, Download, Search, X } from "lucide-react";
+import {
+  ArrowUpDown,
+  Building2,
+  Calendar,
+  CheckCircle2,
+  Download,
+  Eye,
+  FileSpreadsheet,
+  MapPin,
+  Search,
+  ShieldCheck,
+  UserCheck,
+  Users,
+  Wrench,
+  X,
+} from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { dataTableFeatures } from "@/lib/data-table-features";
+import { DAILY_INQUIRY_RECORDS } from "@/data/suzuki-express/daily-inquiry-data";
+import type { DailyInquirySheetRecord } from "@/data/suzuki-express/types";
 
-import { createFieldLogsColumns } from "./field-logs-table/columns";
-import fieldLogsData from "./field-logs-table/data.json";
-import { formatOrderCount, formatSelectedOrderCount, preventPaginationNavigation } from "./field-logs-table/formatters";
-import { type OrderFilter, type OrderRow, orderFilters } from "./field-logs-table/schema";
-
-const initialVisits = fieldLogsData as OrderRow[];
+import { InquirySheetModal } from "./inquiry-sheet-modal";
 
 export function FieldLogsTable() {
-  const [rowSelection, setRowSelection] = React.useState({});
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-  const [globalFilter, setGlobalFilter] = React.useState("");
-  const [selectedVisit, setSelectedVisit] = React.useState<OrderRow | null>(null);
-  const [pagination, setPagination] = React.useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [regionFilter, setRegionFilter] = useState<string>("all");
+  const [supervisorFilter, setSupervisorFilter] = useState<string>("all");
+  const [sortField, setSortField] = useState<"date" | "footfall" | "revenue">("date");
+  const [sortAsc, setSortAsc] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 8;
 
-  const columns = React.useMemo(() => createFieldLogsColumns((visit) => setSelectedVisit(visit)), []);
+  const [selectedSheet, setSelectedSheet] = useState<DailyInquirySheetRecord | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
-  const filteredData = React.useMemo(() => {
-    if (!globalFilter.trim()) return initialVisits;
-    const query = globalFilter.toLowerCase();
-    return initialVisits.filter(
-      (item) =>
-        item.customer.toLowerCase().includes(query) ||
-        item.area.toLowerCase().includes(query) ||
-        item.agent.toLowerCase().includes(query) ||
-        item.id.toLowerCase().includes(query) ||
-        item.items.toLowerCase().includes(query),
-    );
-  }, [globalFilter]);
-
-  const table = useTable({
-    features: dataTableFeatures,
-    data: filteredData,
-    columns,
-    state: {
-      rowSelection,
-      sorting,
-      columnFilters,
-      pagination,
-    },
-    getRowId: (row) => row.id,
-    enableRowSelection: true,
-    onRowSelectionChange: setRowSelection,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    onPaginationChange: setPagination,
-  });
-
-  const activeFilter = (table.getColumn("statusSummary")?.getFilterValue() as OrderFilter | undefined) ?? "All";
-  const orderCount = table.getFilteredRowModel().rows.length;
-  const selectedOrderCount = table.getSelectedRowModel().rows.length;
-  const visibleOrderCount = table.getRowModel().rows.length;
-  const currentPage = table.state.pagination.pageIndex + 1;
-  const pageCount = table.getPageCount();
-  const orderCountDescription =
-    selectedOrderCount > 0 ? formatSelectedOrderCount(selectedOrderCount) : formatOrderCount(activeFilter, orderCount);
-
-  const pageNumbers = React.useMemo(() => {
-    if (pageCount <= 3) {
-      return Array.from({ length: pageCount }, (_, index) => index + 1);
+  // Extract unique supervisors
+  const supervisors = useMemo(() => {
+    const list = new Set<string>();
+    for (const r of DAILY_INQUIRY_RECORDS) {
+      if (r.supervisorOG) list.add(r.supervisorOG);
+      if (r.supervisorPS) list.add(r.supervisorPS);
     }
+    return Array.from(list).sort();
+  }, []);
 
-    if (currentPage <= 2) return [1, 2, 3];
-    if (currentPage >= pageCount - 1) return [pageCount - 2, pageCount - 1, pageCount];
+  // Filter and sort records
+  const filteredRecords = useMemo(() => {
+    return DAILY_INQUIRY_RECORDS.filter((r) => {
+      const matchesRegion = regionFilter === "all" || r.region === regionFilter;
+      const matchesSupervisor =
+        supervisorFilter === "all" || r.supervisorOG === supervisorFilter || r.supervisorPS === supervisorFilter;
+      const matchesSearch =
+        searchTerm === "" ||
+        r.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        r.venue.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        r.participatingDealer.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        r.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        r.supervisorOG.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        r.supervisorPS.toLowerCase().includes(searchTerm.toLowerCase());
 
-    return [currentPage - 1, currentPage, currentPage + 1];
-  }, [currentPage, pageCount]);
+      return matchesRegion && matchesSupervisor && matchesSearch;
+    }).sort((a, b) => {
+      let comparison = 0;
+      if (sortField === "date") {
+        comparison = a.eventDate.localeCompare(b.eventDate);
+      } else if (sortField === "footfall") {
+        comparison = a.customerFootfall - b.customerFootfall;
+      } else if (sortField === "revenue") {
+        comparison = a.aftersales.partsSalesPkr - b.aftersales.partsSalesPkr;
+      }
+      return sortAsc ? comparison : -comparison;
+    });
+  }, [regionFilter, supervisorFilter, searchTerm, sortField, sortAsc]);
+
+  const totalPages = Math.ceil(filteredRecords.length / pageSize) || 1;
+  const paginatedRecords = filteredRecords.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  const handleRowClick = (record: DailyInquirySheetRecord) => {
+    setSelectedSheet(record);
+    setModalOpen(true);
+  };
+
+  const handleExportCSV = () => {
+    const headers = [
+      "ID",
+      "City",
+      "Region",
+      "Date",
+      "Venue",
+      "Dealer",
+      "OG Supervisor",
+      "PS Supervisor",
+      "Footfall",
+      "4W Test Drives",
+      "4W Sales Inquiries",
+      "4W Conversions",
+      "Free Checkups",
+      "Oil Changes",
+      "Parts Sales PKR",
+    ];
+
+    const rows = filteredRecords.map((r) => {
+      const testDrives = r.fourWheelers.reduce((sum, item) => sum + item.testDrive, 0);
+      const inquiries = r.fourWheelers.reduce((sum, item) => sum + item.salesEnquiry, 0);
+      const conversions = r.fourWheelers.reduce((sum, item) => sum + item.conversion, 0);
+
+      return [
+        r.id,
+        r.city,
+        r.region,
+        r.eventDate,
+        `"${r.venue.replace(/"/g, '""')}"`,
+        `"${r.participatingDealer.replace(/"/g, '""')}"`,
+        `"${r.supervisorOG}"`,
+        `"${r.supervisorPS}"`,
+        r.customerFootfall,
+        testDrives,
+        inquiries,
+        conversions,
+        r.aftersales.freeCheckupsTotal,
+        r.aftersales.oilChangesTotal,
+        r.aftersales.partsSalesPkr,
+      ].join(",");
+    });
+
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `Suzuki_Express_Master_Inquiry_Sheets_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <>
-      <Card>
-        <CardHeader>
+      <Card className="shadow-xs">
+        <CardHeader className="pb-3 border-b">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-col gap-1">
-              <CardTitle className="font-semibold text-lg">Mega Gala & Expo Live Activity Log</CardTitle>
-              <CardDescription className="text-foreground text-sm tabular-nums leading-none">
-                {orderCountDescription}
+              <div className="flex items-center gap-2">
+                <FileSpreadsheet className="size-5 text-primary" />
+                <CardTitle className="font-semibold text-lg">Inquiry Sheet Ledger</CardTitle>
+              </div>
+              <CardDescription className="text-xs">
+                Daily event reporting sheets across all tour locations, dealers, and field supervisors
               </CardDescription>
             </div>
 
-            <div className="flex items-center gap-2">
-              <div className="relative w-full sm:w-64">
-                <Search className="absolute top-2.5 left-2.5 size-4 text-muted-foreground" />
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="relative w-full sm:w-56">
+                <Search className="absolute top-2.5 left-2.5 size-3.5 text-muted-foreground" />
                 <Input
-                  className="pl-8 text-xs"
-                  placeholder="Search attendee, vehicle, VIN/token, hall..."
-                  value={globalFilter}
+                  className="pl-8 text-xs h-8"
+                  placeholder="Search city, venue, dealer, supervisor..."
+                  value={searchTerm}
                   onChange={(e) => {
-                    setGlobalFilter(e.target.value);
-                    table.setPageIndex(0);
+                    setSearchTerm(e.target.value);
+                    setCurrentPage(1);
                   }}
                 />
-                {globalFilter && (
+                {searchTerm && (
                   <button
                     type="button"
-                    className="absolute top-2.5 right-2.5 text-muted-foreground hover:text-foreground"
-                    onClick={() => setGlobalFilter("")}
+                    className="absolute top-2 right-2 text-muted-foreground hover:text-foreground"
+                    onClick={() => setSearchTerm("")}
                   >
                     <X className="size-3.5" />
                   </button>
                 )}
               </div>
 
-              <Button size="sm" variant="outline" className="shrink-0 gap-1.5">
-                <Download className="size-4" />
+              <Select
+                value={regionFilter}
+                onValueChange={(val) => {
+                  setRegionFilter(val);
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className="h-8 w-28 text-xs">
+                  <SelectValue placeholder="Region" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Regions</SelectItem>
+                  <SelectItem value="ROS">ROS (Sindh)</SelectItem>
+                  <SelectItem value="ROSP">ROSP (Punjab)</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={supervisorFilter}
+                onValueChange={(val) => {
+                  setSupervisorFilter(val);
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className="h-8 w-36 text-xs truncate">
+                  <SelectValue placeholder="Supervisor" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Supervisors</SelectItem>
+                  {supervisors.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Button size="sm" variant="outline" className="h-8 gap-1.5 text-xs" onClick={handleExportCSV}>
+                <Download className="size-3.5" />
                 <span>Export CSV</span>
               </Button>
             </div>
           </div>
         </CardHeader>
 
-        <CardContent className="flex flex-col gap-4 px-0">
-          <div className="flex flex-wrap items-center justify-between gap-2 px-4">
-            <ToggleGroup
-              className="bg-muted p-0.75 text-muted-foreground **:data-[slot=toggle-group-item]:rounded-md **:data-[slot=toggle-group-item]:border **:data-[slot=toggle-group-item]:border-transparent **:data-[slot=toggle-group-item]:text-foreground/60 **:data-[slot=toggle-group-item]:hover:text-foreground [&_[data-slot=toggle-group-item][data-state=on]]:bg-background [&_[data-slot=toggle-group-item][data-state=on]]:text-foreground [&_[data-slot=toggle-group-item][data-state=on]]:shadow-sm dark:[&_[data-slot=toggle-group-item][data-state=on]]:border-input dark:[&_[data-slot=toggle-group-item][data-state=on]]:bg-input/30"
-              onValueChange={(value) => {
-                if (!value) return;
-                table.getColumn("statusSummary")?.setFilterValue(value === "All" ? undefined : value);
-                table.setPageIndex(0);
-              }}
-              size="sm"
-              spacing={1}
-              type="single"
-              value={activeFilter}
-            >
-              {orderFilters.map((filter) => (
-                <ToggleGroupItem key={filter} value={filter}>
-                  {filter}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
-
-            <Button
-              size="icon-sm"
-              variant="outline"
-              title="Sort by Date"
-              onClick={() => table.getColumn("date")?.toggleSorting(table.getColumn("date")?.getIsSorted() === "asc")}
-            >
-              <ArrowUpDown className="size-4" />
-            </Button>
-          </div>
-
+        <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <Table className="**:data-[slot='table-cell']:px-4.5 **:data-[slot='table-head']:px-4.5">
-              <TableHeader className="border-t **:data-[slot='table-head']:h-11 **:data-[slot='table-head']:font-normal **:data-[slot='table-head']:text-foreground **:data-[slot='table-head']:text-sm">
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => (
-                      <TableHead key={header.id} colSpan={header.colSpan}>
-                        {header.isPlaceholder ? null : <table.FlexRender header={header} />}
-                      </TableHead>
-                    ))}
-                  </TableRow>
-                ))}
+            <Table className="text-xs">
+              <TableHeader className="bg-muted/30">
+                <TableRow>
+                  <TableHead className="w-28">Sheet ID &amp; Date</TableHead>
+                  <TableHead className="w-48">Tour Stop &amp; Venue</TableHead>
+                  <TableHead className="w-44">Participating 3S Dealer</TableHead>
+                  <TableHead className="w-40">Field Supervisors</TableHead>
+                  <TableHead
+                    className="text-center cursor-pointer hover:bg-muted/50 select-none"
+                    onClick={() => {
+                      setSortField("footfall");
+                      setSortAsc(!sortAsc);
+                    }}
+                  >
+                    <div className="flex items-center justify-center gap-1 font-semibold">
+                      Footfall
+                      <ArrowUpDown className="size-3 text-muted-foreground" />
+                    </div>
+                  </TableHead>
+                  <TableHead className="text-center">4W Inquiries &amp; Drives</TableHead>
+                  <TableHead className="text-center">Free Checkups &amp; Oil</TableHead>
+                  <TableHead
+                    className="text-right cursor-pointer hover:bg-muted/50 select-none"
+                    onClick={() => {
+                      setSortField("revenue");
+                      setSortAsc(!sortAsc);
+                    }}
+                  >
+                    <div className="flex items-center justify-end gap-1 font-semibold">
+                      Parts Sales (PKR)
+                      <ArrowUpDown className="size-3 text-muted-foreground" />
+                    </div>
+                  </TableHead>
+                  <TableHead className="text-center">Vendor Rating</TableHead>
+                  <TableHead className="text-right pr-4">Action</TableHead>
+                </TableRow>
               </TableHeader>
 
               <TableBody>
-                {table.getRowModel().rows.length > 0 ? (
-                  table.getRowModel().rows.map((row) => (
-                    <TableRow
-                      key={row.id}
-                      data-state={row.getIsSelected() && "selected"}
-                      className="cursor-pointer hover:bg-muted/40"
-                      onClick={() => setSelectedVisit(row.original)}
-                    >
-                      {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id}>
-                          <table.FlexRender cell={cell} />
+                {paginatedRecords.length > 0 ? (
+                  paginatedRecords.map((r) => {
+                    const testDrives = r.fourWheelers.reduce((sum, item) => sum + item.testDrive, 0);
+                    const salesEnq = r.fourWheelers.reduce((sum, item) => sum + item.salesEnquiry, 0);
+                    const conversions = r.fourWheelers.reduce((sum, item) => sum + item.conversion, 0);
+
+                    return (
+                      <TableRow
+                        key={r.id}
+                        className="cursor-pointer hover:bg-muted/30 transition-colors"
+                        onClick={() => handleRowClick(r)}
+                      >
+                        {/* 1. Sheet ID & Date */}
+                        <TableCell className="font-mono text-[11px]">
+                          <div className="font-bold text-foreground flex items-center gap-1.5">
+                            {r.id}
+                            <Badge
+                              variant={r.region === "ROS" ? "default" : "secondary"}
+                              className="text-[9px] px-1 py-0"
+                            >
+                              {r.region}
+                            </Badge>
+                          </div>
+                          <span className="text-muted-foreground">{r.eventDate}</span>
                         </TableCell>
-                      ))}
-                    </TableRow>
-                  ))
+
+                        {/* 2. Tour Stop & Venue */}
+                        <TableCell>
+                          <div className="font-bold text-foreground text-xs">{r.city}</div>
+                          <div className="text-muted-foreground text-[11px] truncate max-w-[190px]" title={r.venue}>
+                            {r.venue}
+                          </div>
+                        </TableCell>
+
+                        {/* 3. Dealer */}
+                        <TableCell>
+                          <div className="font-medium text-foreground text-xs">{r.participatingDealer}</div>
+                          <span className="text-muted-foreground text-[10px]">{r.timings}</span>
+                        </TableCell>
+
+                        {/* 4. Supervisors */}
+                        <TableCell>
+                          <div className="text-xs">
+                            <span className="text-muted-foreground font-medium">OG: </span>
+                            <span className="font-semibold text-foreground">{r.supervisorOG}</span>
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            <span>PS: </span>
+                            <span>{r.supervisorPS}</span>
+                          </div>
+                        </TableCell>
+
+                        {/* 5. Footfall */}
+                        <TableCell className="text-center font-bold text-xs tabular-nums text-foreground">
+                          {r.customerFootfall}
+                        </TableCell>
+
+                        {/* 6. 4W Inquiries & Drives */}
+                        <TableCell className="text-center tabular-nums">
+                          <span className="font-semibold text-primary">{testDrives} Drives</span>
+                          <span className="text-muted-foreground text-[11px] block">
+                            {salesEnq} Enq • {conversions} Conv
+                          </span>
+                        </TableCell>
+
+                        {/* 7. Aftersales Checkups & Oil */}
+                        <TableCell className="text-center tabular-nums">
+                          <span className="font-semibold text-foreground">
+                            {r.aftersales.freeCheckupsTotal} Checked
+                          </span>
+                          <span className="text-emerald-600 dark:text-emerald-400 text-[11px] block">
+                            {r.aftersales.oilChangesTotal} Oil Changes
+                          </span>
+                        </TableCell>
+
+                        {/* 8. Parts Sales PKR */}
+                        <TableCell className="text-right font-mono font-bold text-xs tabular-nums">
+                          PKR {r.aftersales.partsSalesPkr.toLocaleString()}
+                        </TableCell>
+
+                        {/* 9. Vendor Evaluation */}
+                        <TableCell className="text-center">
+                          <Badge
+                            variant="outline"
+                            className={`text-[10px] ${
+                              r.vendorEvaluation.aftersales === "Excellent"
+                                ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20"
+                                : r.vendorEvaluation.aftersales === "Good"
+                                  ? "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20"
+                                  : "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20"
+                            }`}
+                          >
+                            {r.vendorEvaluation.aftersales}
+                          </Badge>
+                        </TableCell>
+
+                        {/* 10. Action */}
+                        <TableCell className="text-right pr-4">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 px-2 gap-1 text-[11px] text-primary hover:text-primary hover:bg-primary/10"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRowClick(r);
+                            }}
+                          >
+                            <Eye className="size-3.5" />
+                            <span>Audit Sheet</span>
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
                 ) : (
                   <TableRow>
-                    <TableCell className="h-24 text-center text-muted-foreground" colSpan={columns.length}>
-                      No gala records found matching your query.
+                    <TableCell colSpan={10} className="h-28 text-center text-muted-foreground">
+                      No master inquiry sheets found matching the active filters.
                     </TableCell>
                   </TableRow>
                 )}
@@ -216,56 +399,50 @@ export function FieldLogsTable() {
             </Table>
           </div>
 
-          <div className="flex items-center justify-between px-4 pt-2">
-            <div className="text-muted-foreground text-xs tabular-nums">
-              Showing {visibleOrderCount} of {orderCount} records
+          {/* Table Footer with Summary Count and Pagination */}
+          <div className="flex flex-col sm:flex-row items-center justify-between px-4 py-3 border-t gap-3 text-xs text-muted-foreground">
+            <div>
+              Showing <strong>{paginatedRecords.length}</strong> of <strong>{filteredRecords.length}</strong> tour stop
+              inquiry sheets (Page {currentPage} of {totalPages})
             </div>
 
-            {pageCount > 1 && (
-              <Pagination className="mx-0 w-auto">
+            {totalPages > 1 && (
+              <Pagination className="mx-0 w-auto justify-end">
                 <PaginationContent>
                   <PaginationItem>
                     <PaginationPrevious
-                      aria-disabled={!table.getCanPreviousPage()}
-                      className={!table.getCanPreviousPage() ? "pointer-events-none opacity-50" : undefined}
                       href="#"
                       onClick={(e) => {
-                        preventPaginationNavigation(e);
-                        table.previousPage();
+                        e.preventDefault();
+                        if (currentPage > 1) setCurrentPage(currentPage - 1);
                       }}
+                      className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                     />
                   </PaginationItem>
 
-                  {pageNumbers.map((pageNumber) => (
-                    <PaginationItem key={pageNumber}>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <PaginationItem key={page}>
                       <PaginationLink
                         href="#"
-                        isActive={pageNumber === currentPage}
+                        isActive={page === currentPage}
                         onClick={(e) => {
-                          preventPaginationNavigation(e);
-                          table.setPageIndex(pageNumber - 1);
+                          e.preventDefault();
+                          setCurrentPage(page);
                         }}
                       >
-                        {pageNumber}
+                        {page}
                       </PaginationLink>
                     </PaginationItem>
                   ))}
 
-                  {pageCount > 3 && currentPage < pageCount - 1 && (
-                    <PaginationItem>
-                      <PaginationEllipsis />
-                    </PaginationItem>
-                  )}
-
                   <PaginationItem>
                     <PaginationNext
-                      aria-disabled={!table.getCanNextPage()}
-                      className={!table.getCanNextPage() ? "pointer-events-none opacity-50" : undefined}
                       href="#"
                       onClick={(e) => {
-                        preventPaginationNavigation(e);
-                        table.nextPage();
+                        e.preventDefault();
+                        if (currentPage < totalPages) setCurrentPage(currentPage + 1);
                       }}
+                      className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
                     />
                   </PaginationItem>
                 </PaginationContent>
@@ -275,78 +452,8 @@ export function FieldLogsTable() {
         </CardContent>
       </Card>
 
-      {/* Gala Inspection & Buyer Details Modal */}
-      <Dialog open={Boolean(selectedVisit)} onOpenChange={(open) => !open && setSelectedVisit(null)}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <div className="flex items-center gap-2">
-              <DialogTitle className="text-lg">Gala Transaction & 130-Pt Diagnostic Details</DialogTitle>
-              <Badge variant="outline" className="font-mono text-xs">
-                {selectedVisit?.id}
-              </Badge>
-            </div>
-            <DialogDescription>
-              Logged on {selectedVisit?.date.replace("T", " at ")} by {selectedVisit?.agent}
-            </DialogDescription>
-          </DialogHeader>
-
-          {selectedVisit && (
-            <div className="flex flex-col gap-4 text-sm">
-              <div className="rounded-lg bg-muted/60 p-3">
-                <div className="font-semibold text-foreground">{selectedVisit.customer}</div>
-                <div className="text-muted-foreground text-xs">{selectedVisit.area}</div>
-                <div className="mt-2 flex items-center justify-between border-border/60 border-t pt-2 text-xs">
-                  <span className="font-medium text-foreground">{selectedVisit.items}</span>
-                  <span className="font-bold text-foreground tabular-nums">{selectedVisit.total}</span>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <div className="font-semibold text-muted-foreground text-xs uppercase tracking-wider">
-                  130-Point Diagnostic Appraisal & Buyer Profile
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="rounded border p-2">
-                    <span className="text-muted-foreground">Trade-In / Current Car:</span>
-                    <div className="font-medium text-foreground text-sm">
-                      {selectedVisit.survey?.currentBrand ?? "None (First-time Buyer)"}
-                    </div>
-                  </div>
-                  <div className="rounded border p-2">
-                    <span className="text-muted-foreground">Verified Mileage / Odo:</span>
-                    <div className="font-medium text-foreground text-sm">
-                      {selectedVisit.survey?.monthlyLiters?.toLocaleString() ?? "N/A"} km
-                    </div>
-                  </div>
-                </div>
-
-                <div className="rounded border p-2 text-xs">
-                  <span className="text-muted-foreground">Buyer Intent & Status:</span>
-                  <div className="font-medium text-foreground">
-                    {selectedVisit.survey?.decisionMaker ?? "On-Spot Booking"}
-                  </div>
-                </div>
-
-                <div className="rounded border bg-card p-3 text-xs">
-                  <span className="text-muted-foreground">Diagnostic Findings & Consultant Notes:</span>
-                  <p className="mt-1 font-medium text-foreground italic">
-                    "
-                    {selectedVisit.survey?.reasonOrFeedback ?? "Vehicle verified through Pak Suzuki inspection funnel."}
-                    "
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setSelectedVisit(null)}>
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Full Sheet Audit Modal */}
+      <InquirySheetModal sheet={selectedSheet} open={modalOpen} onOpenChange={setModalOpen} />
     </>
   );
 }

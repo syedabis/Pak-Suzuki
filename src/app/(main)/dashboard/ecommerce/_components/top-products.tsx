@@ -6,61 +6,61 @@ import { Separator } from "@/components/ui/separator";
 const categories = [
   {
     name: "Economy (Alto 660cc)",
-    share: 48,
+    share: 42,
     color: "var(--chart-3)",
   },
   {
-    name: "Premium (Swift 1.2L)",
-    share: 25,
-    color: "var(--chart-2)",
-  },
-  {
-    name: "Family (Cultus VXL)",
-    share: 16,
+    name: "Commercial (K-CARRY & Every)",
+    share: 34,
     color: "var(--chart-1)",
   },
   {
-    name: "Commercial (Every/Ravi)",
-    share: 11,
+    name: "Family (Swift & Cultus)",
+    share: 14,
+    color: "var(--chart-2)",
+  },
+  {
+    name: "Motorcycles (GD/GS/GSX)",
+    share: 10,
     color: "var(--chart-4)",
   },
 ] as const;
 
 const products = [
   {
-    name: "Suzuki Alto VXL AGS",
-    category: "660cc Hatchback • 228 units booked",
-    marketShare: "48.2%",
-    trend: "+4.8%",
-    sales: "PKR 704.5M",
+    name: "Suzuki Alto 660cc (VXR/VXL)",
+    category: "Economy Segment • 98 Inquiries",
+    marketShare: "42.5%",
+    trend: "+8.2%",
+    sales: "12 Bookings",
   },
   {
-    name: "Suzuki Swift GLX CVT",
-    category: "1.2L Dual VVT • 114 units booked",
-    marketShare: "24.5%",
-    trend: "+6.2%",
-    sales: "PKR 538.0M",
+    name: "Suzuki K-CARRY (Ravi Successor)",
+    category: "Commercial Pickup • 89 Inquiries",
+    marketShare: "28.4%",
+    trend: "+34.5%",
+    sales: "9 Bookings",
   },
   {
-    name: "Suzuki Cultus VXL",
-    category: "1.0L K-Series • 76 units booked",
-    marketShare: "16.4%",
-    trend: "+1.9%",
-    sales: "PKR 311.6M",
+    name: "Suzuki Every (VX / VXR)",
+    category: "Rural Multi-Utility MPV • 48 Inquiries",
+    marketShare: "12.8%",
+    trend: "+14.1%",
+    sales: "5 Bookings",
   },
   {
-    name: "Suzuki Every VX (New MPV)",
-    category: "660cc Commercial MPV • 38 units",
-    marketShare: "8.1%",
-    trend: "+12.4%",
-    sales: "PKR 106.4M",
+    name: "Suzuki GD 110S & GS 150",
+    category: "2W Rural Fleet • 56 Inquiries",
+    marketShare: "9.6%",
+    trend: "+6.0%",
+    sales: "6 Bookings",
   },
   {
-    name: "Suzuki Ravi Pickup",
-    category: "800cc LCV • 12 units booked",
-    marketShare: "2.8%",
-    trend: "+1.1%",
-    sales: "PKR 22.8M",
+    name: "Suzuki Swift & Cultus",
+    category: "Family Hatchbacks • 32 Inquiries",
+    marketShare: "6.7%",
+    trend: "+2.3%",
+    sales: "2 Bookings",
   },
 ] as const;
 
@@ -68,10 +68,10 @@ export function TopProducts() {
   return (
     <Card className="h-full">
       <CardHeader>
-        <CardTitle className="font-normal text-muted-foreground text-sm">Vehicle Segment Share & Sales</CardTitle>
+        <CardTitle className="font-normal text-muted-foreground text-sm">Vehicle Segment Demand Mix</CardTitle>
         <div className="flex items-baseline justify-between gap-2">
           <CardDescription className="text-foreground text-xl tabular-nums leading-none tracking-tight">
-            468 Units Booked Today
+            323 Campaign Inquiries & 34 Bookings
           </CardDescription>
           <span className="inline-flex items-center gap-1 font-medium text-emerald-600 text-xs dark:text-emerald-400">
             <TrendingUp className="size-3" />

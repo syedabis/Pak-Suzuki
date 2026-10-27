@@ -1,4 +1,12 @@
-import { type LucideIcon, ReceiptText, ShoppingBag, SquareArrowUpRight, Users } from "lucide-react";
+import {
+  FileSpreadsheet,
+  type LucideIcon,
+  ReceiptText,
+  ShoppingBag,
+  Sparkles,
+  SquareArrowUpRight,
+  Users,
+} from "lucide-react";
 
 export type NavBadge = "new" | "soon";
 
@@ -41,23 +49,37 @@ export interface NavGroup {
 export const sidebarItems: NavGroup[] = [
   {
     id: 1,
-    label: "Dashboards",
+    label: "Suzuki Express 2026",
     items: [
       {
         id: "ecommerce",
-        title: "National Sales & Appointments",
+        title: "Campaign Overview",
         url: "/dashboard/ecommerce",
         icon: ShoppingBag,
       },
       {
+        id: "k-carry-survey",
+        title: "K-Carry Survey",
+        url: "/dashboard/k-carry-survey",
+        icon: Sparkles,
+        badge: "new",
+      },
+      {
+        id: "data-entry",
+        title: "Data Entry",
+        url: "/dashboard/data-entry",
+        icon: FileSpreadsheet,
+        badge: "new",
+      },
+      {
         id: "field-logs",
-        title: "Gala & Expo Activity Logs",
+        title: "Inquiry Sheets",
         url: "/dashboard/field-logs",
         icon: ReceiptText,
       },
       {
         id: "performance",
-        title: "Branch & Showroom Performance",
+        title: "Dealer Performance",
         url: "/dashboard/performance",
         icon: Users,
       },
