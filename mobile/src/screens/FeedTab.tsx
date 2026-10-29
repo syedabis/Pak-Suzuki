@@ -5,10 +5,19 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Linking,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useApp } from "../context/AppContext";
 import { FONTS } from "../constants/fonts";
+
+function formatChannel(channel: string) {
+  if (!channel) return "Direct";
+  if (channel.toLowerCase().includes("rickshaw")) return "Auto Rickshaw";
+  if (channel.toLowerCase().includes("recorded")) return "Recorded Call";
+  if (channel.toLowerCase().includes("street")) return "Street Banner";
+  return channel;
+}
 
 export function FeedTab() {
   const { interceptions, surveys } = useApp();
@@ -16,55 +25,43 @@ export function FeedTab() {
 
   return (
     <View style={styles.container}>
-      {/* Top Filter Segmented Bar */}
+      {/* Top Filter Segmented Tabs: 3 Equal-Width Tabs */}
       <View style={styles.topBar}>
-        <View style={styles.segmentContainer}>
+        <View style={styles.segmentedContainer}>
           <TouchableOpacity
-            style={[styles.segmentBtn, activeSegment === "All" && styles.segmentBtnActive]}
+            style={[styles.segmentTab, activeSegment === "All" && styles.segmentTabActive]}
             onPress={() => setActiveSegment("All")}
             activeOpacity={0.7}
           >
-            <Text style={[styles.segmentBtnText, activeSegment === "All" && styles.segmentBtnTextActive]}>
+            <Text style={[styles.segmentTabText, activeSegment === "All" && styles.segmentTabTextActive]}>
               All ({interceptions.length + surveys.length})
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.segmentBtn, activeSegment === "Interceptions" && styles.segmentBtnActive]}
+            style={[styles.segmentTab, activeSegment === "Interceptions" && styles.segmentTabActive]}
             onPress={() => setActiveSegment("Interceptions")}
             activeOpacity={0.7}
           >
-            <Ionicons
-              name="flash"
-              size={12}
-              color={activeSegment === "Interceptions" ? "#FFFFFF" : "#71717A"}
-              style={{ marginRight: 4 }}
-            />
             <Text
               style={[
-                styles.segmentBtnText,
-                activeSegment === "Interceptions" && styles.segmentBtnTextActive,
+                styles.segmentTabText,
+                activeSegment === "Interceptions" && styles.segmentTabTextActive,
               ]}
             >
-              Interceptions ({interceptions.length})
+              Visitors ({interceptions.length})
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.segmentBtn, activeSegment === "Surveys" && styles.segmentBtnActive]}
+            style={[styles.segmentTab, activeSegment === "Surveys" && styles.segmentTabActive]}
             onPress={() => setActiveSegment("Surveys")}
             activeOpacity={0.7}
           >
-            <Ionicons
-              name="sparkles"
-              size={12}
-              color={activeSegment === "Surveys" ? "#FFFFFF" : "#71717A"}
-              style={{ marginRight: 4 }}
-            />
             <Text
               style={[
-                styles.segmentBtnText,
-                activeSegment === "Surveys" && styles.segmentBtnTextActive,
+                styles.segmentTabText,
+                activeSegment === "Surveys" && styles.segmentTabTextActive,
               ]}
             >
               K-Carry ({surveys.length})
@@ -74,14 +71,15 @@ export function FeedTab() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* SECTION 1: Live Interception Log Feed (Table) */}
+        {/* SECTION 1: Visitor Interceptions */}
         {(activeSegment === "All" || activeSegment === "Interceptions") && (
           <View style={styles.card}>
+            {/* Card Title Header */}
             <View style={styles.cardHeader}>
               <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                  <Ionicons name="megaphone-outline" size={16} color="#09090B" />
-                  <Text style={styles.cardTitle}>Live Interception Log Feed</Text>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 7 }}>
+                  <Ionicons name="people-outline" size={16} color="#09090B" />
+                  <Text style={styles.cardTitle}>Visitor Interceptions</Text>
                 </View>
                 <View style={styles.countTag}>
                   <Text style={styles.countTagText}>{interceptions.length} Entries</Text>
@@ -89,51 +87,55 @@ export function FeedTab() {
               </View>
             </View>
 
-            {/* Table Content */}
-            <View style={styles.table}>
-              {/* Table Header Row */}
-              <View style={styles.tableHeaderRow}>
-                <Text style={[styles.th, { flex: 1.4 }]}>CUSTOMER</Text>
-                <Text style={[styles.th, { flex: 1.2 }]}>CONTACT</Text>
-                <Text style={[styles.th, { flex: 1.4 }]}>CHANNEL</Text>
-                <Text style={[styles.th, { flex: 1 }]}>CITY</Text>
-              </View>
+            {/* Table Column Headers */}
+            <View style={styles.tableHeaderRow}>
+              <Text style={styles.tableHeaderLeft}>VISITOR / CITY</Text>
+              <Text style={styles.tableHeaderRight}>CONTACT / SOURCE</Text>
+            </View>
 
-              {/* Table Data Rows */}
+            {/* Clean, Perfectly Aligned Data Rows */}
+            <View style={styles.cardBody}>
               {interceptions.length === 0 ? (
                 <View style={styles.emptyBox}>
-                  <Text style={styles.emptyText}>No customer interceptions logged yet.</Text>
+                  <Text style={styles.emptyText}>No visitors logged yet.</Text>
                 </View>
               ) : (
                 interceptions.map((row, idx) => (
-                  <View key={row.id || idx} style={styles.tableRow}>
-                    {/* Customer */}
-                    <View style={{ flex: 1.4 }}>
-                      <Text style={styles.tdBold} numberOfLines={1}>
+                  <View
+                    key={row.id || idx}
+                    style={[
+                      styles.rowContainer,
+                      idx === interceptions.length - 1 && { borderBottomWidth: 0 },
+                    ]}
+                  >
+                    {/* Left Column: Name & City */}
+                    <View style={styles.leftCol}>
+                      <Text style={styles.nameText} numberOfLines={1}>
                         {row.name}
                       </Text>
-                      <Text style={styles.tdSub}>
-                        {row.gender}, {row.age} yrs
-                      </Text>
-                    </View>
-
-                    {/* Contact */}
-                    <View style={{ flex: 1.2 }}>
-                      <Text style={styles.td}>{row.contactNo}</Text>
-                    </View>
-
-                    {/* Channel */}
-                    <View style={{ flex: 1.4 }}>
-                      <View style={styles.channelBadge}>
-                        <Text style={styles.channelBadgeText} numberOfLines={1}>
-                          {row.channel}
+                      <View style={styles.locationRow}>
+                        <Ionicons name="location-sharp" size={11} color="#71717A" style={{ marginRight: 2 }} />
+                        <Text style={styles.cityText} numberOfLines={1}>
+                          {row.city}
                         </Text>
                       </View>
                     </View>
 
-                    {/* City */}
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.td}>{row.city}</Text>
+                    {/* Right Column: Phone & Source */}
+                    <View style={styles.rightCol}>
+                      <TouchableOpacity
+                        style={styles.phoneRow}
+                        onPress={() => Linking.openURL(`tel:${row.contactNo.replace(/[^0-9+]/g, "")}`)}
+                        activeOpacity={0.6}
+                      >
+                        <Ionicons name="call" size={11} color="#059669" style={{ marginRight: 4 }} />
+                        <Text style={styles.phoneText}>{row.contactNo}</Text>
+                      </TouchableOpacity>
+                      <View style={styles.channelTag}>
+                        <Text style={styles.channelTagText} numberOfLines={1}>
+                          {formatChannel(row.channel)}
+                        </Text>
+                      </View>
                     </View>
                   </View>
                 ))
@@ -142,19 +144,26 @@ export function FeedTab() {
           </View>
         )}
 
-        {/* SECTION 2: Recent K-Carry Survey Records */}
+        {/* SECTION 2: K-Carry Survey Records */}
         {(activeSegment === "All" || activeSegment === "Surveys") && (
           <View style={styles.card}>
+            {/* Card Title Header */}
             <View style={styles.cardHeader}>
               <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 7 }}>
                   <Ionicons name="sparkles-outline" size={16} color="#09090B" />
-                  <Text style={styles.cardTitle}>Recent K-Carry Survey Records</Text>
+                  <Text style={styles.cardTitle}>K-Carry Survey Records</Text>
                 </View>
                 <View style={styles.countTag}>
                   <Text style={styles.countTagText}>{surveys.length} Records</Text>
                 </View>
               </View>
+            </View>
+
+            {/* Table Column Headers */}
+            <View style={styles.tableHeaderRow}>
+              <Text style={styles.tableHeaderLeft}>RESPONDENT / OCCUPATION</Text>
+              <Text style={styles.tableHeaderRight}>LEAD STATUS / BUDGET</Text>
             </View>
 
             <View style={styles.cardBody}>
@@ -163,36 +172,58 @@ export function FeedTab() {
                   <Text style={styles.emptyText}>No K-Carry surveys recorded yet.</Text>
                 </View>
               ) : (
-                surveys.map((s) => (
-                  <View key={s.id} style={styles.surveyRow}>
-                    <View style={{ flex: 1 }}>
-                      <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-                        <Text style={styles.surveyName}>{s.respondentName}</Text>
-                        <View
-                          style={[
-                            styles.statusTag,
-                            { backgroundColor: s.leadStatus === "Hot" ? "#FEF2F2" : "#F4F4F5" },
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              styles.statusTagText,
-                              { color: s.leadStatus === "Hot" ? "#DC2626" : "#18181B" },
-                            ]}
-                          >
-                            {s.leadStatus}
-                          </Text>
-                        </View>
-                      </View>
-                      <Text style={styles.surveyMeta}>
-                        {s.mainOccupation} • Uses: {s.currentVehicle}
+                surveys.map((s, idx) => (
+                  <View
+                    key={s.id}
+                    style={[
+                      styles.rowContainer,
+                      idx === surveys.length - 1 && { borderBottomWidth: 0 },
+                    ]}
+                  >
+                    {/* Left Column: Respondent & Details */}
+                    <View style={styles.leftCol}>
+                      <Text style={styles.nameText} numberOfLines={1}>
+                        {s.respondentName}
                       </Text>
-                      <Text style={styles.surveySub}>
-                        Replacement: {s.suitableReplacementForRavi} • Price: {s.reasonablePriceRange}
+                      <Text style={styles.metaLine} numberOfLines={1}>
+                        {s.mainOccupation} • {s.currentVehicle}
                       </Text>
                     </View>
-                    <View style={styles.syncedChip}>
-                      <Text style={styles.syncedChipText}>Synced</Text>
+
+                    {/* Right Column: Status & Budget */}
+                    <View style={styles.rightCol}>
+                      <View
+                        style={[
+                          styles.statusTag,
+                          {
+                            backgroundColor:
+                              s.leadStatus === "Hot"
+                                ? "#FEF2F2"
+                                : s.leadStatus === "Warm"
+                                ? "#FFFBEB"
+                                : "#F4F4F5",
+                          },
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.statusTagText,
+                            {
+                              color:
+                                s.leadStatus === "Hot"
+                                  ? "#DC2626"
+                                  : s.leadStatus === "Warm"
+                                  ? "#D97706"
+                                  : "#18181B",
+                            },
+                          ]}
+                        >
+                          {s.leadStatus === "Hot" ? "🔥 Hot Lead" : `${s.leadStatus} Lead`}
+                        </Text>
+                      </View>
+                      <Text style={styles.budgetLine} numberOfLines={1}>
+                        {s.reasonablePriceRange}
+                      </Text>
                     </View>
                   </View>
                 ))
@@ -217,30 +248,30 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#E4E4E7",
   },
-  segmentContainer: {
+  segmentedContainer: {
     flexDirection: "row",
     backgroundColor: "#F4F4F5",
     borderRadius: 8,
     padding: 3,
-    gap: 4,
+    borderWidth: 1,
+    borderColor: "#E4E4E7",
   },
-  segmentBtn: {
+  segmentTab: {
     flex: 1,
-    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 7,
+    paddingVertical: 8,
     borderRadius: 6,
   },
-  segmentBtnActive: {
+  segmentTabActive: {
     backgroundColor: "#18181B",
   },
-  segmentBtnText: {
+  segmentTabText: {
     fontFamily: FONTS.medium,
-    fontSize: 11,
+    fontSize: 12,
     color: "#71717A",
   },
-  segmentBtnTextActive: {
+  segmentTabTextActive: {
     fontFamily: FONTS.semiBold,
     color: "#FFFFFF",
   },
@@ -258,8 +289,7 @@ const styles = StyleSheet.create({
   },
   cardHeader: {
     paddingHorizontal: 14,
-    paddingTop: 12,
-    paddingBottom: 10,
+    paddingVertical: 11,
     borderBottomWidth: 1,
     borderBottomColor: "#F4F4F5",
     backgroundColor: "#FAFAFA",
@@ -268,9 +298,6 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.semiBold,
     fontSize: 13,
     color: "#09090B",
-  },
-  cardBody: {
-    padding: 14,
   },
   countTag: {
     backgroundColor: "#F4F4F5",
@@ -285,105 +312,110 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: "#71717A",
   },
-  table: {
-    width: "100%",
-  },
   tableHeaderRow: {
-    flexDirection: "row",
-    backgroundColor: "#FAFAFA",
-    borderBottomWidth: 1,
-    borderBottomColor: "#E4E4E7",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  th: {
-    fontFamily: FONTS.semiBold,
-    fontSize: 10,
-    color: "#71717A",
-    letterSpacing: 0.3,
-  },
-  tableRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F4F4F5",
-  },
-  tdBold: {
-    fontFamily: FONTS.semiBold,
-    fontSize: 11,
-    color: "#09090B",
-  },
-  tdSub: {
-    fontFamily: FONTS.regular,
-    fontSize: 9,
-    color: "#71717A",
-    marginTop: 1,
-  },
-  td: {
-    fontFamily: FONTS.regular,
-    fontSize: 10,
-    color: "#3F3F46",
-  },
-  channelBadge: {
-    backgroundColor: "#F4F4F5",
-    borderWidth: 1,
-    borderColor: "#E4E4E7",
-    paddingHorizontal: 5,
-    paddingVertical: 2,
-    borderRadius: 4,
-    alignSelf: "flex-start",
-  },
-  channelBadgeText: {
-    fontFamily: FONTS.medium,
-    fontSize: 9,
-    color: "#18181B",
-  },
-  surveyRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    backgroundColor: "#F4F4F5",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E4E4E7",
+  },
+  tableHeaderLeft: {
+    fontFamily: FONTS.semiBold,
+    fontSize: 10,
+    color: "#71717A",
+    letterSpacing: 0.5,
+  },
+  tableHeaderRight: {
+    fontFamily: FONTS.semiBold,
+    fontSize: 10,
+    color: "#71717A",
+    letterSpacing: 0.5,
+    textAlign: "right",
+  },
+  cardBody: {
+    paddingHorizontal: 14,
+  },
+  rowContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 11,
     borderBottomWidth: 1,
     borderBottomColor: "#F4F4F5",
+    gap: 12,
   },
-  surveyName: {
+  leftCol: {
+    flex: 1.1,
+    justifyContent: "center",
+  },
+  nameText: {
+    fontFamily: FONTS.semiBold,
+    fontSize: 14,
+    color: "#09090B",
+    marginBottom: 3,
+  },
+  locationRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  cityText: {
+    fontFamily: FONTS.medium,
+    fontSize: 11,
+    color: "#52525B",
+  },
+  rightCol: {
+    alignItems: "flex-end",
+    justifyContent: "center",
+    maxWidth: 155,
+  },
+  phoneRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  phoneText: {
     fontFamily: FONTS.semiBold,
     fontSize: 12,
     color: "#09090B",
+    letterSpacing: 0.2,
   },
-  surveyMeta: {
-    fontFamily: FONTS.regular,
-    fontSize: 10,
-    color: "#71717A",
-    marginTop: 2,
-  },
-  surveySub: {
-    fontFamily: FONTS.regular,
-    fontSize: 9,
-    color: "#A1A1AA",
-    marginTop: 1,
-  },
-  statusTag: {
-    paddingHorizontal: 5,
-    paddingVertical: 1,
-    borderRadius: 4,
-  },
-  statusTagText: {
-    fontFamily: FONTS.bold,
-    fontSize: 9,
-  },
-  syncedChip: {
-    backgroundColor: "#ECFDF5",
+  channelTag: {
+    backgroundColor: "#F4F4F5",
+    borderWidth: 1,
+    borderColor: "#E4E4E7",
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
   },
-  syncedChipText: {
-    fontFamily: FONTS.semiBold,
-    fontSize: 9,
-    color: "#059669",
+  channelTagText: {
+    fontFamily: FONTS.regular,
+    fontSize: 10,
+    color: "#52525B",
+  },
+  metaLine: {
+    fontFamily: FONTS.regular,
+    fontSize: 11,
+    color: "#71717A",
+    marginTop: 1,
+  },
+  budgetLine: {
+    fontFamily: FONTS.regular,
+    fontSize: 10,
+    color: "#A1A1AA",
+    marginTop: 2,
+    textAlign: "right",
+  },
+  statusTag: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  statusTagText: {
+    fontFamily: FONTS.bold,
+    fontSize: 10,
   },
   emptyBox: {
     paddingVertical: 24,
