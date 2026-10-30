@@ -63,8 +63,7 @@ export function LoginForm() {
       const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
       const callbackUrl = params?.get("callbackUrl") ?? "/dashboard/campaign-overview";
 
-      router.push(callbackUrl);
-      router.refresh();
+      window.location.href = callbackUrl;
     } catch {
       setErrorMessage("An unexpected authentication error occurred. Please try again.");
       toast.error("Authentication failed. Please check your credentials.");

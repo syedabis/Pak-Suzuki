@@ -1,0 +1,38 @@
+name: Daily Database Backup
+
+on:
+  schedule:
+    # Runs every day at 21:00 UTC (02:00 AM Pakistan Standard Time)
+    - cron: '0 21 * * *'
+  # Allows 1-click manual backup from GitHub Actions UI
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install PostgreSQL Client
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y postgresql-client
+
+      - name: Create Database Dump
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          mkdir -p backups
+          TIMESTAMP=$(date +'%Y-%m-%d_%H-%M-%S')
+          echo "Starting daily backup for Pak Suzuki database..."
+          pg_dump "$DATABASE_URL" | gzip > "backups/paksuzuki_backup_${TIMESTAMP}.sql.gz"
+          ls -lh backups/
+
+      - name: Save Backup as Private GitHub Artifact (90 Days Free)
+        uses: actions/upload-artifact@v4
+        with:
+          name: db-backup-${{ github.run_id }}
+          path: backups/*.sql.gz
+          retention-days: 90
+

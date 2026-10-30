@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Calendar, CheckCircle2, Clock, MapPin, Moon, Sparkles } from "lucide-react";
 
@@ -9,15 +9,41 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PHASE_1_CITIES, PHASE_2_CITIES, TOUR_CITIES } from "@/data/suzuki-express/tour-schedule";
 import type { TourCity } from "@/data/suzuki-express/types";
+import { supabase } from "@/lib/supabase";
 
 export function TourProgressStrip() {
   const [activeTab, setActiveTab] = useState<"phase1" | "phase2" | "all">("phase1");
+  const [cloudCities, setCloudCities] = useState<string[]>([]);
 
-  const completedCount = TOUR_CITIES.filter((c) => c.status === "completed").length;
-  const activeCity = TOUR_CITIES.find((c) => c.status === "active");
+  useEffect(() => {
+    async function loadCloudCities() {
+      const { data } = await supabase.from("daily_master_sheets").select("city");
+      if (data && data.length > 0) {
+        setCloudCities(data.map((d: any) => d.city.toLowerCase()));
+      }
+    }
+    loadCloudCities();
+  }, []);
+
+  const dynamicallyUpdatedCities = useMemo(() => {
+    if (cloudCities.length === 0) return TOUR_CITIES;
+    return TOUR_CITIES.map((c) => {
+      if (cloudCities.includes(c.city.toLowerCase())) {
+        return { ...c, status: "completed" as const };
+      }
+      return c;
+    });
+  }, [cloudCities]);
+
+  const completedCount = dynamicallyUpdatedCities.filter((c) => c.status === "completed").length;
+  const activeCity = dynamicallyUpdatedCities.find((c) => c.status === "active") || dynamicallyUpdatedCities[0];
 
   const displayedCities =
-    activeTab === "phase1" ? PHASE_1_CITIES : activeTab === "phase2" ? PHASE_2_CITIES : TOUR_CITIES;
+    activeTab === "phase1"
+      ? dynamicallyUpdatedCities.filter((c) => c.phase === 1)
+      : activeTab === "phase2"
+        ? dynamicallyUpdatedCities.filter((c) => c.phase === 2)
+        : dynamicallyUpdatedCities;
 
   const renderCityCard = (city: TourCity) => {
     const isCompleted = city.status === "completed";

@@ -7,15 +7,17 @@ import { Car, ShieldCheck, Trophy, Users } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 
-import { getTourStopsPerformance } from "./performance-data";
+import { getTourStopsPerformance, type DealershipTourStop } from "./performance-data";
 
 interface PerformanceKpisProps {
   readonly selectedScope?: string;
+  readonly stops?: DealershipTourStop[];
+  readonly totalInterceptions?: number;
 }
 
-export function PerformanceKpis({ selectedScope = "phase-1" }: PerformanceKpisProps) {
+export function PerformanceKpis({ selectedScope = "phase-1", stops, totalInterceptions = 0 }: PerformanceKpisProps) {
   const kpis = useMemo(() => {
-    const allStops = getTourStopsPerformance();
+    const allStops = stops && stops.length > 0 ? stops : getTourStopsPerformance();
 
     let targetStops = allStops;
     if (selectedScope === "phase-1") {
@@ -67,7 +69,10 @@ export function PerformanceKpis({ selectedScope = "phase-1" }: PerformanceKpisPr
       {
         title: "Caravan Footfall Mobilized",
         value: `${totalFootfall.toLocaleString()} Visitors`,
-        subtext: `${quotaPct}% of tour ground quota (${targetStops.length} stops)`,
+        subtext:
+          totalInterceptions > 0
+            ? `${totalInterceptions} customer leads logged (${quotaPct}% quota)`
+            : `${quotaPct}% of tour ground quota (${targetStops.length} stops)`,
         icon: Users,
         highlightColor: "text-emerald-600 dark:text-emerald-400",
         bg: "bg-emerald-500/10 dark:bg-emerald-500/20",
@@ -89,7 +94,7 @@ export function PerformanceKpis({ selectedScope = "phase-1" }: PerformanceKpisPr
         bg: "bg-indigo-500/10 dark:bg-indigo-500/20",
       },
     ];
-  }, [selectedScope]);
+  }, [selectedScope, stops, totalInterceptions]);
 
   return (
     <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">

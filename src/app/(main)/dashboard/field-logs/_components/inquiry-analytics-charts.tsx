@@ -17,6 +17,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { DAILY_INQUIRY_RECORDS } from "@/data/suzuki-express/daily-inquiry-data";
+import type { DailyInquirySheetRecord } from "@/data/suzuki-express/types";
 
 type DrilldownState =
   | { level: "overview" }
@@ -82,18 +83,24 @@ const CHART_PALETTE = [
 interface InquiryAnalyticsChartsProps {
   readonly selectedCity?: string;
   readonly onResetCity?: () => void;
+  readonly records?: DailyInquirySheetRecord[];
 }
 
-export function InquiryAnalyticsCharts({ selectedCity = "all-venues", onResetCity }: InquiryAnalyticsChartsProps) {
+export function InquiryAnalyticsCharts({
+  selectedCity = "all-venues",
+  onResetCity,
+  records,
+}: InquiryAnalyticsChartsProps) {
   const [drilldown, setDrilldown] = useState<DrilldownState>({ level: "overview" });
 
   const isCityFiltered = selectedCity !== "all-venues" && selectedCity !== "all-38";
 
   const activeRecords = useMemo(() => {
-    if (!isCityFiltered) return DAILY_INQUIRY_RECORDS;
-    const filtered = DAILY_INQUIRY_RECORDS.filter((r) => r.city.toLowerCase() === selectedCity.toLowerCase());
-    return filtered.length > 0 ? filtered : DAILY_INQUIRY_RECORDS;
-  }, [selectedCity, isCityFiltered]);
+    const dataSource = records && records.length > 0 ? records : DAILY_INQUIRY_RECORDS;
+    if (!isCityFiltered) return dataSource;
+    const filtered = dataSource.filter((r) => r.city.toLowerCase() === selectedCity.toLowerCase());
+    return filtered.length > 0 ? filtered : dataSource;
+  }, [selectedCity, isCityFiltered, records]);
 
   // 1. Model Demand Matrix: Test Drives, Sales Enquiries & Free Evaluations
   const modelDemandData = useMemo(() => {
@@ -124,7 +131,7 @@ export function InquiryAnalyticsCharts({ selectedCity = "all-venues", onResetCit
   // 2. City Caravan Footfall & Dispatched Test Drives
   const cityFootfallData = useMemo(() => {
     return activeRecords.map((r) => {
-      const drives = r.fourWheelers.reduce((sum, item) => sum + item.testDrive, 0);
+      const drives = (r.fourWheelers || []).reduce((sum: number, item: any) => sum + (item.testDrive || 0), 0);
       return {
         city: r.city,
         footfall: r.customerFootfall,

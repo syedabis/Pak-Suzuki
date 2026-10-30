@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { supabase } from "../services/supabase";
 
 export interface SupervisorProfile {
   name: string;
@@ -76,7 +77,7 @@ export interface DailyMasterSheetEntry {
 interface AppContextType {
   supervisor: SupervisorProfile | null;
   isAuthenticated: boolean;
-  login: (credentials: { email: string; pass: string; city: string }) => boolean;
+  login: (credentials: { email: string; pass: string; city?: string }) => Promise<{ success: boolean; message?: string }>;
   register: (data: {
     name: string;
     email: string;
@@ -284,25 +285,171 @@ const SEED_MASTER_SHEETS: DailyMasterSheetEntry[] = [
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
-  const [supervisor, setSupervisor] = useState<SupervisorProfile | null>(DEFAULT_SUPERVISOR);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true); // Logged in by default with Gohar Ali
+  const [supervisor, setSupervisor] = useState<SupervisorProfile | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [interceptions, setInterceptions] = useState<InterceptionEntry[]>(SEED_INTERCEPTIONS);
   const [surveys, setSurveys] = useState<KCarrySurveyEntry[]>(SEED_SURVEYS);
   const [masterSheets, setMasterSheets] = useState<DailyMasterSheetEntry[]>(SEED_MASTER_SHEETS);
 
-  const login = ({ email, city }: { email: string; pass: string; city: string }) => {
-    setSupervisor({
-      name: email.split("@")[0].replace(".", " ").replace(/\b\w/g, (c) => c.toUpperCase()) || "Gohar Ali",
-      email: email || "gohar.ali@suzuki.com.pk",
-      employeeId: "PSMC-SUP-108",
-      role: "On-Ground Lead Supervisor",
-      assignedCity: city || "Usta Muhammad",
-      assignedDealer: "Suzuki Jacobabad Motors",
-      stationVenue: "Grain Market Ground",
-      region: "ROS",
-    });
-    setIsAuthenticated(true);
-    return true;
+  // Sync latest records from Supabase on mount
+  useEffect(() => {
+    async function fetchCloudData() {
+      try {
+        const [intRes, survRes, msRes] = await Promise.all([
+          supabase.from("customer_interceptions").select("*").order("created_at", { ascending: false }).limit(25),
+          supabase.from("k_carry_surveys").select("*").order("created_at", { ascending: false }).limit(25),
+          supabase.from("daily_master_sheets").select("*").order("created_at", { ascending: false }).limit(25),
+        ]);
+
+        if (intRes.data && intRes.data.length > 0) {
+          const cloudInts: InterceptionEntry[] = intRes.data.map((row: any) => ({
+            id: row.client_id || row.id,
+            name: row.name,
+            gender: row.gender,
+            age: row.age,
+            contactNo: row.contact_no,
+            channel: row.channel,
+            city: row.city,
+            timestamp: "Cloud",
+            supervisor: row.supervisor_name || "Supervisor",
+            synced: true,
+          }));
+          // Merge unique by phone/id
+          setInterceptions((prev) => {
+            const existingIds = new Set(prev.map((p) => p.contactNo));
+            const newOnes = cloudInts.filter((c) => !existingIds.has(c.contactNo));
+            return [...newOnes, ...prev];
+          });
+        }
+
+        if (survRes.data && survRes.data.length > 0) {
+          const cloudSurvs: KCarrySurveyEntry[] = survRes.data.map((row: any) => ({
+            id: row.client_id || row.id,
+            respondentName: row.respondent_name,
+            contactNo: row.contact_no,
+            city: row.city,
+            leadStatus: row.lead_status,
+            mainOccupation: row.main_occupation,
+            mainRequirement: row.main_requirement,
+            currentVehicle: row.current_vehicle,
+            mostImportantFeature: row.most_important_feature,
+            biggestTransportProblem: row.biggest_transport_problem,
+            heardAboutKCarryBefore: row.heard_about_kcarry_before,
+            knowsReplacementForRavi: row.knows_replacement_for_ravi,
+            suitableReplacementForRavi: row.suitable_replacement_for_ravi,
+            reasonablePriceRange: row.reasonable_price_range,
+            wouldConsiderBuying: row.would_consider_buying,
+            notes: row.notes,
+            timestamp: "Cloud",
+            supervisor: row.supervisor_name || "Supervisor",
+            synced: true,
+          }));
+
+          setSurveys((prev) => {
+            const existingIds = new Set(prev.map((p) => p.contactNo));
+            const newOnes = cloudSurvs.filter((c) => !existingIds.has(c.contactNo));
+            return [...newOnes, ...prev];
+          });
+        }
+
+        if (msRes.data && msRes.data.length > 0) {
+          const cloudMasterSheets: DailyMasterSheetEntry[] = msRes.data.map((row: any) => ({
+            id: row.client_id || row.id,
+            eventDate: row.event_date || "2026-11-16",
+            city: row.city,
+            dealer: row.dealer,
+            venue: row.venue,
+            footfall: row.customer_footfall,
+            ogSupervisor: row.supervisor_og,
+            psSupervisor: row.supervisor_ps,
+            eventTimings: row.timings,
+            fourWheelData: row.four_wheel_data,
+            everyTestDrives: row.every_test_drives || 0,
+            kCarryTestDrives: row.k_carry_test_drives || 0,
+            tradeInEvaluations: row.trade_in_evaluations || 0,
+            freeInspections: row.free_inspections || 0,
+            freeOilChanges: row.free_oil_changes || 0,
+            appointmentsGiven: row.appointments_given || 0,
+            genuinePartsRevenuePkr: row.genuine_parts_revenue_pkr || 0,
+            dealerRating: row.dealer_rating || "Good",
+            supervisorNotes: row.supervisor_notes || "",
+            timestamp: "Cloud Synced",
+            synced: true,
+          }));
+
+          setMasterSheets((prev) => {
+            const existingIds = new Set(prev.map((p) => p.id));
+            const newOnes = cloudMasterSheets.filter((c) => !existingIds.has(c.id));
+            return [...newOnes, ...prev];
+          });
+        }
+      } catch (err) {
+        console.warn("Cloud initial sync fetch error:", err);
+      }
+    }
+
+    fetchCloudData();
+  }, []);
+
+  const login = async ({ email, pass, city }: { email: string; pass: string; city?: string }): Promise<{ success: boolean; message?: string }> => {
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPass = pass.trim();
+
+    try {
+      // 1. Query Supabase supervisors table
+      const { data, error } = await supabase
+        .from("supervisors")
+        .select("*")
+        .eq("email", cleanEmail)
+        .maybeSingle();
+
+      if (error) {
+        console.warn("Supabase auth check query error:", error.message);
+      } else if (data) {
+        if (!data.is_active) {
+          return { success: false, message: "Account is deactivated. Please contact your administrator." };
+        }
+        if (data.password && data.password !== cleanPass) {
+          return { success: false, message: "Incorrect password. Please try again." };
+        }
+
+        setSupervisor({
+          name: data.name || "Supervisor",
+          email: data.email,
+          employeeId: data.employee_id || "PSMC-SUP-101",
+          role: data.role || "On-Ground Lead Supervisor",
+          assignedCity: data.assigned_city || city || "Usta Muhammad",
+          assignedDealer: data.assigned_dealer || "Suzuki Jacobabad Motors",
+          stationVenue: data.station_venue || "Grain Market Ground",
+          region: data.region === "ROSP" ? "ROSP" : "ROS",
+        });
+        setIsAuthenticated(true);
+        return { success: true };
+      }
+    } catch (err) {
+      console.warn("Supabase auth connection issue, checking offline admin fallback:", err);
+    }
+
+    // 2. Admin master fallback (for offline or local emergency setup)
+    const validEmail = (process.env.EXPO_PUBLIC_ADMIN_EMAIL || "admin@paksuzuki.com.pk").trim().toLowerCase();
+    const validPass = (process.env.EXPO_PUBLIC_ADMIN_PASSWORD || "paksuzuki2026").trim();
+
+    if (cleanEmail === validEmail && cleanPass === validPass) {
+      setSupervisor({
+        name: "Pak Suzuki Admin",
+        email: validEmail,
+        employeeId: "PSMC-ADM-001",
+        role: "System Administrator",
+        assignedCity: city || "Usta Muhammad",
+        assignedDealer: "Suzuki Jacobabad Motors",
+        stationVenue: "Grain Market Ground",
+        region: "ROS",
+      });
+      setIsAuthenticated(true);
+      return { success: true };
+    }
+
+    return { success: false, message: "Invalid email or password" };
   };
 
   const register = (data: {
@@ -343,36 +490,123 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const addInterception = (entry: Omit<InterceptionEntry, "id" | "timestamp" | "synced" | "supervisor">) => {
+  const addInterception = async (entry: Omit<InterceptionEntry, "id" | "timestamp" | "synced" | "supervisor">) => {
+    const localId = `INT-${Date.now().toString().slice(-4)}`;
     const newRecord: InterceptionEntry = {
       ...entry,
-      id: `INT-${Date.now().toString().slice(-4)}`,
+      id: localId,
       timestamp: "Just now",
       supervisor: supervisor?.name || "Gohar Ali",
-      synced: true,
+      synced: false,
     };
     setInterceptions((prev) => [newRecord, ...prev]);
+
+    try {
+      const { error } = await supabase.from("customer_interceptions").insert({
+        client_id: localId,
+        name: entry.name,
+        gender: entry.gender,
+        age: entry.age,
+        contact_no: entry.contactNo,
+        channel: entry.channel,
+        city: entry.city,
+        supervisor_name: supervisor?.name || "Gohar Ali",
+        synced: true,
+      });
+
+      if (!error) {
+        setInterceptions((prev) =>
+          prev.map((item) => (item.id === localId ? { ...item, synced: true } : item))
+        );
+      }
+    } catch (err) {
+      console.warn("Offline or sync pending for interception:", err);
+    }
   };
 
-  const addSurvey = (entry: Omit<KCarrySurveyEntry, "id" | "timestamp" | "synced" | "supervisor">) => {
+  const addSurvey = async (entry: Omit<KCarrySurveyEntry, "id" | "timestamp" | "synced" | "supervisor">) => {
+    const localId = `SURV-${Date.now().toString().slice(-4)}`;
     const newRecord: KCarrySurveyEntry = {
       ...entry,
-      id: `SURV-${Date.now().toString().slice(-4)}`,
+      id: localId,
       timestamp: "Just now",
       supervisor: supervisor?.name || "Gohar Ali",
-      synced: true,
+      synced: false,
     };
     setSurveys((prev) => [newRecord, ...prev]);
+
+    try {
+      const { error } = await supabase.from("k_carry_surveys").insert({
+        client_id: localId,
+        respondent_name: entry.respondentName,
+        contact_no: entry.contactNo,
+        city: entry.city,
+        lead_status: entry.leadStatus,
+        main_occupation: entry.mainOccupation,
+        main_requirement: entry.mainRequirement,
+        current_vehicle: entry.currentVehicle,
+        most_important_feature: entry.mostImportantFeature,
+        biggest_transport_problem: entry.biggestTransportProblem,
+        heard_about_kcarry_before: entry.heardAboutKCarryBefore,
+        knows_replacement_for_ravi: entry.knowsReplacementForRavi,
+        suitable_replacement_for_ravi: entry.suitableReplacementForRavi,
+        reasonable_price_range: entry.reasonablePriceRange,
+        would_consider_buying: entry.wouldConsiderBuying,
+        notes: entry.notes || "",
+        supervisor_name: supervisor?.name || "Gohar Ali",
+      });
+
+      if (!error) {
+        setSurveys((prev) =>
+          prev.map((item) => (item.id === localId ? { ...item, synced: true } : item))
+        );
+      }
+    } catch (err) {
+      console.warn("Offline or sync pending for survey:", err);
+    }
   };
 
-  const addMasterSheet = (entry: Omit<DailyMasterSheetEntry, "id" | "timestamp" | "synced">) => {
+  const addMasterSheet = async (entry: Omit<DailyMasterSheetEntry, "id" | "timestamp" | "synced">) => {
+    const localId = `MS-${Date.now().toString().slice(-4)}`;
     const newRecord: DailyMasterSheetEntry = {
       ...entry,
-      id: `MS-${Date.now().toString().slice(-4)}`,
+      id: localId,
       timestamp: "Just now",
-      synced: true,
+      synced: false,
     };
     setMasterSheets((prev) => [newRecord, ...prev]);
+
+    try {
+      const { error } = await supabase.from("daily_master_sheets").insert({
+        client_id: localId,
+        event_date: entry.eventDate,
+        city: entry.city,
+        dealer: entry.dealer,
+        venue: entry.venue,
+        customer_footfall: entry.footfall || 0,
+        timings: entry.eventTimings || "09:00 to 17:30",
+        supervisor_og: entry.ogSupervisor || "",
+        supervisor_ps: entry.psSupervisor || "",
+        four_wheel_data: entry.fourWheelData || {},
+        every_test_drives: entry.everyTestDrives,
+        k_carry_test_drives: entry.kCarryTestDrives,
+        trade_in_evaluations: entry.tradeInEvaluations,
+        free_inspections: entry.freeInspections,
+        free_oil_changes: entry.freeOilChanges,
+        appointments_given: entry.appointmentsGiven || 0,
+        genuine_parts_revenue_pkr: entry.genuinePartsRevenuePkr,
+        dealer_rating: entry.dealerRating,
+        supervisor_notes: entry.supervisorNotes || "",
+      });
+
+      if (!error) {
+        setMasterSheets((prev) =>
+          prev.map((item) => (item.id === localId ? { ...item, synced: true } : item))
+        );
+      }
+    } catch (err) {
+      console.warn("Offline or sync pending for master sheet:", err);
+    }
   };
 
   const todayStats = {

@@ -1,11 +1,12 @@
 "use client";
+import React, { useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Subscribe } from "@tanstack/react-table";
 import { cn } from "cn";
-import { parse } from "date-fns";
-import { Check, Clock, MoreHorizontal, X } from "lucide-react";
+import { Copy, Eye, EyeOff, MoreHorizontal, Power, Shield, Trash2, UserCheck, UserX } from "lucide-react";
+import { toast } from "sonner";
 
-import { Avatar, AvatarBadge, AvatarFallback, AvatarGroup, AvatarGroupCount } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -19,104 +20,55 @@ import {
 import type { DataTableFeatures } from "@/lib/data-table-features";
 import { getInitials } from "@/lib/utils";
 
-import { statusMeta, type UserRow } from "./data";
+import { statusMeta, type SupervisorUser } from "./data";
 
-function RoleCell({ role, team }: { role: string; team: string }) {
+function PasswordCell({ password }: { password?: string }) {
+  const [show, setShow] = useState(false);
+  const val = password || "paksuzuki2026";
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(val);
+    toast.success("Password copied to clipboard");
+  };
+
   return (
-    <div className="grid gap-0.5">
-      <span className="whitespace-nowrap">{role}</span>
-      <span className="text-muted-foreground text-xs">{team}</span>
+    <div className="flex items-center gap-1.5 font-mono text-xs">
+      <span className="bg-muted px-2 py-0.5 rounded text-foreground">{show ? val : "••••••••"}</span>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="size-6 text-muted-foreground hover:text-foreground"
+        onClick={() => setShow(!show)}
+        title={show ? "Hide password" : "Show password"}
+      >
+        {show ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="size-6 text-muted-foreground hover:text-foreground"
+        onClick={handleCopy}
+        title="Copy password"
+      >
+        <Copy className="size-3.5" />
+      </Button>
     </div>
   );
 }
 
-function StatusBadge({ status }: { status: UserRow["status"] }) {
+function StatusBadge({ isActive }: { isActive: boolean }) {
+  const status = isActive ? "Active" : "Deactivated";
   const meta = statusMeta[status];
 
   return (
-    <Badge className={cn("gap-1.5 border px-2 py-1 font-medium", meta.badgeClass)} variant="outline">
+    <Badge className={cn("gap-1.5 border px-2 py-0.5 font-medium text-xs", meta.badgeClass)} variant="outline">
       <span className={cn("size-1.5 rounded-full", meta.dotClass)} />
       {status}
     </Badge>
   );
 }
 
-function getAvatarTone(name: string) {
-  const tones = [
-    "[&_[data-slot=avatar-fallback]]:bg-amber-100 [&_[data-slot=avatar-fallback]]:text-amber-700 after:border-amber-200 dark:[&_[data-slot=avatar-fallback]]:bg-amber-500/15 dark:[&_[data-slot=avatar-fallback]]:text-amber-300 dark:after:border-amber-500/20",
-    "[&_[data-slot=avatar-fallback]]:bg-orange-100 [&_[data-slot=avatar-fallback]]:text-orange-700 after:border-orange-200 dark:[&_[data-slot=avatar-fallback]]:bg-orange-500/15 dark:[&_[data-slot=avatar-fallback]]:text-orange-300 dark:after:border-orange-500/20",
-    "[&_[data-slot=avatar-fallback]]:bg-rose-100 [&_[data-slot=avatar-fallback]]:text-rose-700 after:border-rose-200 dark:[&_[data-slot=avatar-fallback]]:bg-rose-500/15 dark:[&_[data-slot=avatar-fallback]]:text-rose-300 dark:after:border-rose-500/20",
-    "[&_[data-slot=avatar-fallback]]:bg-pink-100 [&_[data-slot=avatar-fallback]]:text-pink-700 after:border-pink-200 dark:[&_[data-slot=avatar-fallback]]:bg-pink-500/15 dark:[&_[data-slot=avatar-fallback]]:text-pink-300 dark:after:border-pink-500/20",
-    "[&_[data-slot=avatar-fallback]]:bg-fuchsia-100 [&_[data-slot=avatar-fallback]]:text-fuchsia-700 after:border-fuchsia-200 dark:[&_[data-slot=avatar-fallback]]:bg-fuchsia-500/15 dark:[&_[data-slot=avatar-fallback]]:text-fuchsia-300 dark:after:border-fuchsia-500/20",
-    "[&_[data-slot=avatar-fallback]]:bg-purple-100 [&_[data-slot=avatar-fallback]]:text-purple-700 after:border-purple-200 dark:[&_[data-slot=avatar-fallback]]:bg-purple-500/15 dark:[&_[data-slot=avatar-fallback]]:text-purple-300 dark:after:border-purple-500/20",
-    "[&_[data-slot=avatar-fallback]]:bg-violet-100 [&_[data-slot=avatar-fallback]]:text-violet-700 after:border-violet-200 dark:[&_[data-slot=avatar-fallback]]:bg-violet-500/15 dark:[&_[data-slot=avatar-fallback]]:text-violet-300 dark:after:border-violet-500/20",
-    "[&_[data-slot=avatar-fallback]]:bg-indigo-100 [&_[data-slot=avatar-fallback]]:text-indigo-700 after:border-indigo-200 dark:[&_[data-slot=avatar-fallback]]:bg-indigo-500/15 dark:[&_[data-slot=avatar-fallback]]:text-indigo-300 dark:after:border-indigo-500/20",
-    "[&_[data-slot=avatar-fallback]]:bg-sky-100 [&_[data-slot=avatar-fallback]]:text-sky-700 after:border-sky-200 dark:[&_[data-slot=avatar-fallback]]:bg-sky-500/15 dark:[&_[data-slot=avatar-fallback]]:text-sky-300 dark:after:border-sky-500/20",
-    "[&_[data-slot=avatar-fallback]]:bg-emerald-100 [&_[data-slot=avatar-fallback]]:text-emerald-700 after:border-emerald-200 dark:[&_[data-slot=avatar-fallback]]:bg-emerald-500/15 dark:[&_[data-slot=avatar-fallback]]:text-emerald-300 dark:after:border-emerald-500/20",
-  ];
-
-  return tones[name.length % tones.length];
-}
-
-function getLastActiveBadge(lastActive: number) {
-  if (lastActive < 1) {
-    return {
-      className: "bg-green-600 text-green-950 [&>svg]:text-white",
-      icon: Check,
-    };
-  }
-
-  if (lastActive < 4 * 60) {
-    return {
-      className: "bg-amber-500 text-amber-950",
-      icon: Clock,
-    };
-  }
-
-  if (lastActive < 7 * 24 * 60) {
-    return {
-      className: "bg-destructive",
-      icon: null,
-    };
-  }
-
-  return {
-    className: "bg-muted-foreground text-muted",
-    icon: X,
-  };
-}
-
-function AvatarCell({ lastActive, name }: { lastActive: number; name: string }) {
-  const badge = getLastActiveBadge(lastActive);
-  const BadgeIcon = badge.icon;
-
-  return (
-    <Avatar size="lg" className={cn("font-medium", getAvatarTone(name))}>
-      <AvatarFallback>{getInitials(name)}</AvatarFallback>
-      <AvatarBadge className={badge.className}>{BadgeIcon ? <BadgeIcon /> : null}</AvatarBadge>
-    </Avatar>
-  );
-}
-
-function WorkspaceCell({ workspaces }: { workspaces: string[] }) {
-  const [firstWorkspace, ...remainingWorkspaces] = workspaces;
-  const remainingCount = remainingWorkspaces.length;
-
-  return (
-    <AvatarGroup className="*:data-[slot=avatar]:ring-0">
-      {firstWorkspace ? (
-        <Avatar className="after:rounded-sm">
-          <AvatarFallback className="rounded-sm ring-0">{getInitials(firstWorkspace)}</AvatarFallback>
-        </Avatar>
-      ) : null}
-      {remainingCount > 0 ? (
-        <AvatarGroupCount className="rounded-sm border ring-card">+{remainingCount}</AvatarGroupCount>
-      ) : null}
-    </AvatarGroup>
-  );
-}
-
-export const usersColumns: ColumnDef<DataTableFeatures, UserRow>[] = [
+export const usersColumns: ColumnDef<DataTableFeatures, SupervisorUser>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -130,7 +82,7 @@ export const usersColumns: ColumnDef<DataTableFeatures, UserRow>[] = [
         >
           {(checked) => (
             <Checkbox
-              aria-label="Select all users"
+              aria-label="Select all supervisors"
               checked={checked}
               onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
             />
@@ -156,80 +108,133 @@ export const usersColumns: ColumnDef<DataTableFeatures, UserRow>[] = [
   },
   {
     id: "search",
-    accessorFn: (row) => `${row.name} ${row.email}`,
+    accessorFn: (row) => `${row.name} ${row.email} ${row.employee_id} ${row.assigned_city} ${row.assigned_dealer}`,
     filterFn: "includesString",
     enableHiding: true,
   },
   {
     accessorKey: "name",
-    header: "User",
+    header: "Supervisor / User",
     cell: ({ row }) => (
       <div className="flex items-center gap-3">
-        <AvatarCell name={row.original.name} lastActive={row.original.lastActive} />
+        <Avatar size="sm" className="font-semibold bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900">
+          <AvatarFallback>{getInitials(row.original.name)}</AvatarFallback>
+        </Avatar>
         <div className="min-w-0">
-          <div className="truncate font-medium text-foreground text-sm">{row.original.name}</div>
-          <div className="truncate text-muted-foreground text-sm">{row.original.email}</div>
+          <div className="truncate font-semibold text-foreground text-sm flex items-center gap-1.5">
+            {row.original.name}
+            {row.original.role === "System Administrator" && <Shield className="size-3.5 text-zinc-500" />}
+          </div>
+          <div className="truncate text-muted-foreground text-xs">{row.original.email}</div>
         </div>
       </div>
     ),
   },
   {
+    accessorKey: "employee_id",
+    header: "Emp ID",
+    cell: ({ row }) => (
+      <span className="font-mono text-xs bg-muted/60 px-2 py-0.5 rounded border border-border">
+        {row.original.employee_id}
+      </span>
+    ),
+  },
+  {
     accessorKey: "role",
-    header: "Role / Team",
+    header: "Role",
     filterFn: "equalsString",
-    cell: ({ row }) => <RoleCell role={row.original.role} team={row.original.team} />,
+    cell: ({ row }) => <span className="text-xs font-medium text-foreground">{row.original.role}</span>,
   },
   {
-    accessorKey: "team",
-    header: "Team",
+    accessorKey: "assigned_city",
+    header: "Assigned City & Dealer",
     filterFn: "equalsString",
-    cell: ({ row }) => <div className="text-sm">{row.original.team}</div>,
+    cell: ({ row }) => (
+      <div className="flex flex-col text-xs">
+        <span className="font-semibold text-foreground">{row.original.assigned_city}</span>
+        <span className="text-muted-foreground truncate max-w-[170px]">{row.original.assigned_dealer}</span>
+      </div>
+    ),
   },
   {
-    accessorKey: "workspace",
-    header: "Workspace",
-    filterFn: "arrIncludes",
-    cell: ({ row }) => <WorkspaceCell workspaces={row.original.workspace} />,
+    accessorKey: "station_venue",
+    header: "Station & Region",
+    cell: ({ row }) => (
+      <div className="flex flex-col text-xs">
+        <span className="text-foreground">{row.original.station_venue}</span>
+        <span className="text-muted-foreground font-mono">{row.original.region}</span>
+      </div>
+    ),
   },
   {
-    accessorKey: "status",
+    id: "password",
+    header: "Mobile Password",
+    cell: ({ row }) => <PasswordCell password={row.original.password} />,
+  },
+  {
+    accessorKey: "is_active",
     header: "Status",
-    filterFn: "equalsString",
-    cell: ({ row }) => <StatusBadge status={row.original.status} />,
-  },
-  {
-    id: "joinedDate",
-    accessorFn: (row) => parse(row.joinedDate, "dd MMM yyyy, h:mm a", new Date()).getTime(),
-    header: "Joined date",
-    cell: ({ row }) => <div className="text-foreground text-sm">{row.original.joinedDate}</div>,
+    cell: ({ row }) => <StatusBadge isActive={row.original.is_active} />,
   },
   {
     id: "actions",
     header: () => <div className="text-right">Actions</div>,
-    cell: ({ row }) => (
-      <div className="text-right">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              aria-label={`Open actions for ${row.original.name}`}
-              className="size-8 rounded-md text-muted-foreground hover:bg-muted/50"
-              size="icon-sm"
-              variant="ghost"
-            >
-              <MoreHorizontal className="size-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>View profile</DropdownMenuItem>
-            <DropdownMenuItem>Edit user</DropdownMenuItem>
-            <DropdownMenuItem>Manage team</DropdownMenuItem>
-            <DropdownMenuItem>Resend invite</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive">Deactivate user</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    ),
+    cell: ({ row, table }) => {
+      const user = row.original;
+      // Extract custom handlers passed via table.options.meta
+      const meta = table.options.meta as
+        | {
+            onToggleStatus?: (user: SupervisorUser) => void;
+            onDelete?: (user: SupervisorUser) => void;
+          }
+        | undefined;
+
+      const handleCopyCredentials = () => {
+        const text = `Pak Suzuki OpsPulse Login Credentials:\nEmail: ${user.email}\nPassword: ${user.password || "paksuzuki2026"}\nAssigned City: ${user.assigned_city}\nStation: ${user.station_venue}`;
+        navigator.clipboard.writeText(text);
+        toast.success("Login credentials copied to clipboard");
+      };
+
+      return (
+        <div className="text-right">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                aria-label={`Open actions for ${user.name}`}
+                className="size-8 rounded-md text-muted-foreground hover:bg-muted/50"
+                size="icon-sm"
+                variant="ghost"
+              >
+                <MoreHorizontal className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={handleCopyCredentials} className="gap-2 text-xs">
+                <Copy className="size-3.5" /> Copy Mobile Credentials
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => meta?.onToggleStatus?.(user)} className="gap-2 text-xs">
+                {user.is_active ? (
+                  <>
+                    <UserX className="size-3.5 text-amber-500" /> Deactivate Account
+                  </>
+                ) : (
+                  <>
+                    <UserCheck className="size-3.5 text-emerald-500" /> Activate Account
+                  </>
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => meta?.onDelete?.(user)}
+                className="gap-2 text-xs text-destructive focus:text-destructive"
+              >
+                <Trash2 className="size-3.5" /> Delete Supervisor
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      );
+    },
     enableHiding: false,
     enableSorting: false,
   },

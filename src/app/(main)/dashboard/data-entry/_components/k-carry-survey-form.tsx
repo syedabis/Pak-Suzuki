@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { CheckCircle2, Flame, Send, Sparkles } from "lucide-react";
+import { CheckCircle2, Flame, Send, Sparkles, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,9 +11,12 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TOUR_CITIES } from "@/data/suzuki-express/tour-schedule";
+import { supabase } from "@/lib/supabase";
 
 export function KCarrySurveyForm() {
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [formData, setFormData] = useState({
     customerName: "",
     mobileNo: "",
@@ -32,18 +35,54 @@ export function KCarrySurveyForm() {
     notes: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-      setFormData((prev) => ({
-        ...prev,
-        customerName: "",
-        mobileNo: "",
-        notes: "",
-      }));
-    }, 3000);
+    if (!formData.customerName.trim() || !formData.mobileNo.trim()) return;
+
+    setIsSubmitting(true);
+    setErrorMessage("");
+
+    try {
+      const { error } = await supabase.from("k_carry_surveys").insert({
+        respondent_name: formData.customerName.trim(),
+        contact_no: formData.mobileNo.trim(),
+        city: formData.campaignLocation,
+        lead_status: formData.leadStatus,
+        main_occupation: formData.mainOccupation,
+        main_requirement: formData.mainRequirement,
+        current_vehicle: formData.currentVehicle,
+        most_important_feature: formData.mostImportantFeature,
+        biggest_transport_problem: formData.biggestTransportProblem,
+        heard_about_kcarry_before: formData.heardAboutKCarryBefore,
+        knows_replacement_for_ravi: formData.knowsReplacementForRavi,
+        suitable_replacement_for_ravi: formData.suitableReplacementForRavi,
+        reasonable_price_range: formData.reasonablePriceRange,
+        would_consider_buying: formData.wouldConsiderBuying,
+        notes: formData.notes.trim() || "",
+        supervisor_name: "Web Portal Admin",
+      });
+
+      if (error) {
+        console.warn("Supabase survey insert error:", error);
+        setErrorMessage("Failed to save to cloud database. Please try again.");
+      } else {
+        setSubmitted(true);
+        setTimeout(() => {
+          setSubmitted(false);
+          setFormData((prev) => ({
+            ...prev,
+            customerName: "",
+            mobileNo: "",
+            notes: "",
+          }));
+        }, 3500);
+      }
+    } catch (err: any) {
+      console.warn("Survey submit error:", err);
+      setErrorMessage("Network error connecting to Supabase.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -431,17 +470,32 @@ export function KCarrySurveyForm() {
             </div>
 
             <div className="flex items-center justify-end gap-3 pt-3 border-t">
+              {errorMessage && (
+                <div className="text-xs text-red-600 bg-red-50 dark:bg-red-950/30 p-2 rounded border border-red-200">
+                  {errorMessage}
+                </div>
+              )}
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 onClick={() => setFormData({ ...formData, customerName: "", mobileNo: "", notes: "" })}
+                disabled={isSubmitting}
               >
                 Reset
               </Button>
-              <Button type="submit" size="sm" className="gap-2">
-                <Send className="size-3.5" />
-                Submit K-CARRY Survey Record
+              <Button type="submit" size="sm" className="gap-2" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="size-3.5 animate-spin" />
+                    Saving to Cloud...
+                  </>
+                ) : (
+                  <>
+                    <Send className="size-3.5" />
+                    Submit K-CARRY Survey Record
+                  </>
+                )}
               </Button>
             </div>
           </form>

@@ -33,7 +33,7 @@ export function TopNavBar({ onOpenProfileModal }: TopNavBarProps) {
       {/* Official Website Pak Suzuki Logo */}
       <View style={styles.logoWrapper}>
         <Image
-          source={require("@/assets/images/suzuki-logo.png")}
+          source={require("../../assets/images/suzuki-logo.png")}
           style={styles.logoImage}
           resizeMode="contain"
         />

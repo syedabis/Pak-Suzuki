@@ -1,16 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import Link from "next/link";
 
-import { ArrowLeft, Building2, Compass, Download } from "lucide-react";
+import { ArrowLeft, Building2, Compass, Download, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { supabase } from "@/lib/supabase";
 
 import { IndividualLeaderboard } from "./individual-leaderboard";
+import { InterceptionsLedger } from "./interceptions-ledger";
 import { getTourStopsPerformance } from "./performance-data";
 import { PerformanceKpis } from "./performance-kpis";
 import { TeamPerformanceChart } from "./team-chart";
@@ -18,9 +20,66 @@ import { TeamPerformanceCards } from "./team-performance";
 
 export function PerformanceClient() {
   const [selectedScope, setSelectedScope] = useState<string>("phase-1");
+  const [cloudMasterSheets, setCloudMasterSheets] = useState<any[]>([]);
+  const [cloudInterceptions, setCloudInterceptions] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function loadCloudData() {
+      // 1. Fetch latest daily master sheets
+      const { data: sheetsData } = await supabase
+        .from("daily_master_sheets")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (sheetsData && sheetsData.length > 0) {
+        setCloudMasterSheets(sheetsData);
+      }
+
+      // 2. Fetch latest customer interceptions
+      const { data: intData } = await supabase
+        .from("customer_interceptions")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (intData && intData.length > 0) {
+        setCloudInterceptions(intData);
+      }
+    }
+
+    loadCloudData();
+
+    // Subscribe to realtime changes for customer interceptions
+    const intChannel = supabase
+      .channel("perf:customer_interceptions")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "customer_interceptions" },
+        (payload: any) => {
+          setCloudInterceptions((prev) => [payload.new, ...prev]);
+        },
+      )
+      .subscribe();
+
+    // Subscribe to realtime changes for daily master sheets
+    const sheetsChannel = supabase
+      .channel("perf:daily_master_sheets")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "daily_master_sheets" }, (payload: any) => {
+        setCloudMasterSheets((prev) => [payload.new, ...prev]);
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(intChannel);
+      supabase.removeChannel(sheetsChannel);
+    };
+  }, []);
+
+  const allStops = useMemo(
+    () => getTourStopsPerformance(cloudMasterSheets, cloudInterceptions),
+    [cloudMasterSheets, cloudInterceptions],
+  );
 
   const handleExportMaster = () => {
-    const allStops = getTourStopsPerformance();
     const headers = [
       "Stop #",
       "City",
@@ -33,6 +92,7 @@ export function PerformanceClient() {
       "OG Supervisor",
       "Status",
       "Footfall",
+      "Visitor Leads",
       "Test Drives",
       "Sales Inquiries",
       "Trade-in Appraisals",
@@ -53,6 +113,7 @@ export function PerformanceClient() {
       `"${s.supervisorOG.replace(/"/g, '""')}"`,
       s.status,
       s.footfall,
+      s.interceptionsCount,
       s.testDrives,
       s.salesInquiries,
       s.tradeInEvaluations,
@@ -87,8 +148,8 @@ export function PerformanceClient() {
               <h1 className="font-semibold text-3xl tracking-tight">Dealer &amp; Tour Performance</h1>
             </div>
             <p className="text-muted-foreground text-xs">
-              38-City Nationwide Caravan: On-ground 3S dealer mobilization, test drive velocity &amp; mobile clinic
-              throughput
+              38-City Nationwide Caravan: On-ground 3S dealer mobilization, visitor interceptions, test drive velocity
+              &amp; mobile clinic throughput
             </p>
           </div>
         </div>
@@ -132,7 +193,7 @@ export function PerformanceClient() {
       </div>
 
       {/* Dynamic Summary KPI Strip */}
-      <PerformanceKpis selectedScope={selectedScope} />
+      <PerformanceKpis selectedScope={selectedScope} stops={allStops} totalInterceptions={cloudInterceptions.length} />
 
       {/* Structured Tabs View */}
       <Tabs defaultValue="all" className="flex flex-col gap-4">
@@ -146,6 +207,10 @@ export function PerformanceClient() {
             </TabsTrigger>
             <TabsTrigger value="individuals" className="text-xs">
               38-City Dealership Ledger
+            </TabsTrigger>
+            <TabsTrigger value="interceptions" className="text-xs flex items-center gap-1.5">
+              <Users className="size-3.5" />
+              Customer Leads ({cloudInterceptions.length})
             </TabsTrigger>
           </TabsList>
         </div>
@@ -171,7 +236,10 @@ export function PerformanceClient() {
             <TeamPerformanceCards />
           </div>
 
-          <IndividualLeaderboard />
+          <IndividualLeaderboard stops={allStops} />
+
+          {/* Customer Interceptions Leads directly visible on Overview */}
+          <InterceptionsLedger interceptions={cloudInterceptions} />
         </TabsContent>
 
         {/* Tab 2: Regional Legs Focus */}
@@ -182,7 +250,12 @@ export function PerformanceClient() {
 
         {/* Tab 3: Dealership Ledger Focus */}
         <TabsContent value="individuals" className="m-0 flex flex-col gap-5">
-          <IndividualLeaderboard />
+          <IndividualLeaderboard stops={allStops} />
+        </TabsContent>
+
+        {/* Tab 4: Customer Interceptions Leads Focus */}
+        <TabsContent value="interceptions" className="m-0 flex flex-col gap-5">
+          <InterceptionsLedger interceptions={cloudInterceptions} />
         </TabsContent>
       </Tabs>
     </div>

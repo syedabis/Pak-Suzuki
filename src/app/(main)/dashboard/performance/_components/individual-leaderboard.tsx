@@ -19,9 +19,9 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
-import { getTourStopsPerformance } from "./performance-data";
+import { getTourStopsPerformance, type DealershipTourStop } from "./performance-data";
 
-export function IndividualLeaderboard() {
+export function IndividualLeaderboard({ stops }: { stops?: DealershipTourStop[] }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
   const [selectedPhase, setSelectedPhase] = useState<string>("all");
@@ -29,7 +29,7 @@ export function IndividualLeaderboard() {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
-  const allStops = useMemo(() => getTourStopsPerformance(), []);
+  const allStops = useMemo(() => (stops && stops.length > 0 ? stops : getTourStopsPerformance()), [stops]);
 
   const filteredStops = useMemo(() => {
     return allStops
@@ -229,6 +229,7 @@ export function IndividualLeaderboard() {
                 <TableHead className="min-w-[160px] font-semibold">Supervisors (PS &amp; OG)</TableHead>
                 <TableHead className="w-24 text-center font-semibold">Tour Status</TableHead>
                 <TableHead className="text-right font-semibold">Footfall</TableHead>
+                <TableHead className="text-right font-semibold">Visitor Leads</TableHead>
                 <TableHead className="text-right font-semibold">Test Drives</TableHead>
                 <TableHead className="text-right font-semibold">Inquiries</TableHead>
                 <TableHead className="text-right font-semibold">3S Clinic</TableHead>
@@ -239,7 +240,7 @@ export function IndividualLeaderboard() {
             <TableBody>
               {paginatedStops.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={11} className="h-28 text-center text-muted-foreground">
+                  <TableCell colSpan={12} className="h-28 text-center text-muted-foreground">
                     No tour stops match the current filters.
                   </TableCell>
                 </TableRow>
@@ -314,6 +315,19 @@ export function IndividualLeaderboard() {
                           </div>
                         ) : (
                           <span className="text-muted-foreground">150 (tgt)</span>
+                        )}
+                      </TableCell>
+
+                      <TableCell className="text-right font-medium font-mono">
+                        {stop.interceptionsCount > 0 ? (
+                          <Badge
+                            variant="outline"
+                            className="border-emerald-200 bg-emerald-50 text-[10px] text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 font-medium"
+                          >
+                            {stop.interceptionsCount} Leads
+                          </Badge>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
                         )}
                       </TableCell>
 

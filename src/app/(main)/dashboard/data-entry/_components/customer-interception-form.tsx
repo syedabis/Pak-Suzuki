@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-import { CheckCircle2, Megaphone, Plus, UserPlus, Users } from "lucide-react";
+import { CheckCircle2, Megaphone, Plus, UserPlus, Users, Radio } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { CUSTOMER_INTERCEPTIONS } from "@/data/suzuki-express/customer-interceptions";
 import { TOUR_CITIES } from "@/data/suzuki-express/tour-schedule";
 import type { AcquisitionChannel } from "@/data/suzuki-express/types";
+import { supabase } from "@/lib/supabase";
 
 const MARKETING_CHANNELS: AcquisitionChannel[] = [
   "Auto Rickshaw Banner",
@@ -27,7 +28,7 @@ const MARKETING_CHANNELS: AcquisitionChannel[] = [
 ];
 
 export function CustomerInterceptionForm() {
-  const [items, setItems] = useState(CUSTOMER_INTERCEPTIONS.slice(0, 8));
+  const [items, setItems] = useState<any[]>(CUSTOMER_INTERCEPTIONS.slice(0, 8));
   const [name, setName] = useState("");
   const [gender, setGender] = useState<"Male" | "Female">("Male");
   const [age, setAge] = useState("35");
@@ -35,28 +36,112 @@ export function CustomerInterceptionForm() {
   const [channel, setChannel] = useState<AcquisitionChannel>("Auto Rickshaw Banner");
   const [city, setCity] = useState("Usta Muhammad");
   const [toastMessage, setToastMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleAdd = (e: React.FormEvent) => {
+  // Fetch live entries from Supabase on mount & subscribe to Realtime updates
+  useEffect(() => {
+    async function loadInterceptions() {
+      const { data, error } = await supabase
+        .from("customer_interceptions")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(20);
+
+      if (!error && data && data.length > 0) {
+        const mapped = data.map((d: any) => ({
+          id: d.id,
+          sNo: d.s_no,
+          name: d.name,
+          gender: d.gender,
+          age: d.age,
+          contactNo: d.contact_no,
+          channel: d.channel,
+          city: d.city,
+          eventDate: d.event_date,
+        }));
+        setItems(mapped);
+      }
+    }
+
+    loadInterceptions();
+
+    // Subscribe to live WebSocket updates from Supabase
+    const subscription = supabase
+      .channel("public:customer_interceptions")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "customer_interceptions" },
+        (payload: any) => {
+          const row = payload.new;
+          setItems((prev) => [
+            {
+              id: row.id,
+              sNo: row.s_no,
+              name: row.name,
+              gender: row.gender,
+              age: row.age,
+              contactNo: row.contact_no,
+              channel: row.channel,
+              city: row.city,
+              eventDate: row.event_date,
+            },
+            ...prev,
+          ]);
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(subscription);
+    };
+  }, []);
+
+  const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !phone) return;
 
+    setIsSubmitting(true);
     const newEntry = {
-      id: `INT-LIVE-${Date.now()}`,
-      sNo: items.length + 1,
       name,
       gender,
       age: parseInt(age) || 30,
-      contactNo: phone,
+      contact_no: phone,
       channel,
       city,
-      eventDate: "2026-11-16",
+      supervisor_name: "Lead Supervisor",
     };
 
-    setItems([newEntry, ...items]);
-    setName("");
-    setPhone("");
-    setToastMessage(`Logged ${newEntry.name} successfully!`);
-    setTimeout(() => setToastMessage(""), 3000);
+    try {
+      const { data, error } = await supabase.from("customer_interceptions").insert(newEntry).select().single();
+
+      if (!error && data) {
+        setToastMessage(`Logged ${data.name} to Supabase in real-time!`);
+      } else {
+        // Fallback local update
+        setItems((prev) => [
+          {
+            id: `INT-LIVE-${Date.now()}`,
+            sNo: prev.length + 1,
+            name,
+            gender,
+            age: parseInt(age) || 30,
+            contactNo: phone,
+            channel,
+            city,
+            eventDate: "2026-10-30",
+          },
+          ...prev,
+        ]);
+        setToastMessage(`Logged ${name} locally!`);
+      }
+    } catch (err) {
+      console.warn("Supabase insert error:", err);
+    } finally {
+      setIsSubmitting(false);
+      setName("");
+      setPhone("");
+      setTimeout(() => setToastMessage(""), 3500);
+    }
   };
 
   return (

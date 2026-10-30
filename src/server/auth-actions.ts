@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 
 import { findUserByEmail, getPublicUsers, verifyCredentials } from "@/lib/auth/env-users";
 import { createSessionToken, SESSION_COOKIE_NAME, type UserSession, verifySessionToken } from "@/lib/auth/session";
+import { supabase } from "@/lib/supabase";
 
 export interface LoginResult {
   success: boolean;
@@ -12,43 +13,92 @@ export interface LoginResult {
 }
 
 export async function loginAction(data: { email: string; password: string; remember?: boolean }): Promise<LoginResult> {
-  const email = data.email?.trim();
-  const password = data.password;
+  const email = data.email?.trim().toLowerCase();
+  const password = data.password?.trim();
 
   if (!email || !password) {
     return { success: false, error: "Please enter both email and password." };
   }
 
-  const user = verifyCredentials(email, password);
-  if (!user) {
-    return {
-      success: false,
-      error: "Invalid email or password. Please verify the credentials configured in .env.local",
-    };
+  // 1. Check Supabase supervisors table first
+  try {
+    const { data: supervisor, error } = await supabase.from("supervisors").select("*").eq("email", email).maybeSingle();
+
+    if (error) {
+      console.warn("Supabase supervisor query error:", error.message);
+    } else if (supervisor) {
+      if (!supervisor.is_active) {
+        return {
+          success: false,
+          error: "This account has been deactivated. Please contact your administrator.",
+        };
+      }
+
+      if (supervisor.password && supervisor.password !== password) {
+        return {
+          success: false,
+          error: "Invalid email or password. Please try again.",
+        };
+      }
+
+      const sessionUser: UserSession = {
+        id: supervisor.id,
+        name: supervisor.name,
+        username: supervisor.email.split("@")[0],
+        email: supervisor.email,
+        avatar: "/avatars/default.png",
+        role: supervisor.role || "Supervisor",
+      };
+
+      const token = await createSessionToken(sessionUser, data.remember);
+      const cookieStore = await cookies();
+      const maxAge = data.remember ? 30 * 86400 : 7 * 86400;
+
+      cookieStore.set(SESSION_COOKIE_NAME, token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge,
+      });
+
+      return { success: true, user: sessionUser };
+    }
+  } catch (err) {
+    console.warn("Supabase auth lookup issue:", err);
   }
 
-  const sessionUser: UserSession = {
-    id: user.id,
-    name: user.name,
-    username: user.username,
-    email: user.email,
-    avatar: user.avatar,
-    role: user.role,
+  // 2. Fallback to .env.local users
+  const envUser = verifyCredentials(email, password);
+  if (envUser) {
+    const sessionUser: UserSession = {
+      id: envUser.id,
+      name: envUser.name,
+      username: envUser.username,
+      email: envUser.email,
+      avatar: envUser.avatar,
+      role: envUser.role,
+    };
+
+    const token = await createSessionToken(sessionUser, data.remember);
+    const cookieStore = await cookies();
+    const maxAge = data.remember ? 30 * 86400 : 7 * 86400;
+
+    cookieStore.set(SESSION_COOKIE_NAME, token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge,
+    });
+
+    return { success: true, user: sessionUser };
+  }
+
+  return {
+    success: false,
+    error: "Invalid email or password. Please try again.",
   };
-
-  const token = await createSessionToken(sessionUser, data.remember);
-  const cookieStore = await cookies();
-  const maxAge = data.remember ? 30 * 86400 : 7 * 86400;
-
-  cookieStore.set(SESSION_COOKIE_NAME, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge,
-  });
-
-  return { success: true, user: sessionUser };
 }
 
 export async function logoutAction(): Promise<{ success: boolean }> {

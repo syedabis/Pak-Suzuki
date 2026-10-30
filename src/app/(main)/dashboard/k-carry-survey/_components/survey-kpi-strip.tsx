@@ -1,28 +1,69 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { BadgeCheck, Flame, Tag, Users } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { K_CARRY_SURVEY_DATA } from "@/data/suzuki-express/k-carry-survey-data";
+import { supabase } from "@/lib/supabase";
 
 export function SurveyKpiStrip() {
-  const totalResponses = K_CARRY_SURVEY_DATA.length;
-  const raviYesCount = K_CARRY_SURVEY_DATA.filter((r) => r.suitableReplacementForRavi === "Yes").length;
-  const raviYesPercent = Math.round((raviYesCount / totalResponses) * 100);
+  const [surveys, setSurveys] = useState<any[]>(K_CARRY_SURVEY_DATA);
 
-  const hotLeads = K_CARRY_SURVEY_DATA.filter((r) => r.leadStatus === "Hot").length;
-  const warmLeads = K_CARRY_SURVEY_DATA.filter((r) => r.leadStatus === "Warm").length;
+  useEffect(() => {
+    async function loadCloudSurveys() {
+      const { data, error } = await supabase
+        .from("k_carry_surveys")
+        .select("*")
+        .order("created_at", { ascending: false });
 
-  const price22to24Count = K_CARRY_SURVEY_DATA.filter((r) => r.reasonablePriceRange === "PKR 22–24 lakh").length;
-  const price22to24Percent = Math.round((price22to24Count / totalResponses) * 100);
+      if (!error && data && data.length > 0) {
+        setSurveys(data);
+      }
+    }
 
-  const intentYesCount = K_CARRY_SURVEY_DATA.filter((r) => r.wouldConsiderBuying === "Definitely Yes").length;
-  const intentYesPercent = Math.round((intentYesCount / totalResponses) * 100);
+    loadCloudSurveys();
+
+    const channel = supabase
+      .channel("public:k_carry_surveys_kpi")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "k_carry_surveys" }, (payload: any) => {
+        setSurveys((prev) => [payload.new, ...prev]);
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const totalResponses = surveys.length;
+  const raviYesCount = surveys.filter(
+    (r) => r.suitable_replacement_for_ravi === "Yes" || r.suitableReplacementForRavi === "Yes",
+  ).length;
+  const raviYesPercent = totalResponses > 0 ? Math.round((raviYesCount / totalResponses) * 100) : 0;
+
+  const hotLeads = surveys.filter((r) => r.lead_status === "Hot" || r.leadStatus === "Hot").length;
+  const warmLeads = surveys.filter((r) => r.lead_status === "Warm" || r.leadStatus === "Warm").length;
+
+  const price22to24Count = surveys.filter(
+    (r) =>
+      r.reasonable_price_range === "PKR 22–24 lakh" ||
+      r.reasonablePriceRange === "PKR 22–24 lakh" ||
+      r.reasonable_price_range?.includes("22"),
+  ).length;
+  const price22to24Percent = totalResponses > 0 ? Math.round((price22to24Count / totalResponses) * 100) : 0;
+
+  const intentYesCount = surveys.filter(
+    (r) => r.would_consider_buying === "Definitely Yes" || r.wouldConsiderBuying === "Definitely Yes",
+  ).length;
+  const intentYesPercent = totalResponses > 0 ? Math.round((intentYesCount / totalResponses) * 100) : 0;
 
   const kpis = [
     {
       title: "Total Survey Responses",
       value: totalResponses.toString(),
-      subtext: "Across 6 completed tour stops in ROS",
-      badge: "+18 today",
+      subtext: "Live from Supabase Cloud DB",
+      badge: "+Live Sync",
       icon: Users,
     },
     {

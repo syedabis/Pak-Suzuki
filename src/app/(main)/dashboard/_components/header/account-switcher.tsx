@@ -64,7 +64,7 @@ export function AccountSwitcher({
     try {
       await logoutAction();
       toast.success("Logged out successfully");
-      router.push("/auth/v1/login");
+      router.push("/login");
       router.refresh();
     } catch {
       toast.error("Failed to log out. Please try again.");

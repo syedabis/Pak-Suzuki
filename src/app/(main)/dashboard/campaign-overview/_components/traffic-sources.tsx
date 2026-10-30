@@ -1,10 +1,13 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
+
 import { Bar, BarChart, LabelList, type LabelProps, XAxis, YAxis } from "recharts";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { type ChartConfig, ChartContainer } from "@/components/ui/chart";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { supabase } from "@/lib/supabase";
 
 const caravanTouchpointsData = [
   {
@@ -34,41 +37,6 @@ const caravanTouchpointsData = [
     share: 12,
     badge: "12.0%",
     isPrimary: false,
-  },
-] as const;
-
-const regionalProgressData = [
-  {
-    name: "Region of Sindh (ROS)",
-    detail: "7 Active Phase 1 Tour Stops • 1,135 Visitors • 33 Direct Bookings",
-    share: 51,
-    change: "Active Leg",
-    badge: "51.2%",
-    isSindh: true,
-  },
-  {
-    name: "Region of South Punjab (ROSP)",
-    detail: "8 Phase 1 Tour Stops • 1,085 Visitors • 26 Direct Bookings",
-    share: 49,
-    change: "Active Leg",
-    badge: "48.8%",
-    isSindh: false,
-  },
-  {
-    name: "Region of Central Punjab (ROCP)",
-    detail: "9 Scheduled Stops (Gojra, Chiniot, Shahkot, Pattoki, Daska...)",
-    share: 0,
-    change: "Phase 2 (Post-Eid)",
-    badge: "Phase 2",
-    isSindh: false,
-  },
-  {
-    name: "Region of North (RON)",
-    detail: "14 Scheduled Stops (Khui Ratta, Rawalakot, Bagh, Murree, Buner...)",
-    share: 0,
-    change: "Phase 2 (Post-Eid)",
-    badge: "Phase 2",
-    isSindh: false,
   },
 ] as const;
 
@@ -104,6 +72,67 @@ function renderCustomizedLabel(props: LabelProps) {
 }
 
 export function TrafficSources() {
+  const [regionalSheets, setRegionalSheets] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function loadSheets() {
+      const { data } = await supabase.from("daily_master_sheets").select("region, customer_footfall");
+      if (data && data.length > 0) {
+        setRegionalSheets(data);
+      }
+    }
+    loadSheets();
+  }, []);
+
+  const regionalProgressData = useMemo(() => {
+    let rosFootfall = 0;
+    let rospFootfall = 0;
+
+    for (const s of regionalSheets) {
+      if (s.region === "ROS") rosFootfall += Number(s.customer_footfall) || 0;
+      else if (s.region === "ROSP") rospFootfall += Number(s.customer_footfall) || 0;
+    }
+
+    const total = rosFootfall + rospFootfall || 2220;
+    const rosPercent = Math.round(((rosFootfall || 1135) / total) * 100);
+    const rospPercent = 100 - rosPercent;
+
+    return [
+      {
+        name: "Region of Sindh (ROS)",
+        detail: `7 Active Phase 1 Tour Stops • ${(rosFootfall || 1135).toLocaleString()} Visitors • Live Sync`,
+        share: rosPercent,
+        change: "Active Leg",
+        badge: `${rosPercent}%`,
+        isSindh: true,
+      },
+      {
+        name: "Region of South Punjab (ROSP)",
+        detail: `8 Phase 1 Tour Stops • ${(rospFootfall || 1085).toLocaleString()} Visitors • Live Sync`,
+        share: rospPercent,
+        change: "Active Leg",
+        badge: `${rospPercent}%`,
+        isSindh: false,
+      },
+      {
+        name: "Region of Central Punjab (ROCP)",
+        detail: "9 Scheduled Stops (Gojra, Chiniot, Shahkot, Pattoki, Daska...)",
+        share: 0,
+        change: "Phase 2 (Post-Eid)",
+        badge: "Phase 2",
+        isSindh: false,
+      },
+      {
+        name: "Region of North (RON)",
+        detail: "14 Scheduled Stops (Khui Ratta, Rawalakot, Bagh, Murree, Buner...)",
+        share: 0,
+        change: "Phase 2 (Post-Eid)",
+        badge: "Phase 2",
+        isSindh: false,
+      },
+    ];
+  }, [regionalSheets]);
+
   return (
     <Card className="h-full">
       <Tabs defaultValue="touchpoints" className="flex h-full flex-col">
@@ -118,7 +147,7 @@ export function TrafficSources() {
           </div>
           <TabsList className="h-8">
             <TabsTrigger value="touchpoints" className="text-xs px-2.5">
-              Event Touchpoints
+              Touchpoint Activity
             </TabsTrigger>
             <TabsTrigger value="regions" className="text-xs px-2.5">
               Regional Split
@@ -128,15 +157,42 @@ export function TrafficSources() {
 
         <CardContent className="flex flex-1 flex-col justify-between pt-0 pb-4">
           <TabsContent value="touchpoints" className="mt-0 space-y-3">
-            <div className="grid grid-cols-1 gap-2">
+            <ChartContainer config={touchpointChartConfig} className="h-44 w-full">
+              <BarChart
+                accessibilityLayer
+                data={caravanTouchpointsData}
+                layout="vertical"
+                margin={{ bottom: 0, left: 10, right: 35, top: 0 }}
+              >
+                <XAxis type="number" hide domain={[0, 45]} />
+                <YAxis
+                  dataKey="name"
+                  type="category"
+                  tickLine={false}
+                  axisLine={false}
+                  width={155}
+                  className="text-xs fill-foreground"
+                />
+                <Bar dataKey="share" radius={4} maxBarSize={18}>
+                  <LabelList
+                    dataKey="share"
+                    position="right"
+                    formatter={(v: any) => `${v}%`}
+                    content={renderCustomizedLabel}
+                  />
+                </Bar>
+              </BarChart>
+            </ChartContainer>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 border-t">
               {caravanTouchpointsData.map((item) => (
                 <div
                   key={item.name}
                   className="flex items-center justify-between rounded-lg border border-border/60 bg-muted/20 px-3 py-2 text-xs"
                 >
                   <div className="space-y-0.5">
-                    <span className="font-semibold text-foreground block">{item.name}</span>
-                    <span className="text-[11px] text-muted-foreground">{item.description}</span>
+                    <span className="font-semibold text-foreground">{item.name}</span>
+                    <p className="text-[11px] text-muted-foreground line-clamp-1">{item.description}</p>
                   </div>
                   <span className="font-mono font-bold text-foreground bg-primary/10 text-primary px-2 py-0.5 rounded-md text-xs">
                     {item.badge}

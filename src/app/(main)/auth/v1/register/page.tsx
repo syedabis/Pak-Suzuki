@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
 export default function RegisterV1() {
-  redirect("/auth/v1/login");
+  redirect("/login");
 }

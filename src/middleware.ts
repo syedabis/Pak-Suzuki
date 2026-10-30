@@ -3,21 +3,16 @@ import { type NextRequest, NextResponse } from "next/server";
 import { SESSION_COOKIE_NAME, verifySessionToken } from "@/lib/auth/session";
 
 const PROTECTED_PREFIXES = ["/dashboard", "/chat", "/mail"];
-const AUTH_PREFIXES = ["/auth"];
+const AUTH_PAGES = ["/login", "/auth"];
 
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
-
-  // Convenient alias for /login -> /auth/v1/login
-  if (pathname === "/login") {
-    return NextResponse.redirect(new URL("/auth/v1/login", request.url));
-  }
 
   const sessionCookie = request.cookies.get(SESSION_COOKIE_NAME)?.value;
   const user = sessionCookie ? await verifySessionToken(sessionCookie) : null;
 
   const isProtected = PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
-  const isAuthPage = AUTH_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+  const isAuthPage = AUTH_PAGES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
   const isRoot = pathname === "/";
 
   // Root path handling
@@ -25,12 +20,12 @@ export async function middleware(request: NextRequest) {
     if (user) {
       return NextResponse.redirect(new URL("/dashboard/campaign-overview", request.url));
     }
-    return NextResponse.redirect(new URL("/auth/v1/login", request.url));
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   // Protected route check
   if (isProtected && !user) {
-    const loginUrl = new URL("/auth/v1/login", request.url);
+    const loginUrl = new URL("/login", request.url);
     const callback = `${pathname}${search}`;
     loginUrl.searchParams.set("callbackUrl", callback);
     return NextResponse.redirect(loginUrl);

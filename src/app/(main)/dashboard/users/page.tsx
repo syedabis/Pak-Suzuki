@@ -1,16 +1,15 @@
 import type { Metadata } from "next";
 
-import { users } from "./_components/data";
 import { Users } from "./_components/users";
 
 export const metadata: Metadata = {
-  title: "Open Source User Management Dashboard with shadcn/ui",
-  description: "Explore an open source user management dashboard for browsing, filtering, and managing user accounts.",
+  title: "Supervisors & User Management | Pak Suzuki OpsPulse",
+  description: "Manage supervisors, territory assignments, and mobile login credentials for Pak Suzuki Caravan 2026.",
   alternates: {
     canonical: "/dashboard/users",
   },
 };
 
 export default function Page() {
-  return <Users users={users} />;
+  return <Users />;
 }

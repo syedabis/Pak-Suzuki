@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, XAxis, YAxis } from "recharts";
 
@@ -14,17 +14,42 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { K_CARRY_SURVEY_DATA } from "@/data/suzuki-express/k-carry-survey-data";
-
-const TOTAL_RESPONSES = K_CARRY_SURVEY_DATA.length;
+import { supabase } from "@/lib/supabase";
 
 // Coolors palette: 001219-005f73-0a9396-94d2bd-e9d8a6-ee9b00-ca6702-bb3e03-ae2012-9b2226
 const PRICE_BAND_COLORS = ["#0a9396", "#ee9b00", "#ca6702", "#9b2226"];
 
 export function KCarryPerceptionCharts() {
+  const [data, setData] = useState<any[]>(K_CARRY_SURVEY_DATA);
+
+  useEffect(() => {
+    async function loadCloudSurveys() {
+      const { data: sups, error } = await supabase
+        .from("k_carry_surveys")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (!error && sups && sups.length > 0) {
+        setData(
+          sups.map((s) => ({
+            heardAboutKCarryBefore: s.heard_about_kcarry_before,
+            knowsReplacementForRavi: s.knows_replacement_for_ravi,
+            suitableReplacementForRavi: s.suitable_replacement_for_ravi,
+            reasonablePriceRange: s.reasonable_price_range,
+            wouldConsiderBuying: s.would_consider_buying,
+          })),
+        );
+      }
+    }
+    loadCloudSurveys();
+  }, []);
+
+  const totalResponses = data.length || 1;
+
   // Q6: Prior K-CARRY Awareness
   const priorAwarenessData = useMemo(() => {
     const counts = { Yes: 0, No: 0 };
-    for (const r of K_CARRY_SURVEY_DATA) {
+    for (const r of data) {
       if (r.heardAboutKCarryBefore === "Yes") counts.Yes++;
       else if (r.heardAboutKCarryBefore === "No") counts.No++;
     }
@@ -32,17 +57,17 @@ export function KCarryPerceptionCharts() {
       { name: "Yes (Aware)", value: counts.Yes, fill: "#0a9396" },
       { name: "No (Unaware)", value: counts.No, fill: "#e9d8a6" },
     ];
-  }, []);
+  }, [data]);
 
   const priorAwarenessPercent = useMemo(() => {
     const yesCount = priorAwarenessData[0]?.value || 0;
-    return Math.round((yesCount / TOTAL_RESPONSES) * 100);
-  }, [priorAwarenessData]);
+    return Math.round((yesCount / totalResponses) * 100);
+  }, [priorAwarenessData, totalResponses]);
 
   // Q7: Ravi Replacement Awareness
   const replacementAwarenessData = useMemo(() => {
     const counts = { Yes: 0, No: 0 };
-    for (const r of K_CARRY_SURVEY_DATA) {
+    for (const r of data) {
       if (r.knowsReplacementForRavi === "Yes") counts.Yes++;
       else if (r.knowsReplacementForRavi === "No") counts.No++;
     }
@@ -50,17 +75,17 @@ export function KCarryPerceptionCharts() {
       { name: "Yes (Aware of Succession)", value: counts.Yes, fill: "#005f73" },
       { name: "No (Unaware)", value: counts.No, fill: "#e9d8a6" },
     ];
-  }, []);
+  }, [data]);
 
   const replacementAwarenessPercent = useMemo(() => {
     const yesCount = replacementAwarenessData[0]?.value || 0;
-    return Math.round((yesCount / TOTAL_RESPONSES) * 100);
-  }, [replacementAwarenessData]);
+    return Math.round((yesCount / totalResponses) * 100);
+  }, [replacementAwarenessData, totalResponses]);
 
   // Q8: Ravi Replacement Suitability Sentiment
   const raviSentimentData = useMemo(() => {
     const counts: Record<string, number> = { Yes: 0, "Not Sure": 0, No: 0 };
-    for (const r of K_CARRY_SURVEY_DATA) {
+    for (const r of data) {
       if (counts[r.suitableReplacementForRavi] !== undefined) {
         counts[r.suitableReplacementForRavi]++;
       }
@@ -70,12 +95,12 @@ export function KCarryPerceptionCharts() {
       { name: "Not Sure", value: counts["Not Sure"], fill: "#e9d8a6" },
       { name: "No", value: counts.No, fill: "#bb3e03" },
     ];
-  }, []);
+  }, [data]);
 
   const raviYesPercent = useMemo(() => {
     const yesCount = raviSentimentData[0]?.value || 0;
-    return Math.round((yesCount / TOTAL_RESPONSES) * 100);
-  }, [raviSentimentData]);
+    return Math.round((yesCount / totalResponses) * 100);
+  }, [raviSentimentData, totalResponses]);
 
   // Q9: Price Band Acceptance
   const priceBandData = useMemo(() => {
@@ -85,7 +110,7 @@ export function KCarryPerceptionCharts() {
       "PKR 28–30 lakh": 0,
       "Above PKR 30 lakh": 0,
     };
-    for (const r of K_CARRY_SURVEY_DATA) {
+    for (const r of data) {
       if (counts[r.reasonablePriceRange] !== undefined) {
         counts[r.reasonablePriceRange]++;
       }
@@ -94,25 +119,25 @@ export function KCarryPerceptionCharts() {
       {
         band: "22–24 Lakh",
         count: counts["PKR 22–24 lakh"],
-        percentage: Math.round((counts["PKR 22–24 lakh"] / TOTAL_RESPONSES) * 100),
+        percentage: Math.round((counts["PKR 22–24 lakh"] / totalResponses) * 100),
       },
       {
         band: "24–27 Lakh",
         count: counts["PKR 24–27 lakh"],
-        percentage: Math.round((counts["PKR 24–27 lakh"] / TOTAL_RESPONSES) * 100),
+        percentage: Math.round((counts["PKR 24–27 lakh"] / totalResponses) * 100),
       },
       {
         band: "28–30 Lakh",
         count: counts["PKR 28–30 lakh"],
-        percentage: Math.round((counts["PKR 28–30 lakh"] / TOTAL_RESPONSES) * 100),
+        percentage: Math.round((counts["PKR 28–30 lakh"] / totalResponses) * 100),
       },
       {
         band: "Above 30L",
         count: counts["Above PKR 30 lakh"],
-        percentage: Math.round((counts["Above PKR 30 lakh"] / TOTAL_RESPONSES) * 100),
+        percentage: Math.round((counts["Above PKR 30 lakh"] / totalResponses) * 100),
       },
     ];
-  }, []);
+  }, [data, totalResponses]);
 
   // Q10: Purchase Intent
   const purchaseIntentData = useMemo(() => {
@@ -121,7 +146,7 @@ export function KCarryPerceptionCharts() {
       "Maybe / Needs More Information": 0,
       No: 0,
     };
-    for (const r of K_CARRY_SURVEY_DATA) {
+    for (const r of data) {
       if (counts[r.wouldConsiderBuying] !== undefined) {
         counts[r.wouldConsiderBuying]++;
       }
@@ -131,13 +156,13 @@ export function KCarryPerceptionCharts() {
       { name: "Maybe / Need Info", value: counts["Maybe / Needs More Information"], fill: "#ee9b00" },
       { name: "Not Interested", value: counts.No, fill: "#bb3e03" },
     ];
-  }, []);
+  }, [data]);
 
   const totalBuyIntentPercent = useMemo(() => {
     const defCount = purchaseIntentData[0]?.value || 0;
     const maybeCount = purchaseIntentData[1]?.value || 0;
-    return Math.round(((defCount + maybeCount) / TOTAL_RESPONSES) * 100);
-  }, [purchaseIntentData]);
+    return Math.round(((defCount + maybeCount) / totalResponses) * 100);
+  }, [purchaseIntentData, totalResponses]);
 
   const priorChartConfig = {
     "Yes (Aware)": {

@@ -7,20 +7,23 @@ import { Banknote, Car, FileCheck, ShieldCheck, Users, Wrench } from "lucide-rea
 
 import { Card } from "@/components/ui/card";
 import { DAILY_INQUIRY_RECORDS } from "@/data/suzuki-express/daily-inquiry-data";
+import type { DailyInquirySheetRecord } from "@/data/suzuki-express/types";
 
 interface FieldLogsSummaryProps {
   readonly selectedCity?: string;
+  readonly records?: DailyInquirySheetRecord[];
 }
 
-export function FieldLogsSummary({ selectedCity = "all-venues" }: FieldLogsSummaryProps) {
+export function FieldLogsSummary({ selectedCity = "all-venues", records }: FieldLogsSummaryProps) {
   const isCitySelected = selectedCity !== "all-venues" && selectedCity !== "all-38";
 
   const summary = useMemo(() => {
+    const dataSource = records && records.length > 0 ? records : DAILY_INQUIRY_RECORDS;
     const targetRecords = isCitySelected
-      ? DAILY_INQUIRY_RECORDS.filter((r) => r.city.toLowerCase() === selectedCity.toLowerCase())
-      : DAILY_INQUIRY_RECORDS;
+      ? dataSource.filter((r) => r.city.toLowerCase() === selectedCity.toLowerCase())
+      : dataSource;
 
-    const activeList = targetRecords.length > 0 ? targetRecords : DAILY_INQUIRY_RECORDS;
+    const activeList = targetRecords.length > 0 ? targetRecords : dataSource;
 
     let totalFootfall = 0;
     let totalTestDrives = 0;

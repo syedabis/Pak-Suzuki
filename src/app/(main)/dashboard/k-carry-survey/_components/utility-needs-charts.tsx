@@ -1,14 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from "recharts";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { K_CARRY_SURVEY_DATA } from "@/data/suzuki-express/k-carry-survey-data";
-
-const TOTAL_RESPONSES = K_CARRY_SURVEY_DATA.length;
+import { supabase } from "@/lib/supabase";
 
 // Coolors palette: 001219-005f73-0a9396-94d2bd-e9d8a6-ee9b00-ca6702-bb3e03-ae2012-9b2226
 const OCCUPATION_COLORS = ["#0a9396", "#ee9b00", "#005f73", "#ca6702", "#94d2bd", "#e9d8a6"];
@@ -18,80 +17,116 @@ const FEATURE_COLORS = ["#005f73", "#0a9396", "#ee9b00", "#ca6702", "#94d2bd", "
 const PROBLEM_COLORS = ["#ae2012", "#bb3e03", "#ca6702", "#9b2226", "#ee9b00", "#0a9396"];
 
 export function UtilityNeedsCharts() {
+  const [data, setData] = useState<any[]>(K_CARRY_SURVEY_DATA);
+
+  useEffect(() => {
+    async function loadCloudSurveys() {
+      const { data: sups, error } = await supabase
+        .from("k_carry_surveys")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (!error && sups && sups.length > 0) {
+        setData(
+          sups.map((s) => ({
+            mainOccupation: s.main_occupation,
+            mainRequirement: s.main_requirement,
+            currentVehicle: s.current_vehicle,
+            mostImportantFeature: s.most_important_feature,
+            biggestTransportProblem: s.biggest_transport_problem,
+          })),
+        );
+      }
+    }
+    loadCloudSurveys();
+  }, []);
+
+  const totalResponses = data.length || 1;
+
   // Q1: Main Occupation
   const occupationData = useMemo(() => {
     const counts: Record<string, number> = {};
-    for (const r of K_CARRY_SURVEY_DATA) {
-      counts[r.mainOccupation] = (counts[r.mainOccupation] || 0) + 1;
+    for (const r of data) {
+      if (r.mainOccupation) {
+        counts[r.mainOccupation] = (counts[r.mainOccupation] || 0) + 1;
+      }
     }
     return Object.entries(counts)
       .map(([name, count]) => ({
         name,
         count,
-        percentage: Math.round((count / TOTAL_RESPONSES) * 100),
+        percentage: Math.round((count / totalResponses) * 100),
       }))
       .sort((a, b) => b.count - a.count);
-  }, []);
+  }, [data, totalResponses]);
 
   // Q2: Primary Vehicle Requirement / Use Case
   const requirementData = useMemo(() => {
     const counts: Record<string, number> = {};
-    for (const r of K_CARRY_SURVEY_DATA) {
-      counts[r.mainRequirement] = (counts[r.mainRequirement] || 0) + 1;
+    for (const r of data) {
+      if (r.mainRequirement) {
+        counts[r.mainRequirement] = (counts[r.mainRequirement] || 0) + 1;
+      }
     }
     return Object.entries(counts)
       .map(([name, count]) => ({
         name,
         count,
-        percentage: Math.round((count / TOTAL_RESPONSES) * 100),
+        percentage: Math.round((count / totalResponses) * 100),
       }))
       .sort((a, b) => b.count - a.count);
-  }, []);
+  }, [data, totalResponses]);
 
   // Q3: Current Vehicles in Fleet
   const vehicleData = useMemo(() => {
     const counts: Record<string, number> = {};
-    for (const r of K_CARRY_SURVEY_DATA) {
-      counts[r.currentVehicle] = (counts[r.currentVehicle] || 0) + 1;
+    for (const r of data) {
+      if (r.currentVehicle) {
+        counts[r.currentVehicle] = (counts[r.currentVehicle] || 0) + 1;
+      }
     }
     return Object.entries(counts)
       .map(([name, count]) => ({
         name: name.replace(" — ", " "),
         count,
-        percentage: Math.round((count / TOTAL_RESPONSES) * 100),
+        percentage: Math.round((count / totalResponses) * 100),
       }))
       .sort((a, b) => b.count - a.count);
-  }, []);
+  }, [data, totalResponses]);
 
   // Q4: Most Important Feature Priority
   const featureData = useMemo(() => {
     const counts: Record<string, number> = {};
-    for (const r of K_CARRY_SURVEY_DATA) {
-      counts[r.mostImportantFeature] = (counts[r.mostImportantFeature] || 0) + 1;
+    for (const r of data) {
+      if (r.mostImportantFeature) {
+        counts[r.mostImportantFeature] = (counts[r.mostImportantFeature] || 0) + 1;
+      }
     }
     return Object.entries(counts)
       .map(([name, count]) => ({
         name,
         count,
-        percentage: Math.round((count / TOTAL_RESPONSES) * 100),
+        percentage: Math.round((count / totalResponses) * 100),
       }))
       .sort((a, b) => b.count - a.count);
-  }, []);
+  }, [data, totalResponses]);
 
   // Q5: Biggest Transport Problem / Bottleneck
   const problemData = useMemo(() => {
     const counts: Record<string, number> = {};
-    for (const r of K_CARRY_SURVEY_DATA) {
-      counts[r.biggestTransportProblem] = (counts[r.biggestTransportProblem] || 0) + 1;
+    for (const r of data) {
+      if (r.biggestTransportProblem) {
+        counts[r.biggestTransportProblem] = (counts[r.biggestTransportProblem] || 0) + 1;
+      }
     }
     return Object.entries(counts)
       .map(([name, count]) => ({
         name,
         count,
-        percentage: Math.round((count / TOTAL_RESPONSES) * 100),
+        percentage: Math.round((count / totalResponses) * 100),
       }))
       .sort((a, b) => b.count - a.count);
-  }, []);
+  }, [data, totalResponses]);
 
   const occChartConfig = {
     count: {

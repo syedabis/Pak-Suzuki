@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { CheckCircle2, FileSpreadsheet, Save } from "lucide-react";
+import { CheckCircle2, FileSpreadsheet, Save, Loader2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TOUR_CITIES } from "@/data/suzuki-express/tour-schedule";
+import { supabase } from "@/lib/supabase";
 
 const FOUR_WHEELERS = ["Alto", "Cultus", "WagonR", "Swift", "Every", "Ravi", "K-Carry"] as const;
 const TWO_WHEELERS = ["GD 110S", "GS 150", "GSX 125", "GR 150"] as const;
@@ -23,6 +24,8 @@ export function DailyInquirySheetForm() {
   const [ogSupervisor, setOgSupervisor] = useState("Gohar Ali");
   const [psSupervisor, setPsSupervisor] = useState("Usama Fareed");
   const [footfall, setFootfall] = useState("168");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   // Aftersales
   const [oilChanges, setOilChanges] = useState("42");
@@ -128,10 +131,49 @@ export function DailyInquirySheetForm() {
     }));
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    setIsSubmitting(true);
+    setErrorMessage("");
+
+    try {
+      const everyTestDrives = fourWheelData.Every?.testDrive || 0;
+      const kCarryTestDrives = fourWheelData["K-Carry"]?.testDrive || 0;
+      const tradeInEvaluations = fourWheelData.Alto?.freeEvaluation || 0;
+
+      const { error } = await supabase.from("daily_master_sheets").insert({
+        city,
+        dealer,
+        venue,
+        customer_footfall: parseInt(footfall) || 0,
+        timings: "09:00 to 17:30",
+        supervisor_og: ogSupervisor,
+        supervisor_ps: psSupervisor,
+        four_wheel_data: fourWheelData,
+        every_test_drives: everyTestDrives,
+        k_carry_test_drives: kCarryTestDrives,
+        trade_in_evaluations: tradeInEvaluations,
+        free_inspections: parseInt(checkups) || 0,
+        free_oil_changes: parseInt(oilChanges) || 0,
+        appointments_given: parseInt(appointments) || 0,
+        genuine_parts_revenue_pkr: parseInt(partsSales) || 0,
+        dealer_rating: "Excellent",
+        supervisor_notes: observation,
+      });
+
+      if (error) {
+        console.warn("Supabase master sheet insert error:", error);
+        setErrorMessage("Failed to save to cloud database. Please try again.");
+      } else {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 3500);
+      }
+    } catch (err: any) {
+      console.warn("Master sheet error:", err);
+      setErrorMessage("Network error connecting to Supabase.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -384,9 +426,23 @@ export function DailyInquirySheetForm() {
           </div>
 
           <div className="flex items-center justify-end gap-3 pt-3 border-t">
-            <Button type="submit" size="sm" className="gap-2">
-              <Save className="size-3.5" />
-              Save Master Event Inquiry Record
+            {errorMessage && (
+              <span className="text-xs text-red-600 bg-red-50 dark:bg-red-950/30 p-1.5 rounded border border-red-200">
+                {errorMessage}
+              </span>
+            )}
+            <Button type="submit" size="sm" className="gap-2" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="size-3.5 animate-spin" />
+                  Saving to Cloud...
+                </>
+              ) : (
+                <>
+                  <Save className="size-3.5" />
+                  Save Master Event Inquiry Record
+                </>
+              )}
             </Button>
           </div>
         </form>

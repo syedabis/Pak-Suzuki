@@ -20,21 +20,38 @@ function formatChannel(channel: string) {
 }
 
 export function FeedTab() {
-  const { interceptions, surveys } = useApp();
-  const [activeSegment, setActiveSegment] = useState<"All" | "Interceptions" | "Surveys">("All");
+  const { interceptions, surveys, masterSheets } = useApp();
+  const [activeSegment, setActiveSegment] = useState<"All" | "MasterSheets" | "Interceptions" | "Surveys">("All");
+
+  const totalCount = masterSheets.length + interceptions.length + surveys.length;
 
   return (
     <View style={styles.container}>
-      {/* Top Filter Segmented Tabs: 3 Equal-Width Tabs */}
+      {/* Top Filter Segmented Tabs */}
       <View style={styles.topBar}>
-        <View style={styles.segmentedContainer}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.segmentedContainer}>
           <TouchableOpacity
             style={[styles.segmentTab, activeSegment === "All" && styles.segmentTabActive]}
             onPress={() => setActiveSegment("All")}
             activeOpacity={0.7}
           >
             <Text style={[styles.segmentTabText, activeSegment === "All" && styles.segmentTabTextActive]}>
-              All ({interceptions.length + surveys.length})
+              All ({totalCount})
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.segmentTab, activeSegment === "MasterSheets" && styles.segmentTabActive]}
+            onPress={() => setActiveSegment("MasterSheets")}
+            activeOpacity={0.7}
+          >
+            <Text
+              style={[
+                styles.segmentTabText,
+                activeSegment === "MasterSheets" && styles.segmentTabTextActive,
+              ]}
+            >
+              Master Sheets ({masterSheets.length})
             </Text>
           </TouchableOpacity>
 
@@ -67,11 +84,100 @@ export function FeedTab() {
               K-Carry ({surveys.length})
             </Text>
           </TouchableOpacity>
-        </View>
+        </ScrollView>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* SECTION 1: Visitor Interceptions */}
+        {/* SECTION 1: Master Inquiry Sheets */}
+        {(activeSegment === "All" || activeSegment === "MasterSheets") && (
+          <View style={styles.card}>
+            {/* Card Title Header */}
+            <View style={styles.cardHeader}>
+              <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 7 }}>
+                  <Ionicons name="document-text-outline" size={16} color="#09090B" />
+                  <Text style={styles.cardTitle}>Daily Master Inquiry Sheets</Text>
+                </View>
+                <View style={styles.countTag}>
+                  <Text style={styles.countTagText}>{masterSheets.length} Sheets</Text>
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.cardBody}>
+              {masterSheets.length === 0 ? (
+                <View style={styles.emptyBox}>
+                  <Text style={styles.emptyText}>No master sheets submitted yet.</Text>
+                </View>
+              ) : (
+                masterSheets.map((ms, idx) => (
+                  <View
+                    key={ms.id || idx}
+                    style={[
+                      styles.masterSheetCard,
+                      idx === masterSheets.length - 1 && { borderBottomWidth: 0 },
+                    ]}
+                  >
+                    {/* Header Row: City & Dealer + Cloud Sync Status */}
+                    <View style={styles.msHeaderRow}>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.msCityText}>{ms.city}</Text>
+                        <Text style={styles.msDealerText} numberOfLines={1}>{ms.dealer}</Text>
+                      </View>
+                      <View style={styles.syncBadge}>
+                        <Ionicons name="cloud-done-outline" size={12} color="#059669" />
+                        <Text style={styles.syncBadgeText}>Synced to Field Logs</Text>
+                      </View>
+                    </View>
+
+                    {/* Venue & Timing */}
+                    <View style={styles.msVenueRow}>
+                      <Ionicons name="location-outline" size={12} color="#71717A" />
+                      <Text style={styles.msVenueText} numberOfLines={1}>{ms.venue || "Exhibition Ground"}</Text>
+                      <Text style={styles.msDateTag}>{ms.eventDate || "2026-11-16"}</Text>
+                    </View>
+
+                    {/* Metrics Grid */}
+                    <View style={styles.msGrid}>
+                      <View style={styles.msMetricBox}>
+                        <Text style={styles.msMetricLabel}>Footfall</Text>
+                        <Text style={styles.msMetricVal}>{ms.footfall || 150}</Text>
+                      </View>
+                      <View style={styles.msMetricBox}>
+                        <Text style={styles.msMetricLabel}>K-Carry Trials</Text>
+                        <Text style={styles.msMetricVal}>{ms.kCarryTestDrives || 0}</Text>
+                      </View>
+                      <View style={styles.msMetricBox}>
+                        <Text style={styles.msMetricLabel}>Every Trials</Text>
+                        <Text style={styles.msMetricVal}>{ms.everyTestDrives || 0}</Text>
+                      </View>
+                      <View style={styles.msMetricBox}>
+                        <Text style={styles.msMetricLabel}>Parts Revenue</Text>
+                        <Text style={[styles.msMetricVal, { color: "#059669" }]}>
+                          PKR {(ms.genuinePartsRevenuePkr || 0).toLocaleString()}
+                        </Text>
+                      </View>
+                    </View>
+
+                    {/* Footer Row: Rating & Supervisor Note */}
+                    <View style={styles.msFooterRow}>
+                      <View style={[styles.ratingTag, ms.dealerRating === "Excellent" ? styles.ratingTagGood : styles.ratingTagNeutral]}>
+                        <Text style={styles.ratingTagText}>{ms.dealerRating || "Good"} Rating</Text>
+                      </View>
+                      {ms.supervisorNotes ? (
+                        <Text style={styles.msNotesText} numberOfLines={2}>
+                          "{ms.supervisorNotes}"
+                        </Text>
+                      ) : null}
+                    </View>
+                  </View>
+                ))
+              )}
+            </View>
+          </View>
+        )}
+
+        {/* SECTION 2: Visitor Interceptions */}
         {(activeSegment === "All" || activeSegment === "Interceptions") && (
           <View style={styles.card}>
             {/* Card Title Header */}
@@ -144,7 +250,7 @@ export function FeedTab() {
           </View>
         )}
 
-        {/* SECTION 2: K-Carry Survey Records */}
+        {/* SECTION 3: K-Carry Survey Records */}
         {(activeSegment === "All" || activeSegment === "Surveys") && (
           <View style={styles.card}>
             {/* Card Title Header */}
@@ -174,7 +280,7 @@ export function FeedTab() {
               ) : (
                 surveys.map((s, idx) => (
                   <View
-                    key={s.id}
+                    key={s.id || idx}
                     style={[
                       styles.rowContainer,
                       idx === surveys.length - 1 && { borderBottomWidth: 0 },
@@ -211,10 +317,10 @@ export function FeedTab() {
                             {
                               color:
                                 s.leadStatus === "Hot"
-                                  ? "#DC2626"
-                                  : s.leadStatus === "Warm"
-                                  ? "#D97706"
-                                  : "#18181B",
+                                ? "#DC2626"
+                                : s.leadStatus === "Warm"
+                                ? "#D97706"
+                                : "#18181B",
                             },
                           ]}
                         >
@@ -243,28 +349,27 @@ const styles = StyleSheet.create({
   },
   topBar: {
     backgroundColor: "#FFFFFF",
-    paddingHorizontal: 14,
+    paddingHorizontal: 12,
     paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#E4E4E7",
   },
   segmentedContainer: {
     flexDirection: "row",
+    gap: 6,
+    alignItems: "center",
+  },
+  segmentTab: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
     backgroundColor: "#F4F4F5",
-    borderRadius: 8,
-    padding: 3,
     borderWidth: 1,
     borderColor: "#E4E4E7",
   },
-  segmentTab: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 8,
-    borderRadius: 6,
-  },
   segmentTabActive: {
     backgroundColor: "#18181B",
+    borderColor: "#18181B",
   },
   segmentTabText: {
     fontFamily: FONTS.medium,
@@ -426,5 +531,118 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.regular,
     fontSize: 12,
     color: "#A1A1AA",
+  },
+  // Master Sheet Specific Styles
+  masterSheetCard: {
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F4F4F5",
+  },
+  msHeaderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 4,
+  },
+  msCityText: {
+    fontFamily: FONTS.bold,
+    fontSize: 15,
+    color: "#09090B",
+  },
+  msDealerText: {
+    fontFamily: FONTS.medium,
+    fontSize: 12,
+    color: "#71717A",
+    marginTop: 1,
+  },
+  syncBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "#ECFDF5",
+    borderWidth: 1,
+    borderColor: "#A7F3D0",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
+  },
+  syncBadgeText: {
+    fontFamily: FONTS.medium,
+    fontSize: 10,
+    color: "#059669",
+  },
+  msVenueRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    marginTop: 4,
+    marginBottom: 10,
+  },
+  msVenueText: {
+    flex: 1,
+    fontFamily: FONTS.regular,
+    fontSize: 11,
+    color: "#71717A",
+  },
+  msDateTag: {
+    fontFamily: FONTS.medium,
+    fontSize: 10,
+    color: "#71717A",
+    backgroundColor: "#F4F4F5",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  msGrid: {
+    flexDirection: "row",
+    gap: 8,
+    backgroundColor: "#FAFAFA",
+    padding: 8,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: "#F4F4F5",
+    marginBottom: 8,
+  },
+  msMetricBox: {
+    flex: 1,
+  },
+  msMetricLabel: {
+    fontFamily: FONTS.regular,
+    fontSize: 10,
+    color: "#71717A",
+    marginBottom: 2,
+  },
+  msMetricVal: {
+    fontFamily: FONTS.semiBold,
+    fontSize: 12,
+    color: "#09090B",
+  },
+  msFooterRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  ratingTag: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  ratingTagGood: {
+    backgroundColor: "#ECFDF5",
+  },
+  ratingTagNeutral: {
+    backgroundColor: "#F4F4F5",
+  },
+  ratingTagText: {
+    fontFamily: FONTS.semiBold,
+    fontSize: 10,
+    color: "#059669",
+  },
+  msNotesText: {
+    flex: 1,
+    fontFamily: FONTS.regular,
+    fontSize: 11,
+    color: "#71717A",
+    fontStyle: "italic",
   },
 });

@@ -41,13 +41,15 @@ import { InquirySheetModal } from "./inquiry-sheet-modal";
 interface FieldLogsTableProps {
   readonly selectedCity?: string;
   readonly onCityChange?: (city: string) => void;
+  readonly records?: DailyInquirySheetRecord[];
 }
 
-export function FieldLogsTable({ selectedCity = "all-venues" }: FieldLogsTableProps) {
+export function FieldLogsTable({ selectedCity = "all-venues", records }: FieldLogsTableProps) {
+  const dataSource = records && records.length > 0 ? records : DAILY_INQUIRY_RECORDS;
   const [searchTerm, setSearchTerm] = useState("");
   const [regionFilter, setRegionFilter] = useState<string>("all");
   const [supervisorFilter, setSupervisorFilter] = useState<string>("all");
-  const [sortField, setSortField] = useState<"date" | "footfall" | "revenue">("date");
+  const [sortField, setSortField] = useState<"recent" | "date" | "footfall" | "revenue">("recent");
   const [sortAsc, setSortAsc] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 8;
@@ -58,44 +60,48 @@ export function FieldLogsTable({ selectedCity = "all-venues" }: FieldLogsTablePr
   // Extract unique supervisors
   const supervisors = useMemo(() => {
     const list = new Set<string>();
-    for (const r of DAILY_INQUIRY_RECORDS) {
+    for (const r of dataSource) {
       if (r.supervisorOG) list.add(r.supervisorOG);
       if (r.supervisorPS) list.add(r.supervisorPS);
     }
     return Array.from(list).sort();
-  }, []);
+  }, [dataSource]);
 
   // Filter and sort records
   const filteredRecords = useMemo(() => {
     const isCityFiltered = selectedCity !== "all-venues" && selectedCity !== "all-38";
 
-    return DAILY_INQUIRY_RECORDS.filter((r) => {
-      const matchesCity = !isCityFiltered || r.city.toLowerCase() === selectedCity.toLowerCase();
-      const matchesRegion = regionFilter === "all" || r.region === regionFilter;
-      const matchesSupervisor =
-        supervisorFilter === "all" || r.supervisorOG === supervisorFilter || r.supervisorPS === supervisorFilter;
-      const matchesSearch =
-        searchTerm === "" ||
-        r.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        r.venue.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        r.participatingDealer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        r.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        r.supervisorOG.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        r.supervisorPS.toLowerCase().includes(searchTerm.toLowerCase());
+    return dataSource
+      .filter((r) => {
+        const matchesCity = !isCityFiltered || r.city.toLowerCase() === selectedCity.toLowerCase();
+        const matchesRegion = regionFilter === "all" || r.region === regionFilter;
+        const matchesSupervisor =
+          supervisorFilter === "all" || r.supervisorOG === supervisorFilter || r.supervisorPS === supervisorFilter;
+        const matchesSearch =
+          searchTerm === "" ||
+          r.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          r.venue.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          r.participatingDealer.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          r.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          r.supervisorOG.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          r.supervisorPS.toLowerCase().includes(searchTerm.toLowerCase());
 
-      return matchesCity && matchesRegion && matchesSupervisor && matchesSearch;
-    }).sort((a, b) => {
-      let comparison = 0;
-      if (sortField === "date") {
-        comparison = a.eventDate.localeCompare(b.eventDate);
-      } else if (sortField === "footfall") {
-        comparison = a.customerFootfall - b.customerFootfall;
-      } else if (sortField === "revenue") {
-        comparison = a.aftersales.partsSalesPkr - b.aftersales.partsSalesPkr;
-      }
-      return sortAsc ? comparison : -comparison;
-    });
-  }, [selectedCity, regionFilter, supervisorFilter, searchTerm, sortField, sortAsc]);
+        return matchesCity && matchesRegion && matchesSupervisor && matchesSearch;
+      })
+      .sort((a, b) => {
+        let comparison = 0;
+        if (sortField === "recent") {
+          return 0;
+        } else if (sortField === "date") {
+          comparison = a.eventDate.localeCompare(b.eventDate);
+        } else if (sortField === "footfall") {
+          comparison = a.customerFootfall - b.customerFootfall;
+        } else if (sortField === "revenue") {
+          comparison = a.aftersales.partsSalesPkr - b.aftersales.partsSalesPkr;
+        }
+        return sortAsc ? comparison : -comparison;
+      });
+  }, [selectedCity, regionFilter, supervisorFilter, searchTerm, sortField, sortAsc, dataSource]);
 
   const totalPages = Math.ceil(filteredRecords.length / pageSize) || 1;
   const paginatedRecords = filteredRecords.slice((currentPage - 1) * pageSize, currentPage * pageSize);

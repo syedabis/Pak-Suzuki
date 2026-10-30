@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Image,
+  ActivityIndicator,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
@@ -16,20 +17,17 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useApp } from "../context/AppContext";
 import { FONTS } from "../constants/fonts";
 
-interface LoginScreenProps {
-  onNavigateRegister?: () => void;
-}
-
-export function LoginScreen({ onNavigateRegister }: LoginScreenProps) {
+export function LoginScreen() {
   const { login } = useApp();
   const insets = useSafeAreaInsets();
 
-  const [email, setEmail] = useState("gohar.ali@suzuki.com.pk");
-  const [password, setPassword] = useState("suzuki2026");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!email.trim()) {
       showToast("Please enter your email address");
       return;
@@ -38,7 +36,17 @@ export function LoginScreen({ onNavigateRegister }: LoginScreenProps) {
       showToast("Please enter your password");
       return;
     }
-    login({ email, pass: password, city: "Usta Muhammad" });
+    setIsLoading(true);
+    try {
+      const res = await login({ email: email.trim(), pass: password.trim() });
+      if (!res.success) {
+        showToast(res.message || "Invalid email or password");
+      }
+    } catch {
+      showToast("Network error. Please check your connection.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const showToast = (msg: string) => {
@@ -66,38 +74,21 @@ export function LoginScreen({ onNavigateRegister }: LoginScreenProps) {
           {/* Header with Official Logo */}
           <View style={styles.header}>
             <Image
-              source={require("@/assets/images/suzuki-logo.png")}
-              style={{ width: 160, height: 42, marginBottom: 6 }}
+              source={require("../../assets/images/suzuki-logo.png")}
+              style={{ width: 220, height: 60 }}
               resizeMode="contain"
             />
-            <Text style={styles.brandTitle}>PAK SUZUKI</Text>
           </View>
 
           {/* Login Card */}
           <View style={styles.card}>
-            {/* Segmented Auth Mode Switcher */}
-            {onNavigateRegister && (
-              <View style={styles.authTabs}>
-                <TouchableOpacity style={[styles.authTab, styles.authTabActive]} activeOpacity={0.7}>
-                  <Text style={[styles.authTabText, styles.authTabTextActive]}>Sign In</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.authTab}
-                  onPress={onNavigateRegister}
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.authTabText}>Register</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-
             <View style={styles.cardBody}>
               {/* Email Input */}
               <View style={styles.formGroup}>
                 <Text style={styles.label}>Email Address</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="name@suzuki.com.pk"
+                  placeholder="admin@paksuzuki.com.pk"
                   placeholderTextColor="#A1A1AA"
                   value={email}
                   onChangeText={setEmail}
@@ -112,7 +103,7 @@ export function LoginScreen({ onNavigateRegister }: LoginScreenProps) {
                 <View style={styles.passwordRow}>
                   <TextInput
                     style={[styles.input, { flex: 1, borderWidth: 0, height: "100%" }]}
-                    placeholder="Enter password"
+                    placeholder="paksuzuki2026"
                     placeholderTextColor="#A1A1AA"
                     value={password}
                     onChangeText={setPassword}
@@ -136,23 +127,21 @@ export function LoginScreen({ onNavigateRegister }: LoginScreenProps) {
               </View>
 
               {/* Sign In Button */}
-              <TouchableOpacity style={styles.primaryButton} onPress={handleLogin} activeOpacity={0.85}>
-                <Text style={styles.primaryButtonText}>Sign In</Text>
-                <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
+              <TouchableOpacity
+                style={[styles.primaryButton, isLoading && { opacity: 0.75 }]}
+                onPress={handleLogin}
+                disabled={isLoading}
+                activeOpacity={0.85}
+              >
+                {isLoading ? (
+                  <ActivityIndicator color="#FFFFFF" size="small" />
+                ) : (
+                  <>
+                    <Text style={styles.primaryButtonText}>Sign In</Text>
+                    <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
+                  </>
+                )}
               </TouchableOpacity>
-
-              {/* Switch to Register */}
-              {onNavigateRegister && (
-                <TouchableOpacity
-                  style={styles.switchButton}
-                  onPress={onNavigateRegister}
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.switchButtonText}>
-                    Don't have an account? <Text style={{ fontFamily: FONTS.bold, color: "#18181B" }}>Register</Text>
-                  </Text>
-                </TouchableOpacity>
-              )}
             </View>
           </View>
         </ScrollView>
@@ -189,32 +178,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#E4E4E7",
     overflow: "hidden",
-  },
-  authTabs: {
-    flexDirection: "row",
-    backgroundColor: "#F4F4F5",
-    borderBottomWidth: 1,
-    borderBottomColor: "#E4E4E7",
-  },
-  authTab: {
-    flex: 1,
-    paddingVertical: 12,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  authTabActive: {
-    backgroundColor: "#FFFFFF",
-    borderBottomWidth: 2,
-    borderBottomColor: "#18181B",
-  },
-  authTabText: {
-    fontFamily: FONTS.semiBold,
-    fontSize: 13,
-    color: "#71717A",
-  },
-  authTabTextActive: {
-    fontFamily: FONTS.bold,
-    color: "#09090B",
   },
   cardBody: {
     padding: 20,
@@ -269,16 +232,6 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.semiBold,
     color: "#FFFFFF",
     fontSize: 13,
-  },
-  switchButton: {
-    alignItems: "center",
-    paddingVertical: 14,
-    marginTop: 6,
-  },
-  switchButtonText: {
-    fontFamily: FONTS.regular,
-    color: "#71717A",
-    fontSize: 12,
   },
   floatingToast: {
     position: "absolute",

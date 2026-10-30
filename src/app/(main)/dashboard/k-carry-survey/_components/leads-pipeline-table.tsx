@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 
-import { Download, Phone, Search } from "lucide-react";
+import { Download, Phone, Search, RefreshCw } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,14 +11,85 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { K_CARRY_SURVEY_DATA } from "@/data/suzuki-express/k-carry-survey-data";
+import { supabase } from "@/lib/supabase";
 
 export function LeadsPipelineTable() {
+  const [leads, setLeads] = useState<any[]>(K_CARRY_SURVEY_DATA);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [cityFilter, setCityFilter] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Fetch live leads from Supabase and subscribe to live additions
+  useEffect(() => {
+    async function loadCloudLeads() {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from("k_carry_surveys")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (!error && data && data.length > 0) {
+        const cloudMapped = data.map((d: any) => ({
+          id: d.id,
+          customerName: d.respondent_name,
+          mobileNo: d.contact_no,
+          campaignLocation: d.city,
+          region: d.region || "ROS",
+          eventDate: d.event_date,
+          leadStatus: d.lead_status,
+          mainOccupation: d.main_occupation,
+          mainRequirement: d.main_requirement,
+          currentVehicle: d.current_vehicle,
+          mostImportantFeature: d.most_important_feature,
+          biggestTransportProblem: d.biggest_transport_problem,
+          reasonablePriceRange: d.reasonable_price_range,
+          wouldConsiderBuying: d.would_consider_buying,
+          notes: d.notes,
+        }));
+        // Live cloud leads from Supabase
+        setLeads(cloudMapped);
+      }
+      setIsLoading(false);
+    }
+
+    loadCloudLeads();
+
+    // Subscribe to real-time incoming surveys
+    const channel = supabase
+      .channel("public:k_carry_surveys_leads")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "k_carry_surveys" }, (payload: any) => {
+        const row = payload.new;
+        setLeads((prev) => [
+          {
+            id: row.id,
+            customerName: row.respondent_name,
+            mobileNo: row.contact_no,
+            campaignLocation: row.city,
+            region: row.region || "ROS",
+            eventDate: row.event_date,
+            leadStatus: row.lead_status,
+            mainOccupation: row.main_occupation,
+            mainRequirement: row.main_requirement,
+            currentVehicle: row.current_vehicle,
+            mostImportantFeature: row.most_important_feature,
+            biggestTransportProblem: row.biggest_transport_problem,
+            reasonablePriceRange: row.reasonable_price_range,
+            wouldConsiderBuying: row.would_consider_buying,
+            notes: row.notes,
+          },
+          ...prev,
+        ]);
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const filteredLeads = useMemo(() => {
-    return K_CARRY_SURVEY_DATA.filter((lead) => {
+    return leads.filter((lead) => {
       const matchesStatus = statusFilter === "all" || lead.leadStatus === statusFilter;
       const matchesCity = cityFilter === "all" || lead.campaignLocation === cityFilter;
       const matchesSearch =
@@ -27,11 +98,11 @@ export function LeadsPipelineTable() {
         lead.mainOccupation.toLowerCase().includes(searchTerm.toLowerCase());
       return matchesStatus && matchesCity && matchesSearch;
     });
-  }, [statusFilter, cityFilter, searchTerm]);
+  }, [leads, statusFilter, cityFilter, searchTerm]);
 
   const uniqueCities = useMemo(() => {
-    return Array.from(new Set(K_CARRY_SURVEY_DATA.map((l) => l.campaignLocation)));
-  }, []);
+    return Array.from(new Set(leads.map((l) => l.campaignLocation)));
+  }, [leads]);
 
   return (
     <Card>
