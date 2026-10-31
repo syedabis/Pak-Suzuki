@@ -1,5 +1,29 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { supabase } from "../services/supabase";
+import {
+  isKCarryOnly,
+  isInterceptionOnly,
+  isMasterSheetOnly,
+  isMobileViewOnly,
+} from "../constants/roles";
+
+export function getPakistanDate(): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Karachi",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
+export function getPakistanTime(): string {
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Karachi",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  }).format(new Date());
+}
 
 export interface SupervisorProfile {
   name: string;
@@ -97,7 +121,12 @@ interface AppContextType {
   addSurvey: (entry: Omit<KCarrySurveyEntry, "id" | "timestamp" | "synced" | "supervisor">) => void;
   // Daily Master Sheets
   masterSheets: DailyMasterSheetEntry[];
-  addMasterSheet: (entry: Omit<DailyMasterSheetEntry, "id" | "timestamp" | "synced">) => void;
+  addMasterSheet: (
+    entry: Omit<DailyMasterSheetEntry, "id" | "timestamp" | "synced" | "eventDate" | "eventTimings"> & {
+      eventDate?: string;
+      eventTimings?: string;
+    }
+  ) => void;
   // Stats
   todayStats: {
     totalInterceptions: number;
@@ -105,6 +134,11 @@ interface AppContextType {
     totalTestDrives: number;
     syncPending: number;
   };
+  // Role Access Flags
+  isKCarryOnly: boolean;
+  isInterceptionOnly: boolean;
+  isMasterSheetOnly: boolean;
+  isViewOnly: boolean;
 }
 
 const DEFAULT_SUPERVISOR: SupervisorProfile = {
@@ -413,6 +447,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           return { success: false, message: "Incorrect password. Please try again." };
         }
 
+        // Dashboard View Access accounts cannot sign in to the mobile app
+        const roleLower = (data.role || "").toLowerCase().trim();
+        if (roleLower === "dashboard view access" || roleLower === "viewer") {
+          return {
+            success: false,
+            message: "Dashboard View Access accounts cannot sign in to the Mobile App. Please use the web portal.",
+          };
+        }
+
         setSupervisor({
           name: data.name || "Supervisor",
           email: data.email,
@@ -492,10 +535,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const addInterception = async (entry: Omit<InterceptionEntry, "id" | "timestamp" | "synced" | "supervisor">) => {
     const localId = `INT-${Date.now().toString().slice(-4)}`;
+    const pktDate = getPakistanDate();
+    const pktTime = getPakistanTime();
     const newRecord: InterceptionEntry = {
       ...entry,
       id: localId,
-      timestamp: "Just now",
+      timestamp: pktTime,
       supervisor: supervisor?.name || "Gohar Ali",
       synced: false,
     };
@@ -510,6 +555,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         contact_no: entry.contactNo,
         channel: entry.channel,
         city: entry.city,
+        event_date: pktDate,
         supervisor_name: supervisor?.name || "Gohar Ali",
         synced: true,
       });
@@ -526,10 +572,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const addSurvey = async (entry: Omit<KCarrySurveyEntry, "id" | "timestamp" | "synced" | "supervisor">) => {
     const localId = `SURV-${Date.now().toString().slice(-4)}`;
+    const pktDate = getPakistanDate();
+    const pktTime = getPakistanTime();
     const newRecord: KCarrySurveyEntry = {
       ...entry,
       id: localId,
-      timestamp: "Just now",
+      timestamp: pktTime,
       supervisor: supervisor?.name || "Gohar Ali",
       synced: false,
     };
@@ -541,6 +589,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         respondent_name: entry.respondentName,
         contact_no: entry.contactNo,
         city: entry.city,
+        event_date: pktDate,
         lead_status: entry.leadStatus,
         main_occupation: entry.mainOccupation,
         main_requirement: entry.mainRequirement,
@@ -566,12 +615,21 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const addMasterSheet = async (entry: Omit<DailyMasterSheetEntry, "id" | "timestamp" | "synced">) => {
+  const addMasterSheet = async (
+    entry: Omit<DailyMasterSheetEntry, "id" | "timestamp" | "synced" | "eventDate" | "eventTimings"> & {
+      eventDate?: string;
+      eventTimings?: string;
+    }
+  ) => {
     const localId = `MS-${Date.now().toString().slice(-4)}`;
+    const pktDate = entry.eventDate || getPakistanDate();
+    const pktTime = entry.eventTimings || getPakistanTime();
     const newRecord: DailyMasterSheetEntry = {
       ...entry,
+      eventDate: pktDate,
+      eventTimings: pktTime,
       id: localId,
-      timestamp: "Just now",
+      timestamp: pktTime,
       synced: false,
     };
     setMasterSheets((prev) => [newRecord, ...prev]);
@@ -579,12 +637,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     try {
       const { error } = await supabase.from("daily_master_sheets").insert({
         client_id: localId,
-        event_date: entry.eventDate,
+        event_date: pktDate,
         city: entry.city,
         dealer: entry.dealer,
         venue: entry.venue,
         customer_footfall: entry.footfall || 0,
-        timings: entry.eventTimings || "09:00 to 17:30",
+        timings: pktTime,
         supervisor_og: entry.ogSupervisor || "",
         supervisor_ps: entry.psSupervisor || "",
         four_wheel_data: entry.fourWheelData || {},
@@ -616,6 +674,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     syncPending: 0,
   };
 
+  const isKCarry = isKCarryOnly(supervisor?.role);
+  const isInterception = isInterceptionOnly(supervisor?.role);
+  const isMasterSheet = isMasterSheetOnly(supervisor?.role);
+  const isViewOnly = isMobileViewOnly(supervisor?.role);
+
   return (
     <AppContext.Provider
       value={{
@@ -632,6 +695,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         masterSheets,
         addMasterSheet,
         todayStats,
+        isKCarryOnly: isKCarry,
+        isInterceptionOnly: isInterception,
+        isMasterSheetOnly: isMasterSheet,
+        isViewOnly: isViewOnly,
       }}
     >
       {children}

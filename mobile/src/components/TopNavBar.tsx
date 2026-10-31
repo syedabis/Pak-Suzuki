@@ -39,8 +39,15 @@ export function TopNavBar({ onOpenProfileModal }: TopNavBarProps) {
         />
       </View>
 
-      {/* Right Controls: Avatar */}
+      {/* Right Controls: Role Badge + Avatar */}
       <View style={styles.rightSection}>
+        {supervisor?.role && (
+          <View style={styles.roleBadge}>
+            <Text style={styles.roleBadgeText} numberOfLines={1}>
+              {supervisor.role.replace(" Access Only", "").replace(" Access", "")}
+            </Text>
+          </View>
+        )}
         <TouchableOpacity
           style={styles.avatarButton}
           onPress={onOpenProfileModal}
@@ -49,10 +56,10 @@ export function TopNavBar({ onOpenProfileModal }: TopNavBarProps) {
           <Text style={styles.avatarText}>
             {supervisor?.name
               ? supervisor.name
-                  .split(" ")
-                  .map((w) => w[0])
-                  .join("")
-                  .slice(0, 2)
+                .split(" ")
+                .map((w) => w[0])
+                .join("")
+                .slice(0, 2)
               : "GA"}
           </Text>
         </TouchableOpacity>
@@ -135,6 +142,20 @@ const styles = StyleSheet.create({
     borderColor: "#E4E4E7",
     alignItems: "center",
     justifyContent: "center",
+  },
+  roleBadge: {
+    backgroundColor: "#F4F4F5",
+    borderWidth: 1,
+    borderColor: "#E4E4E7",
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 5,
+    maxWidth: 130,
+  },
+  roleBadgeText: {
+    fontFamily: FONTS.semiBold,
+    fontSize: 10,
+    color: "#18181B",
   },
   avatarText: {
     fontFamily: FONTS.bold,

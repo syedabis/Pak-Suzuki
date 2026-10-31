@@ -37,6 +37,7 @@ export function LeadsPipelineTable() {
           campaignLocation: d.city,
           region: d.region || "ROS",
           eventDate: d.event_date,
+          createdAt: d.created_at,
           leadStatus: d.lead_status,
           mainOccupation: d.main_occupation,
           mainRequirement: d.main_requirement,
@@ -68,6 +69,7 @@ export function LeadsPipelineTable() {
             campaignLocation: row.city,
             region: row.region || "ROS",
             eventDate: row.event_date,
+            createdAt: row.created_at,
             leadStatus: row.lead_status,
             mainOccupation: row.main_occupation,
             mainRequirement: row.main_requirement,
@@ -190,6 +192,7 @@ export function LeadsPipelineTable() {
                 <TableHead>Current Transport</TableHead>
                 <TableHead>Price Target</TableHead>
                 <TableHead>Buy Intent</TableHead>
+                <TableHead>Date &amp; Time (PKT)</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Action</TableHead>
               </TableRow>
@@ -225,6 +228,23 @@ export function LeadsPipelineTable() {
                     >
                       {lead.wouldConsiderBuying}
                     </span>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span className="font-medium text-foreground text-xs">
+                        {(lead as any).eventDate || "2026-10-31"}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground font-mono">
+                        {(lead as any).createdAt
+                          ? new Intl.DateTimeFormat("en-US", {
+                              timeZone: "Asia/Karachi",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: true,
+                            }).format(new Date((lead as any).createdAt))
+                          : "PKT"}
+                      </span>
+                    </div>
                   </TableCell>
                   <TableCell>
                     <Badge

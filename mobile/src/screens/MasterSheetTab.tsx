@@ -9,9 +9,10 @@ import {
   Modal,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useApp } from "../context/AppContext";
+import { useApp, getPakistanDate, getPakistanTime } from "../context/AppContext";
 import { CITIES_LIST, TourLocation } from "../constants/tour-data";
 import { FONTS } from "../constants/fonts";
+import { shareToWhatsApp } from "../utils/whatsappShare";
 
 const FOUR_WHEELERS = ["Alto", "Cultus", "WagonR", "Swift", "Every", "Ravi", "K-Carry"] as const;
 type FourWheelerModel = (typeof FOUR_WHEELERS)[number];
@@ -100,7 +101,7 @@ const MATRIX_METRICS: MatrixMetric[] = [
 ];
 
 export function MasterSheetTab() {
-  const { supervisor, masterSheets, addMasterSheet } = useApp();
+  const { supervisor, masterSheets, addMasterSheet, isViewOnly } = useApp();
   const scrollViewRef = useRef<any>(null);
 
   // Event Header Details (matching daily-inquiry-sheet-form.tsx)
@@ -110,7 +111,6 @@ export function MasterSheetTab() {
   const [footfall, setFootfall] = useState("168");
   const [ogSupervisor, setOgSupervisor] = useState(supervisor?.name || "Gohar Ali");
   const [psSupervisor, setPsSupervisor] = useState("Usama Fareed");
-  const [eventTimings, setEventTimings] = useState("09:00 to 17:30");
   const [cityModalOpen, setCityModalOpen] = useState(false);
 
   // 4W Automobile Matrix State
@@ -175,15 +175,20 @@ export function MasterSheetTab() {
   const totalConversions = Object.values(fourWheelData).reduce((sum, m) => sum + (m.conversion || 0), 0);
 
   const handleSubmit = () => {
+    if (isViewOnly) {
+      showToast("View Access Mode: Master Sheet submission is disabled.");
+      return;
+    }
+
     addMasterSheet({
-      eventDate: "2026-11-16",
+      eventDate: getPakistanDate(),
+      eventTimings: getPakistanTime(),
       city,
       dealer,
       venue,
       footfall: parseInt(footfall) || 0,
       ogSupervisor,
       psSupervisor,
-      eventTimings,
       fourWheelData,
       everyTestDrives: fourWheelData.Every?.testDrive || 0,
       kCarryTestDrives: fourWheelData["K-Carry"]?.testDrive || 0,
@@ -200,6 +205,29 @@ export function MasterSheetTab() {
     setTimeout(() => {
       scrollViewRef.current?.scrollTo({ y: 0, animated: true });
     }, 50);
+  };
+
+  const handleShareCurrentWhatsApp = () => {
+    shareToWhatsApp({
+      city,
+      dealer,
+      venue,
+      eventDate: getPakistanDate(),
+      eventTimings: getPakistanTime(),
+      footfall: parseInt(footfall) || 0,
+      ogSupervisor,
+      psSupervisor,
+      fourWheelData,
+      everyTestDrives: fourWheelData.Every?.testDrive || 0,
+      kCarryTestDrives: fourWheelData["K-Carry"]?.testDrive || 0,
+      tradeInEvaluations: fourWheelData.Alto?.freeEvaluation || 0,
+      freeInspections: checkups,
+      freeOilChanges: oilChanges,
+      appointmentsGiven: appointments,
+      genuinePartsRevenuePkr: parseInt(partsSales) || 0,
+      dealerRating,
+      supervisorNotes: observation,
+    });
   };
 
   const showToast = (msg: string) => {
@@ -233,6 +261,16 @@ export function MasterSheetTab() {
           </View>
         </View>
 
+        {/* View Only Alert */}
+        {isViewOnly && (
+          <View style={styles.viewOnlyAlert}>
+            <Ionicons name="eye-outline" size={15} color="#1D4ED8" />
+            <Text style={styles.viewOnlyAlertText}>
+              View Access Mode: You have read-only access. Master sheet submission is disabled.
+            </Text>
+          </View>
+        )}
+
         {/* CARD 1: Event Header Metadata */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
@@ -248,19 +286,21 @@ export function MasterSheetTab() {
           </View>
 
           <View style={styles.cardBody}>
-            {/* Tour City Selector */}
+            {/* Tour City Locked as per Caravan Schedule */}
             <View style={styles.formGroup}>
-              <Text style={styles.label}>Tour City *</Text>
-              <TouchableOpacity
-                style={styles.selectTrigger}
-                onPress={() => setCityModalOpen(true)}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.selectValue} numberOfLines={1}>
+              <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                <Text style={styles.label}>Tour City *</Text>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+                  <Ionicons name="lock-closed" size={11} color="#059669" />
+                  <Text style={{ fontSize: 10, color: "#059669", fontWeight: "600" }}>Locked as per Schedule</Text>
+                </View>
+              </View>
+              <View style={[styles.selectTrigger, { backgroundColor: "#F4F4F5", borderColor: "#E4E4E7" }]}>
+                <Text style={[styles.selectValue, { color: "#18181B", fontWeight: "600" }]} numberOfLines={1}>
                   {city} ({regionLabel})
                 </Text>
-                <Ionicons name="chevron-down" size={15} color="#71717A" />
-              </TouchableOpacity>
+                <Ionicons name="lock-closed-outline" size={14} color="#71717A" />
+              </View>
             </View>
 
             {/* Venue & Participating Dealer */}
@@ -268,9 +308,9 @@ export function MasterSheetTab() {
               <View style={{ flex: 1 }}>
                 <Text style={styles.label}>Venue</Text>
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, { backgroundColor: "#F4F4F5", color: "#18181B" }]}
                   value={venue}
-                  onChangeText={setVenue}
+                  editable={false}
                   placeholder="Exhibition Ground"
                   placeholderTextColor="#A1A1AA"
                 />
@@ -278,16 +318,16 @@ export function MasterSheetTab() {
               <View style={{ flex: 1 }}>
                 <Text style={styles.label}>Participating Dealer</Text>
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, { backgroundColor: "#F4F4F5", color: "#18181B" }]}
                   value={dealer}
-                  onChangeText={setDealer}
+                  editable={false}
                   placeholder="Authorized Dealer"
                   placeholderTextColor="#A1A1AA"
                 />
               </View>
             </View>
 
-            {/* Customer Footfall & Event Timings */}
+            {/* Customer Footfall & Auto Timestamp */}
             <View style={styles.grid2}>
               <View style={{ flex: 1 }}>
                 <Text style={styles.label}>Customer Footfall *</Text>
@@ -301,14 +341,12 @@ export function MasterSheetTab() {
                 />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={styles.label}>Event Timings</Text>
-                <TextInput
-                  style={styles.input}
-                  value={eventTimings}
-                  onChangeText={setEventTimings}
-                  placeholder="09:00 to 17:30"
-                  placeholderTextColor="#A1A1AA"
-                />
+                <Text style={styles.label}>Auto Timestamp (PKT)</Text>
+                <View style={[styles.input, { backgroundColor: "#F4F4F5", justifyContent: "center" }]}>
+                  <Text style={{ fontSize: 12, color: "#18181B", fontWeight: "600" }} numberOfLines={1}>
+                    {getPakistanDate()} • {getPakistanTime()}
+                  </Text>
+                </View>
               </View>
             </View>
 
@@ -632,9 +670,26 @@ export function MasterSheetTab() {
             </View>
 
             {/* Save Button (Deep Charcoal #18181B) */}
-            <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit} activeOpacity={0.85}>
-              <Ionicons name="save-outline" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
-              <Text style={styles.submitBtnText}>Save Master Event Inquiry Record</Text>
+            <TouchableOpacity
+              style={[styles.submitBtn, isViewOnly && { backgroundColor: "#9CA3AF" }]}
+              onPress={handleSubmit}
+              disabled={isViewOnly}
+              activeOpacity={0.85}
+            >
+              <Ionicons name={isViewOnly ? "eye-outline" : "save-outline"} size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
+              <Text style={styles.submitBtnText}>
+                {isViewOnly ? "View Only (Submissions Disabled)" : "Save Master Event Inquiry Record"}
+              </Text>
+            </TouchableOpacity>
+
+            {/* Direct WhatsApp Share Button */}
+            <TouchableOpacity
+              style={styles.whatsappBtn}
+              onPress={handleShareCurrentWhatsApp}
+              activeOpacity={0.85}
+            >
+              <Ionicons name="logo-whatsapp" size={18} color="#FFFFFF" style={{ marginRight: 8 }} />
+              <Text style={styles.whatsappBtnText}>Share Report on WhatsApp</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -661,8 +716,17 @@ export function MasterSheetTab() {
                     K-Carry Trials: {ms.kCarryTestDrives} • Every Trials: {ms.everyTestDrives} • Parts: PKR {ms.genuinePartsRevenuePkr.toLocaleString()}
                   </Text>
                 </View>
-                <View style={styles.syncedChip}>
-                  <Text style={styles.syncedChipText}>Synced</Text>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                  <TouchableOpacity
+                    style={styles.auditWhatsAppBtn}
+                    onPress={() => shareToWhatsApp(ms)}
+                    activeOpacity={0.8}
+                  >
+                    <Ionicons name="logo-whatsapp" size={17} color="#25D366" />
+                  </TouchableOpacity>
+                  <View style={styles.syncedChip}>
+                    <Text style={styles.syncedChipText}>Synced</Text>
+                  </View>
                 </View>
               </View>
             ))}
@@ -777,6 +841,23 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.semiBold,
     color: "#065F46",
     fontSize: 13,
+    flex: 1,
+  },
+  viewOnlyAlert: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: "#EFF6FF",
+    borderWidth: 1,
+    borderColor: "#BFDBFE",
+    borderRadius: 6,
+    padding: 10,
+    marginBottom: 12,
+  },
+  viewOnlyAlertText: {
+    fontFamily: FONTS.medium,
+    color: "#1E40AF",
+    fontSize: 11,
     flex: 1,
   },
   card: {
@@ -1131,6 +1212,28 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.semiBold,
     color: "#FFFFFF",
     fontSize: 13,
+  },
+  whatsappBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#16A34A",
+    borderRadius: 6,
+    paddingVertical: 12,
+    marginTop: 8,
+  },
+  whatsappBtnText: {
+    fontFamily: FONTS.semiBold,
+    color: "#FFFFFF",
+    fontSize: 13,
+  },
+  auditWhatsAppBtn: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    backgroundColor: "#DCFCE7",
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: "#86EFAC",
   },
   auditRow: {
     flexDirection: "row",

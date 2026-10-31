@@ -15,13 +15,40 @@ import { FONTS } from "../constants/fonts";
 export type TabKey = "intercept" | "survey" | "master" | "feed";
 
 export function MainAppScreen() {
-  const [activeTab, setActiveTab] = useState<TabKey>("intercept");
+  const {
+    interceptions,
+    surveys,
+    masterSheets,
+    isKCarryOnly,
+    isInterceptionOnly,
+    isMasterSheetOnly,
+    isViewOnly,
+  } = useApp();
+
+  const getInitialTab = (): TabKey => {
+    if (isKCarryOnly) return "survey";
+    if (isMasterSheetOnly) return "master";
+    if (isInterceptionOnly) return "intercept";
+    if (isViewOnly) return "feed";
+    return "intercept";
+  };
+
+  const [activeTab, setActiveTab] = useState<TabKey>(getInitialTab());
   const [stationModalOpen, setStationModalOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
-  const { interceptions, surveys, masterSheets } = useApp();
   const insets = useSafeAreaInsets();
 
+  React.useEffect(() => {
+    if (isKCarryOnly) setActiveTab("survey");
+    else if (isMasterSheetOnly) setActiveTab("master");
+    else if (isInterceptionOnly) setActiveTab("intercept");
+  }, [isKCarryOnly, isMasterSheetOnly, isInterceptionOnly]);
+
   const totalRecords = interceptions.length + surveys.length + masterSheets.length;
+
+  const showInterceptTab = !isKCarryOnly && !isMasterSheetOnly;
+  const showSurveyTab = !isInterceptionOnly && !isMasterSheetOnly;
+  const showMasterTab = !isInterceptionOnly && !isKCarryOnly;
 
   return (
     <View style={styles.container}>
@@ -44,63 +71,69 @@ export function MainAppScreen() {
       {/* Bottom Dashboard Navigation Bar */}
       <View style={[styles.tabBar, { paddingBottom: Math.max(insets.bottom, 8) + 4 }]}>
         {/* Tab 1: Interception */}
-        <TouchableOpacity
-          style={styles.tabItem}
-          onPress={() => setActiveTab("intercept")}
-          activeOpacity={0.7}
-        >
-          <View style={styles.iconWrapper}>
-            <Ionicons
-              name={activeTab === "intercept" ? "flash" : "flash-outline"}
-              size={19}
-              color={activeTab === "intercept" ? "#09090B" : "#71717A"}
-            />
-            {interceptions.length > 0 && (
-              <View style={styles.tabBadge}>
-                <Text style={styles.tabBadgeText}>{interceptions.length}</Text>
-              </View>
-            )}
-          </View>
-          <Text style={[styles.tabLabel, activeTab === "intercept" && styles.tabLabelActive]}>
-            Interceptions
-          </Text>
-        </TouchableOpacity>
+        {showInterceptTab && (
+          <TouchableOpacity
+            style={styles.tabItem}
+            onPress={() => setActiveTab("intercept")}
+            activeOpacity={0.7}
+          >
+            <View style={styles.iconWrapper}>
+              <Ionicons
+                name={activeTab === "intercept" ? "flash" : "flash-outline"}
+                size={19}
+                color={activeTab === "intercept" ? "#09090B" : "#71717A"}
+              />
+              {interceptions.length > 0 && (
+                <View style={styles.tabBadge}>
+                  <Text style={styles.tabBadgeText}>{interceptions.length}</Text>
+                </View>
+              )}
+            </View>
+            <Text style={[styles.tabLabel, activeTab === "intercept" && styles.tabLabelActive]}>
+              Interceptions
+            </Text>
+          </TouchableOpacity>
+        )}
 
         {/* Tab 2: K-Carry Survey */}
-        <TouchableOpacity
-          style={styles.tabItem}
-          onPress={() => setActiveTab("survey")}
-          activeOpacity={0.7}
-        >
-          <View style={styles.iconWrapper}>
-            <Ionicons
-              name={activeTab === "survey" ? "sparkles" : "sparkles-outline"}
-              size={19}
-              color={activeTab === "survey" ? "#09090B" : "#71717A"}
-            />
-          </View>
-          <Text style={[styles.tabLabel, activeTab === "survey" && styles.tabLabelActive]}>
-            K-Carry
-          </Text>
-        </TouchableOpacity>
+        {showSurveyTab && (
+          <TouchableOpacity
+            style={styles.tabItem}
+            onPress={() => setActiveTab("survey")}
+            activeOpacity={0.7}
+          >
+            <View style={styles.iconWrapper}>
+              <Ionicons
+                name={activeTab === "survey" ? "sparkles" : "sparkles-outline"}
+                size={19}
+                color={activeTab === "survey" ? "#09090B" : "#71717A"}
+              />
+            </View>
+            <Text style={[styles.tabLabel, activeTab === "survey" && styles.tabLabelActive]}>
+              K-Carry
+            </Text>
+          </TouchableOpacity>
+        )}
 
         {/* Tab 3: Master Sheet */}
-        <TouchableOpacity
-          style={styles.tabItem}
-          onPress={() => setActiveTab("master")}
-          activeOpacity={0.7}
-        >
-          <View style={styles.iconWrapper}>
-            <Ionicons
-              name={activeTab === "master" ? "document-text" : "document-text-outline"}
-              size={19}
-              color={activeTab === "master" ? "#09090B" : "#71717A"}
-            />
-          </View>
-          <Text style={[styles.tabLabel, activeTab === "master" && styles.tabLabelActive]}>
-            Master Sheet
-          </Text>
-        </TouchableOpacity>
+        {showMasterTab && (
+          <TouchableOpacity
+            style={styles.tabItem}
+            onPress={() => setActiveTab("master")}
+            activeOpacity={0.7}
+          >
+            <View style={styles.iconWrapper}>
+              <Ionicons
+                name={activeTab === "master" ? "document-text" : "document-text-outline"}
+                size={19}
+                color={activeTab === "master" ? "#09090B" : "#71717A"}
+              />
+            </View>
+            <Text style={[styles.tabLabel, activeTab === "master" && styles.tabLabelActive]}>
+              Master Sheet
+            </Text>
+          </TouchableOpacity>
+        )}
 
         {/* Tab 4: Submissions Feed */}
         <TouchableOpacity

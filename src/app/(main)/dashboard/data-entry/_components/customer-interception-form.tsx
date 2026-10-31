@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 
-import { CheckCircle2, Megaphone, Plus, UserPlus, Users, Radio } from "lucide-react";
+import { CheckCircle2, Megaphone, Plus, UserPlus, Users, Radio, Lock } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -58,6 +58,7 @@ export function CustomerInterceptionForm() {
           channel: d.channel,
           city: d.city,
           eventDate: d.event_date,
+          createdAt: d.created_at,
         }));
         setItems(mapped);
       }
@@ -84,6 +85,7 @@ export function CustomerInterceptionForm() {
               channel: row.channel,
               city: row.city,
               eventDate: row.event_date,
+              createdAt: row.created_at,
             },
             ...prev,
           ]);
@@ -101,6 +103,13 @@ export function CustomerInterceptionForm() {
     if (!name || !phone) return;
 
     setIsSubmitting(true);
+    const pktDate = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Karachi",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(new Date());
+
     const newEntry = {
       name,
       gender,
@@ -108,6 +117,7 @@ export function CustomerInterceptionForm() {
       contact_no: phone,
       channel,
       city,
+      event_date: pktDate,
       supervisor_name: "Lead Supervisor",
     };
 
@@ -128,7 +138,7 @@ export function CustomerInterceptionForm() {
             contactNo: phone,
             channel,
             city,
-            eventDate: "2026-10-30",
+            eventDate: pktDate,
           },
           ...prev,
         ]);
@@ -245,21 +255,19 @@ export function CustomerInterceptionForm() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="visitor-city" className="text-xs font-semibold">
-                Tour Stop / City
-              </Label>
-              <Select value={city} onValueChange={setCity}>
-                <SelectTrigger id="visitor-city" className="h-8 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {TOUR_CITIES.map((c) => (
-                    <SelectItem key={c.city} value={c.city}>
-                      {c.city} ({c.region})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="visitor-city" className="text-xs font-semibold">
+                  Tour Stop / City
+                </Label>
+                <span className="flex items-center gap-1 text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
+                  <Lock className="size-2.5" />
+                  Locked (Schedule)
+                </span>
+              </div>
+              <div className="h-8 px-2.5 flex items-center justify-between bg-muted/60 rounded-md border text-xs font-semibold text-foreground select-none">
+                <span>{city}</span>
+                <span className="text-[10px] text-muted-foreground font-medium">Active Tour Schedule</span>
+              </div>
             </div>
 
             <Button type="submit" size="sm" className="w-full gap-2 mt-2">
@@ -297,6 +305,7 @@ export function CustomerInterceptionForm() {
                   <TableHead>Contact</TableHead>
                   <TableHead>Channel</TableHead>
                   <TableHead>City</TableHead>
+                  <TableHead>Date &amp; Time (PKT)</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -317,6 +326,21 @@ export function CustomerInterceptionForm() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-muted-foreground text-[11px]">{item.city}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-foreground text-xs">{item.eventDate || "2026-10-31"}</span>
+                        <span className="text-[10px] text-muted-foreground font-mono">
+                          {item.createdAt
+                            ? new Intl.DateTimeFormat("en-US", {
+                                timeZone: "Asia/Karachi",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: true,
+                              }).format(new Date(item.createdAt))
+                            : "PKT"}
+                        </span>
+                      </div>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

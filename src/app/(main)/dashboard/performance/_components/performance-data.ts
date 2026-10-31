@@ -12,6 +12,7 @@ export interface DealershipTourStop {
   phase: 1 | 2;
   status: "completed" | "active" | "upcoming";
   eventDate: string;
+  timings?: string;
   supervisorPS: string;
   supervisorOG: string;
   footfall: number;
@@ -48,6 +49,8 @@ export interface RegionSummary {
   topDealer: string;
   topCity: string;
   status: "Active" | "Scheduled";
+  dateRange: string;
+  timings: string;
 }
 
 /**
@@ -117,6 +120,7 @@ export function getTourStopsPerformance(records?: any[], interceptions?: any[]):
         phase: cityObj.phase,
         status: "completed",
         eventDate: liveRecord.event_date || liveRecord.eventDate || cityObj.eventDate,
+        timings: liveRecord.timings || liveRecord.eventTimings || "09:00 to 17:30",
         supervisorPS: liveRecord.supervisor_ps || liveRecord.supervisorPS || "PSMCL Area Lead",
         supervisorOG: liveRecord.supervisor_og || liveRecord.supervisorOG || "OG Event Lead",
         footfall: Number(liveRecord.customer_footfall || liveRecord.customerFootfall) || cityObj.footfall || 150,
@@ -144,6 +148,7 @@ export function getTourStopsPerformance(records?: any[], interceptions?: any[]):
       phase: cityObj.phase,
       status: cityObj.status,
       eventDate: cityObj.eventDate,
+      timings: "09:00 to 17:30",
       supervisorPS: "PSMCL Regional Area Lead",
       supervisorOG: "OG Caravan Operations",
       footfall: cityObj.footfall ?? 0,
@@ -164,8 +169,8 @@ export function getTourStopsPerformance(records?: any[], interceptions?: any[]):
 /**
  * Returns regional aggregated analytics for the 4 Caravan Operational Legs
  */
-export function getRegionalCaravanSummaries(): RegionSummary[] {
-  const allStops = getTourStopsPerformance();
+export function getRegionalCaravanSummaries(stopsList?: DealershipTourStop[]): RegionSummary[] {
+  const allStops = stopsList && stopsList.length > 0 ? stopsList : getTourStopsPerformance();
 
   const regionsConfig: {
     region: Region;
@@ -175,6 +180,8 @@ export function getRegionalCaravanSummaries(): RegionSummary[] {
     psLead: string;
     ogLead: string;
     status: "Active" | "Scheduled";
+    dateRange: string;
+    timings: string;
   }[] = [
     {
       region: "ROS",
@@ -184,6 +191,8 @@ export function getRegionalCaravanSummaries(): RegionSummary[] {
       psLead: "Kashif Mehmood (Area Mgr)",
       ogLead: "Farhan Ali (Lead Ops)",
       status: "Active",
+      dateRange: "05 Nov – 18 Nov 2026",
+      timings: "09:00 to 17:30 (PKT)",
     },
     {
       region: "ROSP",
@@ -193,6 +202,8 @@ export function getRegionalCaravanSummaries(): RegionSummary[] {
       psLead: "Malik Irfan (Area Mgr)",
       ogLead: "Zeeshan Haider (Lead Ops)",
       status: "Active",
+      dateRange: "20 Nov – 04 Dec 2026",
+      timings: "09:00 to 17:30 (PKT)",
     },
     {
       region: "ROCP",
@@ -202,6 +213,8 @@ export function getRegionalCaravanSummaries(): RegionSummary[] {
       psLead: "Tariq Mahmood (Area Mgr)",
       ogLead: "Usman Khalid (Lead Ops)",
       status: "Scheduled",
+      dateRange: "08 Dec – 20 Dec 2026",
+      timings: "09:00 to 17:30 (PKT)",
     },
     {
       region: "RON",
@@ -211,6 +224,8 @@ export function getRegionalCaravanSummaries(): RegionSummary[] {
       psLead: "Raja Khurram (Area Mgr)",
       ogLead: "Bilal Siddiqui (Lead Ops)",
       status: "Scheduled",
+      dateRange: "22 Dec 2026 – 05 Jan 2027",
+      timings: "09:00 to 17:30 (PKT)",
     },
   ];
 
@@ -264,6 +279,8 @@ export function getRegionalCaravanSummaries(): RegionSummary[] {
       topDealer: topStop?.dealer || "Network Dealers",
       topCity: topStop?.city || "Tour Stops",
       status: cfg.status,
+      dateRange: cfg.dateRange,
+      timings: cfg.timings,
     };
   });
 }

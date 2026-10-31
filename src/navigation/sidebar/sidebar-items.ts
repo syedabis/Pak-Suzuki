@@ -71,6 +71,13 @@ export const sidebarItems: NavGroup[] = [
         icon: ReceiptText,
       },
       {
+        id: "ims-report",
+        title: "IMS Master Sheet",
+        url: "/dashboard/ims-report",
+        icon: FileSpreadsheet,
+        badge: "new",
+      },
+      {
         id: "performance",
         title: "Dealer Performance",
         url: "/dashboard/performance",

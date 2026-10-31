@@ -311,7 +311,10 @@ export function FieldLogsTable({ selectedCity = "all-venues", records }: FieldLo
                               {r.region}
                             </Badge>
                           </div>
-                          <span className="text-muted-foreground">{r.eventDate}</span>
+                          <div className="flex flex-col mt-0.5">
+                            <span className="font-semibold text-foreground text-xs">{r.eventDate}</span>
+                            <span className="text-[10px] text-muted-foreground font-mono">{r.timings}</span>
+                          </div>
                         </TableCell>
 
                         {/* 2. Tour Stop & Venue */}

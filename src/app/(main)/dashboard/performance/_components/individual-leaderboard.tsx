@@ -228,6 +228,7 @@ export function IndividualLeaderboard({ stops }: { stops?: DealershipTourStop[] 
                 <TableHead className="min-w-[180px] font-semibold">Participating 3S Dealership</TableHead>
                 <TableHead className="min-w-[160px] font-semibold">Supervisors (PS &amp; OG)</TableHead>
                 <TableHead className="w-24 text-center font-semibold">Tour Status</TableHead>
+                <TableHead className="min-w-[130px] font-semibold">Date &amp; Time (PKT)</TableHead>
                 <TableHead className="text-right font-semibold">Footfall</TableHead>
                 <TableHead className="text-right font-semibold">Visitor Leads</TableHead>
                 <TableHead className="text-right font-semibold">Test Drives</TableHead>
@@ -240,7 +241,7 @@ export function IndividualLeaderboard({ stops }: { stops?: DealershipTourStop[] 
             <TableBody>
               {paginatedStops.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={12} className="h-28 text-center text-muted-foreground">
+                  <TableCell colSpan={13} className="h-28 text-center text-muted-foreground">
                     No tour stops match the current filters.
                   </TableCell>
                 </TableRow>
@@ -303,6 +304,15 @@ export function IndividualLeaderboard({ stops }: { stops?: DealershipTourStop[] 
                             Phase 2
                           </Badge>
                         )}
+                      </TableCell>
+
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="font-semibold text-foreground text-xs">{stop.eventDate}</span>
+                          <span className="text-[10px] text-muted-foreground font-mono">
+                            {stop.timings || "09:00 to 17:30"}
+                          </span>
+                        </div>
                       </TableCell>
 
                       <TableCell className="text-right font-medium font-mono">

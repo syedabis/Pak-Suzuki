@@ -41,6 +41,27 @@ export async function loginAction(data: { email: string; password: string; remem
         };
       }
 
+      // Mobile app accounts cannot sign in to the Web Dashboard
+      const roleLower = (supervisor.role || "").toLowerCase().trim();
+      const isMobileAccount =
+        roleLower.includes("supervisor") ||
+        roleLower.includes("k-carry") ||
+        roleLower.includes("kcarry") ||
+        roleLower.includes("interception") ||
+        roleLower.includes("visitor") ||
+        roleLower.includes("master") ||
+        roleLower.includes("all forms") ||
+        roleLower === "field auditor" ||
+        roleLower === "area manager";
+
+      if (isMobileAccount && !roleLower.includes("admin") && !roleLower.includes("dashboard")) {
+        return {
+          success: false,
+          error:
+            "This mobile application account is for the Mobile App only. Please sign in via the mobile application.",
+        };
+      }
+
       const sessionUser: UserSession = {
         id: supervisor.id,
         name: supervisor.name,
@@ -117,19 +138,68 @@ export async function getCurrentUser(): Promise<UserSession | null> {
 }
 
 export async function switchAccountAction(email: string): Promise<{ success: boolean; error?: string }> {
-  const user = findUserByEmail(email);
-  if (!user) {
-    return { success: false, error: "User account not found." };
+  const normalizedEmail = email.trim().toLowerCase();
+  let sessionUser: UserSession | undefined;
+
+  // 1. Try env users
+  const user = findUserByEmail(normalizedEmail);
+  if (user) {
+    sessionUser = {
+      id: user.id,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      avatar: user.avatar,
+      role: user.role,
+    };
+  } else {
+    // 2. Try Supabase supervisors
+    try {
+      const { data: supervisor } = await supabase
+        .from("supervisors")
+        .select("*")
+        .eq("email", normalizedEmail)
+        .maybeSingle();
+
+      if (supervisor) {
+        if (!supervisor.is_active) {
+          return { success: false, error: "This account has been deactivated." };
+        }
+        const roleLower = (supervisor.role || "").toLowerCase().trim();
+        const isMobileAccount =
+          roleLower.includes("supervisor") ||
+          roleLower.includes("k-carry") ||
+          roleLower.includes("kcarry") ||
+          roleLower.includes("interception") ||
+          roleLower.includes("visitor") ||
+          roleLower.includes("master") ||
+          roleLower.includes("all forms") ||
+          roleLower === "field auditor" ||
+          roleLower === "area manager";
+
+        if (isMobileAccount && !roleLower.includes("admin") && !roleLower.includes("dashboard")) {
+          return {
+            success: false,
+            error: "Cannot switch to mobile application accounts on the Web Dashboard.",
+          };
+        }
+        sessionUser = {
+          id: supervisor.id,
+          name: supervisor.name,
+          username: supervisor.email.split("@")[0],
+          email: supervisor.email,
+          avatar: "/avatars/default.png",
+          role: supervisor.role || "Dashboard View Access",
+        };
+      }
+    } catch (e) {
+      console.warn("Error looking up supervisor for account switch:", e);
+    }
   }
 
-  const sessionUser: UserSession = {
-    id: user.id,
-    name: user.name,
-    username: user.username,
-    email: user.email,
-    avatar: user.avatar,
-    role: user.role,
-  };
+  if (!sessionUser) {
+    return { success: false, error: "User account not found." };
+  }
 
   const token = await createSessionToken(sessionUser, false);
   const cookieStore = await cookies();
@@ -146,5 +216,42 @@ export async function switchAccountAction(email: string): Promise<{ success: boo
 }
 
 export async function getAvailableUsers(): Promise<UserSession[]> {
-  return getPublicUsers();
+  const envUsers = getPublicUsers();
+  try {
+    const { data: sups } = await supabase
+      .from("supervisors")
+      .select("id, name, email, role, is_active")
+      .eq("is_active", true)
+      .order("name", { ascending: true });
+
+    if (sups && sups.length > 0) {
+      const dashboardSups = sups.filter((s) => {
+        const r = (s.role || "").toLowerCase().trim();
+        return r.includes("admin") || (r.includes("view") && r.includes("dashboard")) || r === "dashboard view access";
+      });
+
+      const dbUsers: UserSession[] = dashboardSups.map((s) => ({
+        id: s.id,
+        name: s.name,
+        username: s.email.split("@")[0],
+        email: s.email,
+        avatar: "",
+        role: s.role || "Dashboard View Access",
+      }));
+
+      const seen = new Set<string>();
+      const combined: UserSession[] = [];
+      for (const u of [...envUsers, ...dbUsers]) {
+        const lower = u.email.toLowerCase().trim();
+        if (!seen.has(lower)) {
+          seen.add(lower);
+          combined.push(u);
+        }
+      }
+      return combined;
+    }
+  } catch (err) {
+    console.warn("Could not fetch database supervisors for user switcher:", err);
+  }
+  return envUsers;
 }

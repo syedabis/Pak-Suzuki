@@ -1,15 +1,15 @@
 "use client";
 
-import { Building2 } from "lucide-react";
+import { Building2, Calendar, Clock } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
-import { getRegionalCaravanSummaries } from "./performance-data";
+import { getRegionalCaravanSummaries, type DealershipTourStop } from "./performance-data";
 
-export function TeamPerformanceCards() {
-  const regions = getRegionalCaravanSummaries();
+export function TeamPerformanceCards({ stops }: { stops?: DealershipTourStop[] } = {}) {
+  const regions = getRegionalCaravanSummaries(stops);
 
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -42,6 +42,18 @@ export function TeamPerformanceCards() {
             </CardHeader>
 
             <CardContent className="flex flex-col gap-3">
+              {/* Regional Tour Date & Timings (PKT) */}
+              <div className="flex items-center justify-between gap-1 text-[11px] rounded-md bg-muted/50 px-2 py-1.5 border border-border/50">
+                <div className="flex items-center gap-1 text-muted-foreground font-medium">
+                  <Calendar className="size-3 text-primary shrink-0" />
+                  <span>{reg.dateRange}</span>
+                </div>
+                <div className="flex items-center gap-1 text-muted-foreground font-mono text-[10px]">
+                  <Clock className="size-3 text-emerald-600 shrink-0" />
+                  <span>{reg.timings}</span>
+                </div>
+              </div>
+
               {/* Footfall Progress */}
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between text-xs">

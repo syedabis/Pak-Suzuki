@@ -8,7 +8,7 @@ import {
   type SortingState,
   useTable,
 } from "@tanstack/react-table";
-import { Download, Plus, RefreshCw, Search, Shield, UserCheck, UserPlus, Wifi } from "lucide-react";
+import { Download, Eye, Lock, Plus, RefreshCw, Search, Shield, UserCheck, UserPlus, Wifi } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -27,12 +27,14 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { dataTableFeatures } from "@/lib/data-table-features";
 import { supabase } from "@/lib/supabase";
+import { useUserSession } from "@/context/user-context";
 
 import { filters, initialSupervisors, type SupervisorUser } from "./data";
 import { usersColumns } from "./users-columns";
 import { UsersTable } from "./users-table";
 
 export function Users({ initialData }: { initialData?: SupervisorUser[] }) {
+  const { isAdmin, isViewer } = useUserSession();
   const [data, setData] = React.useState<SupervisorUser[]>(initialData || initialSupervisors);
   const [isLoading, setIsLoading] = React.useState(false);
   const [isRealtimeActive, setIsRealtimeActive] = React.useState(false);
@@ -46,13 +48,53 @@ export function Users({ initialData }: { initialData?: SupervisorUser[] }) {
     name: "",
     email: "",
     password: "paksuzuki2026",
-    employee_id: `PSMC-SUP-${Math.floor(100 + Math.random() * 900)}`,
-    role: "On-Ground Lead Supervisor",
-    assigned_city: "Usta Muhammad",
-    assigned_dealer: "Suzuki Jacobabad Motors",
-    station_venue: "Grain Market Ground",
+    employee_id: `PSMC-VIEW-${Math.floor(100 + Math.random() * 900)}`,
+    role: "Dashboard View Access",
+    assigned_city: "Karachi",
+    assigned_dealer: "Pak Suzuki Head Office",
+    station_venue: "Digital Portal Viewer",
     region: "ROS",
   });
+
+  const handleRoleChange = (newRole: string) => {
+    let empPrefix = "PSMC-SUP";
+    let city = form.assigned_city;
+    let dealer = form.assigned_dealer;
+    let venue = form.station_venue;
+
+    if (newRole === "Dashboard View Access") {
+      empPrefix = "PSMC-VIEW";
+      city = "Karachi";
+      dealer = "Pak Suzuki Head Office";
+      venue = "Digital Portal Viewer";
+    } else if (newRole === "Dashboard Admin Access" || newRole === "System Administrator") {
+      empPrefix = "PSMC-ADM";
+      city = "Karachi";
+      dealer = "Pak Suzuki Motor Co.";
+      venue = "Head Office";
+    } else if (newRole === "K-Carry Form Access Only") {
+      empPrefix = "PSMC-KCY";
+      venue = "K-Carry Survey Station";
+    } else if (newRole === "Visitor Interception Form Access Only") {
+      empPrefix = "PSMC-INT";
+      venue = "Visitor Interception Point";
+    } else if (newRole === "Daily Master Sheet Access Only") {
+      empPrefix = "PSMC-MST";
+      venue = "Master Audit Station";
+    } else if (newRole === "View Access for All Forms") {
+      empPrefix = "PSMC-MVIEW";
+      venue = "Mobile Field Viewer";
+    }
+
+    setForm((prev) => ({
+      ...prev,
+      role: newRole,
+      employee_id: `${empPrefix}-${Math.floor(100 + Math.random() * 900)}`,
+      assigned_city: city,
+      assigned_dealer: dealer,
+      station_venue: venue,
+    }));
+  };
 
   // Table State
   const [rowSelection, setRowSelection] = React.useState({});
@@ -189,18 +231,22 @@ export function Users({ initialData }: { initialData?: SupervisorUser[] }) {
         if (inserted) {
           setData((prev) => [inserted as SupervisorUser, ...prev.filter((i) => i.id !== inserted.id)]);
         }
-        toast.success(`Supervisor "${form.name}" created! They can now log in on the Mobile App.`);
+        if (form.role === "Dashboard View Access" || form.role === "Dashboard Admin Access") {
+          toast.success(`User "${form.name}" created with "${form.role}"! They can now sign in at /login.`);
+        } else {
+          toast.success(`Supervisor "${form.name}" created! Credentials ready for Mobile App & Web.`);
+        }
         setIsAddOpen(false);
         // Reset form with new random emp ID
         setForm({
           name: "",
           email: "",
           password: "paksuzuki2026",
-          employee_id: `PSMC-SUP-${Math.floor(100 + Math.random() * 900)}`,
-          role: "On-Ground Lead Supervisor",
-          assigned_city: "Usta Muhammad",
-          assigned_dealer: "Suzuki Jacobabad Motors",
-          station_venue: "Grain Market Ground",
+          employee_id: `PSMC-VIEW-${Math.floor(100 + Math.random() * 900)}`,
+          role: "Dashboard View Access",
+          assigned_city: "Karachi",
+          assigned_dealer: "Pak Suzuki Head Office",
+          station_venue: "Digital Portal Viewer",
           region: "ROS",
         });
       }
@@ -259,6 +305,7 @@ export function Users({ initialData }: { initialData?: SupervisorUser[] }) {
     meta: {
       onToggleStatus: handleToggleStatus,
       onDelete: handleDelete,
+      isAdmin,
     },
   });
 
@@ -332,17 +379,39 @@ export function Users({ initialData }: { initialData?: SupervisorUser[] }) {
             <Download className="size-3.5" /> Export Directory
           </Button>
 
-          <Button
-            size="sm"
-            onClick={() => setIsAddOpen(true)}
-            className="h-8 text-xs gap-1.5 bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900"
-          >
-            <UserPlus className="size-3.5" /> + Add Supervisor
-          </Button>
+          {isAdmin ? (
+            <Button
+              size="sm"
+              onClick={() => setIsAddOpen(true)}
+              className="h-8 text-xs gap-1.5 bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900"
+            >
+              <UserPlus className="size-3.5" /> + Add User
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              disabled
+              variant="outline"
+              className="h-8 text-xs gap-1.5 opacity-60 cursor-not-allowed"
+              title="Only Dashboard Admins can create new users"
+            >
+              <Lock className="size-3.5" /> + Add User (Admin Only)
+            </Button>
+          )}
         </CardAction>
       </CardHeader>
 
       <CardContent className="flex flex-col gap-4 px-0">
+        {!isAdmin && (
+          <div className="mx-4 mt-2 flex items-center gap-2 rounded-lg border border-blue-500/20 bg-blue-500/10 px-3.5 py-2.5 text-xs text-blue-700 dark:text-blue-300">
+            <Eye className="size-4 shrink-0 text-blue-500" />
+            <span>
+              <strong>Dashboard View Access:</strong> You are currently logged in with read-only view access. Adding,
+              deactivating, or deleting users is restricted to Dashboard Administrators.
+            </span>
+          </div>
+        )}
+
         {/* Filters */}
         <div className="flex flex-wrap items-center justify-between gap-3 px-4 pt-3">
           <div className="flex flex-wrap items-center gap-3">
@@ -408,70 +477,105 @@ export function Users({ initialData }: { initialData?: SupervisorUser[] }) {
         <UsersTable table={table} />
       </CardContent>
 
-      {/* ADD SUPERVISOR MODAL DIALOG */}
+      {/* ADD SUPERVISOR / USER MODAL DIALOG */}
       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold flex items-center gap-2">
               <UserPlus className="size-5" />
-              Create New Field Supervisor
+              Create New User / Supervisor
             </DialogTitle>
             <DialogDescription className="text-xs">
-              This will create a new account in Supabase. The supervisor can immediately log in from the mobile app with
-              these credentials.
+              This will create a new user account in Supabase. Assign &quot;Dashboard View Access&quot; for read-only
+              access, or &quot;Dashboard Admin Access&quot; for full administrative permissions.
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleCreateSupervisor} className="space-y-4 py-2">
+          <form onSubmit={handleCreateSupervisor} className="space-y-3.5 py-2">
+            {/* 1. Account Role (Full Width for perfect alignment) */}
+            <div className="space-y-1.5">
+              <Label htmlFor="sup-role" className="text-xs font-semibold">
+                Account Role *
+              </Label>
+              <Select value={form.role} onValueChange={handleRoleChange}>
+                <SelectTrigger id="sup-role" className="h-9 w-full min-w-0 text-xs font-medium">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="K-Carry Form Access Only">📱 K-Carry Form Access Only (Mobile App)</SelectItem>
+                  <SelectItem value="Visitor Interception Form Access Only">
+                    📱 Visitor Interception Access Only (Mobile App)
+                  </SelectItem>
+                  <SelectItem value="Daily Master Sheet Access Only">
+                    📱 Daily Master Sheet Access Only (Mobile App)
+                  </SelectItem>
+                  <SelectItem value="View Access for All Forms">
+                    📱 View Access for All Forms (Mobile App - Read Only)
+                  </SelectItem>
+                  <SelectItem value="On-Ground Lead Supervisor">
+                    📱 On-Ground Lead Supervisor (Mobile App - Full Access)
+                  </SelectItem>
+                  <SelectItem value="Dashboard View Access">
+                    🌐 Dashboard View Access (Web Portal - Read Only)
+                  </SelectItem>
+                  <SelectItem value="Dashboard Admin Access">
+                    🌐 Dashboard Admin Access (Web Portal - Full Control)
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* 2. Full Name & Employee ID */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 min-w-0">
                 <Label htmlFor="sup-name" className="text-xs font-semibold">
                   Full Name *
                 </Label>
                 <Input
                   id="sup-name"
-                  placeholder="e.g. Gohar Ali"
+                  placeholder="e.g. Asad Khan"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   required
-                  className="h-8 text-xs"
+                  className="h-8 text-xs w-full"
                 />
               </div>
 
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 min-w-0">
                 <Label htmlFor="sup-empid" className="text-xs font-semibold">
                   Employee ID *
                 </Label>
                 <Input
                   id="sup-empid"
-                  placeholder="PSMC-SUP-109"
+                  placeholder="PSMC-VIEW-109"
                   value={form.employee_id}
                   onChange={(e) => setForm({ ...form, employee_id: e.target.value })}
                   required
-                  className="h-8 text-xs font-mono uppercase"
+                  className="h-8 text-xs font-mono uppercase w-full"
                 />
               </div>
             </div>
 
+            {/* 3. Login Email & Login Password */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 min-w-0">
                 <Label htmlFor="sup-email" className="text-xs font-semibold">
-                  Email Address (Mobile Login) *
+                  Login Email *
                 </Label>
                 <Input
                   id="sup-email"
                   type="email"
-                  placeholder="name@suzuki.com.pk"
+                  placeholder="name@paksuzuki.com.pk"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   required
-                  className="h-8 text-xs"
+                  className="h-8 text-xs w-full"
                 />
               </div>
 
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 min-w-0">
                 <Label htmlFor="sup-password" className="text-xs font-semibold">
-                  Password (Mobile Login) *
+                  Login Password *
                 </Label>
                 <Input
                   id="sup-password"
@@ -479,46 +583,28 @@ export function Users({ initialData }: { initialData?: SupervisorUser[] }) {
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
                   required
-                  className="h-8 text-xs font-mono"
+                  className="h-8 text-xs font-mono w-full"
                 />
               </div>
             </div>
 
+            {/* 4. City & Dealer */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="sup-role" className="text-xs font-semibold">
-                  Role
-                </Label>
-                <Select value={form.role} onValueChange={(val) => setForm({ ...form, role: val })}>
-                  <SelectTrigger className="h-8 text-xs">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="On-Ground Lead Supervisor">On-Ground Lead Supervisor</SelectItem>
-                    <SelectItem value="System Administrator">System Administrator</SelectItem>
-                    <SelectItem value="Field Auditor">Field Auditor</SelectItem>
-                    <SelectItem value="Area Manager">Area Manager</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 min-w-0">
                 <Label htmlFor="sup-city" className="text-xs font-semibold">
                   Assigned City *
                 </Label>
                 <Input
                   id="sup-city"
-                  placeholder="e.g. Jacobabad"
+                  placeholder="e.g. Karachi"
                   value={form.assigned_city}
                   onChange={(e) => setForm({ ...form, assigned_city: e.target.value })}
                   required
-                  className="h-8 text-xs"
+                  className="h-8 text-xs w-full"
                 />
               </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 min-w-0">
                 <Label htmlFor="sup-dealer" className="text-xs font-semibold">
                   Assigned Dealer *
                 </Label>
@@ -528,11 +614,14 @@ export function Users({ initialData }: { initialData?: SupervisorUser[] }) {
                   value={form.assigned_dealer}
                   onChange={(e) => setForm({ ...form, assigned_dealer: e.target.value })}
                   required
-                  className="h-8 text-xs"
+                  className="h-8 text-xs w-full"
                 />
               </div>
+            </div>
 
-              <div className="space-y-1.5">
+            {/* 5. Venue & Region */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5 min-w-0">
                 <Label htmlFor="sup-venue" className="text-xs font-semibold">
                   Station Venue *
                 </Label>
@@ -542,27 +631,27 @@ export function Users({ initialData }: { initialData?: SupervisorUser[] }) {
                   value={form.station_venue}
                   onChange={(e) => setForm({ ...form, station_venue: e.target.value })}
                   required
-                  className="h-8 text-xs"
+                  className="h-8 text-xs w-full"
                 />
               </div>
-            </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="sup-region" className="text-xs font-semibold">
-                Region
-              </Label>
-              <Select value={form.region} onValueChange={(val) => setForm({ ...form, region: val })}>
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ROS">ROS (Rest of Sindh / Rural)</SelectItem>
-                  <SelectItem value="ROSP">ROSP (Rest of Sindh Plains)</SelectItem>
-                  <SelectItem value="South">South Region</SelectItem>
-                  <SelectItem value="North">North Region</SelectItem>
-                  <SelectItem value="Central">Central Region</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="space-y-1.5 min-w-0">
+                <Label htmlFor="sup-region" className="text-xs font-semibold">
+                  Region
+                </Label>
+                <Select value={form.region} onValueChange={(val) => setForm({ ...form, region: val })}>
+                  <SelectTrigger className="h-8 text-xs w-full min-w-0">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ROS">ROS (Rest of Sindh / Rural)</SelectItem>
+                    <SelectItem value="ROSP">ROSP (Rest of Sindh Plains)</SelectItem>
+                    <SelectItem value="South">South Region</SelectItem>
+                    <SelectItem value="North">North Region</SelectItem>
+                    <SelectItem value="Central">Central Region</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <DialogFooter className="pt-3">

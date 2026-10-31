@@ -14,7 +14,7 @@ import { MARKETING_CHANNELS, CITIES_LIST } from "../constants/tour-data";
 import { FONTS } from "../constants/fonts";
 
 export function InterceptionTab() {
-  const { supervisor, addInterception } = useApp();
+  const { supervisor, addInterception, isViewOnly } = useApp();
 
   const [name, setName] = useState("");
   const [gender, setGender] = useState<"Male" | "Female">("Male");
@@ -28,6 +28,11 @@ export function InterceptionTab() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const handleSubmit = () => {
+    if (isViewOnly) {
+      showToast("View Access Mode: New customer submissions are disabled.");
+      return;
+    }
+
     if (!name.trim() || !phone.trim()) {
       showToast("Please enter Customer Name & Phone");
       return;
@@ -67,6 +72,16 @@ export function InterceptionTab() {
           </View>
         </View>
       </View>
+
+      {/* View Only Alert */}
+      {isViewOnly && (
+        <View style={styles.viewOnlyAlert}>
+          <Ionicons name="eye-outline" size={15} color="#1D4ED8" />
+          <Text style={styles.viewOnlyAlertText}>
+            View Access Mode: You have read-only access. Form submission is disabled.
+          </Text>
+        </View>
+      )}
 
       {/* Success Toast */}
       {toastMessage && (
@@ -170,26 +185,32 @@ export function InterceptionTab() {
               </TouchableOpacity>
             </View>
 
-            {/* Tour Stop / City Dropdown Selector */}
+            {/* Tour Stop / City Locked as per Caravan Schedule */}
             <View style={{ flex: 1 }}>
-              <Text style={styles.label}>Tour City</Text>
-              <TouchableOpacity
-                style={styles.selectTrigger}
-                onPress={() => setCityModalOpen(true)}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.selectValue} numberOfLines={1}>
+              <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                <Text style={styles.label}>Tour City</Text>
+                <Ionicons name="lock-closed" size={10} color="#059669" />
+              </View>
+              <View style={[styles.selectTrigger, { backgroundColor: "#F4F4F5", borderColor: "#E4E4E7" }]}>
+                <Text style={[styles.selectValue, { color: "#18181B", fontWeight: "600" }]} numberOfLines={1}>
                   {selectedCity}
                 </Text>
-                <Ionicons name="chevron-down" size={14} color="#71717A" />
-              </TouchableOpacity>
+                <Ionicons name="lock-closed-outline" size={13} color="#71717A" />
+              </View>
             </View>
           </View>
 
           {/* Submit Button */}
-          <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit} activeOpacity={0.85}>
-            <Ionicons name="add" size={18} color="#FFFFFF" />
-            <Text style={styles.submitBtnText}>Add Customer</Text>
+          <TouchableOpacity
+            style={[styles.submitBtn, isViewOnly && { backgroundColor: "#9CA3AF" }]}
+            onPress={handleSubmit}
+            disabled={isViewOnly}
+            activeOpacity={0.85}
+          >
+            <Ionicons name={isViewOnly ? "eye-outline" : "add"} size={18} color="#FFFFFF" />
+            <Text style={styles.submitBtnText}>
+              {isViewOnly ? "View Only (Submissions Disabled)" : "Add Customer"}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -320,6 +341,23 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     padding: 10,
     marginBottom: 12,
+  },
+  viewOnlyAlert: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: "#EFF6FF",
+    borderWidth: 1,
+    borderColor: "#BFDBFE",
+    borderRadius: 6,
+    padding: 10,
+    marginBottom: 12,
+  },
+  viewOnlyAlertText: {
+    fontFamily: FONTS.medium,
+    color: "#1E40AF",
+    fontSize: 11,
+    flex: 1,
   },
   toastText: {
     fontFamily: FONTS.medium,

@@ -48,8 +48,18 @@ export const initialSupervisors: SupervisorUser[] = [
 ];
 
 export const filters = {
-  role: ["All", "On-Ground Lead Supervisor", "System Administrator", "Field Auditor", "Area Manager"],
-  city: ["All", "Usta Muhammad", "Jacobabad", "Sukkur", "Larkana", "Karachi", "Quetta"],
+  role: [
+    "All",
+    "K-Carry Form Access Only",
+    "Visitor Interception Form Access Only",
+    "Daily Master Sheet Access Only",
+    "View Access for All Forms",
+    "On-Ground Lead Supervisor",
+    "Dashboard View Access",
+    "Dashboard Admin Access",
+    "System Administrator",
+  ],
+  city: ["All", "Karachi", "Usta Muhammad", "Jacobabad", "Sukkur", "Larkana", "Quetta"],
   region: ["All", "ROS", "ROSP", "South", "North", "Central"],
   status: ["All", "Active", "Deactivated"],
 };

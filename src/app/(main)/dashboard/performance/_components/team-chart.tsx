@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { Compass } from "lucide-react";
+import { Compass, Calendar, Clock } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/chart";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { getRegionalCaravanSummaries } from "./performance-data";
+import { getRegionalCaravanSummaries, type DealershipTourStop } from "./performance-data";
 
 const regionalChartConfig = {
   footfall: {
@@ -41,9 +41,9 @@ const regionalChartConfig = {
   },
 } satisfies ChartConfig;
 
-export function TeamPerformanceChart() {
+export function TeamPerformanceChart({ stops }: { stops?: DealershipTourStop[] } = {}) {
   const [metricView, setMetricView] = useState<"engagement" | "services">("engagement");
-  const regionSummaries = getRegionalCaravanSummaries();
+  const regionSummaries = getRegionalCaravanSummaries(stops);
 
   const chartData = regionSummaries.map((r) => ({
     region: r.region,
@@ -79,16 +79,30 @@ export function TeamPerformanceChart() {
           </CardDescription>
         </div>
 
-        <Tabs value={metricView} onValueChange={(v) => setMetricView(v as typeof metricView)}>
-          <TabsList className="h-8">
-            <TabsTrigger value="engagement" className="px-2.5 text-xs">
-              Footfall &amp; Inquiries
-            </TabsTrigger>
-            <TabsTrigger value="services" className="px-2.5 text-xs">
-              Mobile 3S Clinic Services
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2 text-[11px] text-muted-foreground font-medium bg-muted/60 px-2.5 py-1 rounded-md border border-border/50">
+            <span className="flex items-center gap-1">
+              <Calendar className="size-3 text-primary" />
+              <span>05 Nov 2026 – 05 Jan 2027</span>
+            </span>
+            <span>•</span>
+            <span className="flex items-center gap-1 font-mono text-emerald-600 dark:text-emerald-400">
+              <Clock className="size-3" />
+              <span>09:00 to 17:30 (PKT)</span>
+            </span>
+          </div>
+
+          <Tabs value={metricView} onValueChange={(v) => setMetricView(v as typeof metricView)}>
+            <TabsList className="h-8">
+              <TabsTrigger value="engagement" className="px-2.5 text-xs">
+                Footfall &amp; Inquiries
+              </TabsTrigger>
+              <TabsTrigger value="services" className="px-2.5 text-xs">
+                Mobile 3S Clinic Services
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
       </CardHeader>
 
       <CardContent>

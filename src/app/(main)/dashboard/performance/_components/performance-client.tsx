@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import Link from "next/link";
 
-import { ArrowLeft, Building2, Compass, Download, Users } from "lucide-react";
+import { ArrowLeft, Building2, Calendar, Clock, Compass, Download, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -217,9 +217,28 @@ export function PerformanceClient() {
 
         {/* Tab 1: Comprehensive Overview */}
         <TabsContent value="all" className="m-0 flex flex-col gap-5">
+          {/* Caravan Tour Schedule & Pakistan Standard Time Strip */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 px-3.5 py-2.5 rounded-lg border border-border/70 bg-card/60 shadow-xs">
+            <div className="flex items-center gap-2">
+              <span className="inline-block size-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-xs font-semibold text-foreground">Nationwide Caravan Tour Schedule</span>
+              <span className="text-xs text-muted-foreground">• 38 Tour Stop Cities across 4 Operational Zones</span>
+            </div>
+            <div className="flex items-center gap-3 text-xs">
+              <span className="flex items-center gap-1.5 font-medium text-foreground">
+                <Calendar className="size-3.5 text-primary" />
+                05 Nov 2026 – 05 Jan 2027
+              </span>
+              <span className="flex items-center gap-1.5 font-mono text-emerald-600 dark:text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-0.5 rounded">
+                <Clock className="size-3" />
+                09:00 to 17:30 (PKT UTC+5)
+              </span>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 gap-4 xl:grid-cols-12">
             <div className="xl:col-span-12">
-              <TeamPerformanceChart />
+              <TeamPerformanceChart stops={allStops} />
             </div>
           </div>
 
@@ -233,7 +252,7 @@ export function PerformanceClient() {
                 Aggregated footfall quotas, supervisor coverage &amp; leading dealer by zone
               </span>
             </div>
-            <TeamPerformanceCards />
+            <TeamPerformanceCards stops={allStops} />
           </div>
 
           <IndividualLeaderboard stops={allStops} />
@@ -244,8 +263,8 @@ export function PerformanceClient() {
 
         {/* Tab 2: Regional Legs Focus */}
         <TabsContent value="teams" className="m-0 flex flex-col gap-5">
-          <TeamPerformanceChart />
-          <TeamPerformanceCards />
+          <TeamPerformanceChart stops={allStops} />
+          <TeamPerformanceCards stops={allStops} />
         </TabsContent>
 
         {/* Tab 3: Dealership Ledger Focus */}

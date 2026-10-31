@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { CheckCircle2, Flame, Send, Sparkles, Loader2 } from "lucide-react";
+import { CheckCircle2, Flame, Send, Sparkles, Loader2, Lock } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -43,10 +43,18 @@ export function KCarrySurveyForm() {
     setErrorMessage("");
 
     try {
+      const pktDate = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Karachi",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).format(new Date());
+
       const { error } = await supabase.from("k_carry_surveys").insert({
         respondent_name: formData.customerName.trim(),
         contact_no: formData.mobileNo.trim(),
         city: formData.campaignLocation,
+        event_date: pktDate,
         lead_status: formData.leadStatus,
         main_occupation: formData.mainOccupation,
         main_requirement: formData.mainRequirement,
@@ -174,24 +182,19 @@ export function KCarrySurveyForm() {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="tour-city" className="text-xs font-semibold">
-                  Campaign Location (Tour Stop) *
-                </Label>
-                <Select
-                  value={formData.campaignLocation}
-                  onValueChange={(val) => setFormData({ ...formData, campaignLocation: val })}
-                >
-                  <SelectTrigger id="tour-city" className="h-9 text-sm">
-                    <SelectValue placeholder="Select Tour City" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {TOUR_CITIES.map((c) => (
-                      <SelectItem key={c.city} value={c.city}>
-                        #{c.serialNo} {c.city} ({c.region})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="tour-city" className="text-xs font-semibold">
+                    Campaign Location (Tour Stop) *
+                  </Label>
+                  <span className="flex items-center gap-1 text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
+                    <Lock className="size-2.5" />
+                    Locked (Schedule)
+                  </span>
+                </div>
+                <div className="h-9 px-3 flex items-center justify-between bg-muted/60 rounded-md border text-sm font-semibold text-foreground select-none">
+                  <span>{formData.campaignLocation}</span>
+                  <span className="text-xs text-muted-foreground font-medium">Active Schedule Stop</span>
+                </div>
               </div>
             </div>
 

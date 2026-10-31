@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { CheckCircle2, FileSpreadsheet, Save, Loader2 } from "lucide-react";
+import { CheckCircle2, FileSpreadsheet, Save, Loader2, Lock } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -145,8 +145,19 @@ export function DailyInquirySheetForm() {
         city,
         dealer,
         venue,
+        event_date: new Intl.DateTimeFormat("en-CA", {
+          timeZone: "Asia/Karachi",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        }).format(new Date()),
         customer_footfall: parseInt(footfall) || 0,
-        timings: "09:00 to 17:30",
+        timings: new Intl.DateTimeFormat("en-US", {
+          timeZone: "Asia/Karachi",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        }).format(new Date()),
         supervisor_og: ogSupervisor,
         supervisor_ps: psSupervisor,
         four_wheel_data: fourWheelData,
@@ -207,29 +218,29 @@ export function DailyInquirySheetForm() {
           {/* Event Header Metadata */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 bg-muted/30 p-4 rounded-lg border">
             <div className="space-y-1">
-              <Label className="text-xs font-semibold">Tour City</Label>
-              <Select value={city} onValueChange={handleCityChange}>
-                <SelectTrigger className="h-8 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {TOUR_CITIES.map((c) => (
-                    <SelectItem key={c.city} value={c.city}>
-                      #{c.serialNo} {c.city} ({c.region})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-semibold">Tour City</Label>
+                <span className="flex items-center gap-1 text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
+                  <Lock className="size-2.5" />
+                  Locked (Schedule)
+                </span>
+              </div>
+              <div className="h-8 px-2.5 flex items-center justify-between bg-muted/60 rounded-md border text-xs font-semibold text-foreground select-none">
+                <span>{city}</span>
+                <Badge variant="outline" className="text-[9px] px-1 py-0 h-4">
+                  Active Stop
+                </Badge>
+              </div>
             </div>
 
             <div className="space-y-1">
               <Label className="text-xs font-semibold">Venue</Label>
-              <Input value={venue} onChange={(e) => setVenue(e.target.value)} className="h-8 text-xs" />
+              <Input value={venue} readOnly className="h-8 text-xs bg-muted/50 cursor-not-allowed" />
             </div>
 
             <div className="space-y-1">
               <Label className="text-xs font-semibold">Participating Dealer</Label>
-              <Input value={dealer} onChange={(e) => setDealer(e.target.value)} className="h-8 text-xs" />
+              <Input value={dealer} readOnly className="h-8 text-xs bg-muted/50 cursor-not-allowed" />
             </div>
 
             <div className="space-y-1">
@@ -253,8 +264,10 @@ export function DailyInquirySheetForm() {
             </div>
 
             <div className="space-y-1">
-              <Label className="text-xs font-semibold">Event Timings</Label>
-              <Input defaultValue="09:00 to 17:30" className="h-8 text-xs" />
+              <Label className="text-xs font-semibold">Timestamp (PKT)</Label>
+              <div className="h-8 px-2.5 flex items-center bg-muted/60 rounded-md border text-xs font-medium text-muted-foreground select-none">
+                Auto-captured (PKT)
+              </div>
             </div>
 
             <div className="space-y-1">

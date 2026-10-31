@@ -24,6 +24,30 @@ interface InterceptionsLedgerProps {
   readonly interceptions?: any[];
 }
 
+function formatPktDateTime(eventDate?: string, createdAt?: string) {
+  if (createdAt && createdAt !== "Live") {
+    try {
+      const d = new Date(createdAt);
+      if (!isNaN(d.getTime())) {
+        const dateStr = new Intl.DateTimeFormat("en-CA", {
+          timeZone: "Asia/Karachi",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        }).format(d);
+        const timeStr = new Intl.DateTimeFormat("en-US", {
+          timeZone: "Asia/Karachi",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        }).format(d);
+        return { date: dateStr, time: timeStr };
+      }
+    } catch {}
+  }
+  return { date: eventDate || "2026-10-31", time: "PKT" };
+}
+
 export function InterceptionsLedger({ interceptions }: InterceptionsLedgerProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCity, setSelectedCity] = useState<string>("all");
@@ -260,13 +284,14 @@ export function InterceptionsLedger({ interceptions }: InterceptionsLedgerProps)
                 <TableHead className="min-w-[130px] font-semibold">Contact No</TableHead>
                 <TableHead className="min-w-[150px] font-semibold">Marketing Channel</TableHead>
                 <TableHead className="min-w-[140px] font-semibold">Field Supervisor</TableHead>
+                <TableHead className="min-w-[130px] font-semibold">Date &amp; Time (PKT)</TableHead>
                 <TableHead className="w-24 text-center font-semibold">Intake Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {paginatedRecords.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="h-28 text-center text-muted-foreground">
+                  <TableCell colSpan={8} className="h-28 text-center text-muted-foreground">
                     No customer interceptions found matching the criteria.
                   </TableCell>
                 </TableRow>
@@ -321,6 +346,18 @@ export function InterceptionsLedger({ interceptions }: InterceptionsLedgerProps)
                         <UserCheck className="size-3 text-muted-foreground" />
                         <span className="text-[11px] text-foreground">{item.supervisor}</span>
                       </div>
+                    </TableCell>
+
+                    <TableCell>
+                      {(() => {
+                        const { date, time } = formatPktDateTime(item.eventDate, item.createdAt);
+                        return (
+                          <div className="flex flex-col">
+                            <span className="font-semibold text-foreground text-xs">{date}</span>
+                            <span className="text-[10px] text-muted-foreground font-mono">{time}</span>
+                          </div>
+                        );
+                      })()}
                     </TableCell>
 
                     <TableCell className="text-center">

@@ -14,7 +14,7 @@ import { CITIES_LIST } from "../constants/tour-data";
 import { FONTS } from "../constants/fonts";
 
 export function KCarrySurveyTab() {
-  const { supervisor, addSurvey } = useApp();
+  const { supervisor, addSurvey, isViewOnly } = useApp();
   const scrollViewRef = useRef<any>(null);
 
   // Active section tab: 'A' (Q1-Q5) or 'B' (Q6-Q10)
@@ -137,6 +137,11 @@ export function KCarrySurveyTab() {
   };
 
   const handleSubmit = () => {
+    if (isViewOnly) {
+      showToast("View Access Mode: New survey submissions are disabled.");
+      return;
+    }
+
     if (!customerName.trim() || !mobileNo.trim()) {
       showToast("Please enter Customer Name and Mobile Number first");
       setActiveSection("A");
@@ -222,6 +227,16 @@ export function KCarrySurveyTab() {
         </View>
       </View>
 
+      {/* View Only Alert */}
+      {isViewOnly && (
+        <View style={styles.viewOnlyAlert}>
+          <Ionicons name="eye-outline" size={15} color="#1D4ED8" />
+          <Text style={styles.viewOnlyAlertText}>
+            View Access Mode: You have read-only access. Form submission is disabled.
+          </Text>
+        </View>
+      )}
+
       {/* CARD 1: Header / Lead Details */}
       <View style={styles.card}>
         <View style={styles.cardHeader}>
@@ -281,17 +296,16 @@ export function KCarrySurveyTab() {
             </View>
 
             <View style={{ flex: 1 }}>
-              <Text style={styles.label}>Tour Stop *</Text>
-              <TouchableOpacity
-                style={styles.selectTrigger}
-                onPress={() => setCityPickerOpen(true)}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.selectValue} numberOfLines={1}>
+              <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                <Text style={styles.label}>Tour Stop *</Text>
+                <Ionicons name="lock-closed" size={10} color="#059669" />
+              </View>
+              <View style={[styles.selectTrigger, { backgroundColor: "#F4F4F5", borderColor: "#E4E4E7" }]}>
+                <Text style={[styles.selectValue, { color: "#18181B", fontWeight: "600" }]} numberOfLines={1}>
                   {campaignLocation}
                 </Text>
-                <Ionicons name="chevron-down" size={14} color="#71717A" />
-              </TouchableOpacity>
+                <Ionicons name="lock-closed-outline" size={13} color="#71717A" />
+              </View>
             </View>
           </View>
         </View>
@@ -621,12 +635,15 @@ export function KCarrySurveyTab() {
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.primaryBtn, { flex: 2 }]}
+                style={[styles.primaryBtn, { flex: 2 }, isViewOnly && { backgroundColor: "#9CA3AF" }]}
                 onPress={handleSubmit}
+                disabled={isViewOnly}
                 activeOpacity={0.85}
               >
-                <Ionicons name="paper-plane-outline" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
-                <Text style={styles.primaryBtnText}>Submit K-CARRY Record</Text>
+                <Ionicons name={isViewOnly ? "eye-outline" : "paper-plane-outline"} size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
+                <Text style={styles.primaryBtnText}>
+                  {isViewOnly ? "View Only (Disabled)" : "Submit K-CARRY Record"}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -746,6 +763,23 @@ const styles = StyleSheet.create({
   },
   floatingToastWarningText: {
     color: "#991B1B",
+  },
+  viewOnlyAlert: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: "#EFF6FF",
+    borderWidth: 1,
+    borderColor: "#BFDBFE",
+    borderRadius: 6,
+    padding: 10,
+    marginBottom: 12,
+  },
+  viewOnlyAlertText: {
+    fontFamily: FONTS.medium,
+    color: "#1E40AF",
+    fontSize: 11,
+    flex: 1,
   },
   card: {
     backgroundColor: "#FFFFFF",

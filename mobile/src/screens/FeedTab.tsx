@@ -10,6 +10,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useApp } from "../context/AppContext";
 import { FONTS } from "../constants/fonts";
+import { shareToWhatsApp } from "../utils/whatsappShare";
 
 function formatChannel(channel: string) {
   if (!channel) return "Direct";
@@ -20,70 +21,100 @@ function formatChannel(channel: string) {
 }
 
 export function FeedTab() {
-  const { interceptions, surveys, masterSheets } = useApp();
-  const [activeSegment, setActiveSegment] = useState<"All" | "MasterSheets" | "Interceptions" | "Surveys">("All");
+  const {
+    interceptions,
+    surveys,
+    masterSheets,
+    isKCarryOnly,
+    isInterceptionOnly,
+    isMasterSheetOnly,
+  } = useApp();
+
+  const getDefaultSegment = (): "All" | "MasterSheets" | "Interceptions" | "Surveys" => {
+    if (isKCarryOnly) return "Surveys";
+    if (isInterceptionOnly) return "Interceptions";
+    if (isMasterSheetOnly) return "MasterSheets";
+    return "All";
+  };
+
+  const [activeSegment, setActiveSegment] = useState<"All" | "MasterSheets" | "Interceptions" | "Surveys">(getDefaultSegment());
+
+  React.useEffect(() => {
+    if (isKCarryOnly) setActiveSegment("Surveys");
+    else if (isInterceptionOnly) setActiveSegment("Interceptions");
+    else if (isMasterSheetOnly) setActiveSegment("MasterSheets");
+  }, [isKCarryOnly, isInterceptionOnly, isMasterSheetOnly]);
 
   const totalCount = masterSheets.length + interceptions.length + surveys.length;
+  const isSpecificRole = isKCarryOnly || isInterceptionOnly || isMasterSheetOnly;
 
   return (
     <View style={styles.container}>
       {/* Top Filter Segmented Tabs */}
       <View style={styles.topBar}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.segmentedContainer}>
-          <TouchableOpacity
-            style={[styles.segmentTab, activeSegment === "All" && styles.segmentTabActive]}
-            onPress={() => setActiveSegment("All")}
-            activeOpacity={0.7}
-          >
-            <Text style={[styles.segmentTabText, activeSegment === "All" && styles.segmentTabTextActive]}>
-              All ({totalCount})
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.segmentTab, activeSegment === "MasterSheets" && styles.segmentTabActive]}
-            onPress={() => setActiveSegment("MasterSheets")}
-            activeOpacity={0.7}
-          >
-            <Text
-              style={[
-                styles.segmentTabText,
-                activeSegment === "MasterSheets" && styles.segmentTabTextActive,
-              ]}
+          {!isSpecificRole && (
+            <TouchableOpacity
+              style={[styles.segmentTab, activeSegment === "All" && styles.segmentTabActive]}
+              onPress={() => setActiveSegment("All")}
+              activeOpacity={0.7}
             >
-              Master Sheets ({masterSheets.length})
-            </Text>
-          </TouchableOpacity>
+              <Text style={[styles.segmentTabText, activeSegment === "All" && styles.segmentTabTextActive]}>
+                All ({totalCount})
+              </Text>
+            </TouchableOpacity>
+          )}
 
-          <TouchableOpacity
-            style={[styles.segmentTab, activeSegment === "Interceptions" && styles.segmentTabActive]}
-            onPress={() => setActiveSegment("Interceptions")}
-            activeOpacity={0.7}
-          >
-            <Text
-              style={[
-                styles.segmentTabText,
-                activeSegment === "Interceptions" && styles.segmentTabTextActive,
-              ]}
+          {!isKCarryOnly && !isInterceptionOnly && (
+            <TouchableOpacity
+              style={[styles.segmentTab, activeSegment === "MasterSheets" && styles.segmentTabActive]}
+              onPress={() => setActiveSegment("MasterSheets")}
+              activeOpacity={0.7}
             >
-              Visitors ({interceptions.length})
-            </Text>
-          </TouchableOpacity>
+              <Text
+                style={[
+                  styles.segmentTabText,
+                  activeSegment === "MasterSheets" && styles.segmentTabTextActive,
+                ]}
+              >
+                Master Sheets ({masterSheets.length})
+              </Text>
+            </TouchableOpacity>
+          )}
 
-          <TouchableOpacity
-            style={[styles.segmentTab, activeSegment === "Surveys" && styles.segmentTabActive]}
-            onPress={() => setActiveSegment("Surveys")}
-            activeOpacity={0.7}
-          >
-            <Text
-              style={[
-                styles.segmentTabText,
-                activeSegment === "Surveys" && styles.segmentTabTextActive,
-              ]}
+          {!isKCarryOnly && !isMasterSheetOnly && (
+            <TouchableOpacity
+              style={[styles.segmentTab, activeSegment === "Interceptions" && styles.segmentTabActive]}
+              onPress={() => setActiveSegment("Interceptions")}
+              activeOpacity={0.7}
             >
-              K-Carry ({surveys.length})
-            </Text>
-          </TouchableOpacity>
+              <Text
+                style={[
+                  styles.segmentTabText,
+                  activeSegment === "Interceptions" && styles.segmentTabTextActive,
+                ]}
+              >
+                Visitors ({interceptions.length})
+              </Text>
+            </TouchableOpacity>
+          )}
+
+          {!isInterceptionOnly && !isMasterSheetOnly && (
+            <TouchableOpacity
+              style={[styles.segmentTab, activeSegment === "Surveys" && styles.segmentTabActive]}
+              onPress={() => setActiveSegment("Surveys")}
+              activeOpacity={0.7}
+            >
+              <Text
+                style={[
+                  styles.segmentTabText,
+                  activeSegment === "Surveys" && styles.segmentTabTextActive,
+                ]}
+              >
+                K-Carry ({surveys.length})
+              </Text>
+            </TouchableOpacity>
+          )}
         </ScrollView>
       </View>
 
@@ -134,7 +165,7 @@ export function FeedTab() {
                     <View style={styles.msVenueRow}>
                       <Ionicons name="location-outline" size={12} color="#71717A" />
                       <Text style={styles.msVenueText} numberOfLines={1}>{ms.venue || "Exhibition Ground"}</Text>
-                      <Text style={styles.msDateTag}>{ms.eventDate || "2026-11-16"}</Text>
+                      <Text style={styles.msDateTag}>{ms.eventDate || "2026-11-16"} • {ms.eventTimings || ms.timestamp || "PKT"}</Text>
                     </View>
 
                     {/* Metrics Grid */}
@@ -170,6 +201,16 @@ export function FeedTab() {
                         </Text>
                       ) : null}
                     </View>
+
+                    {/* WhatsApp Share Button */}
+                    <TouchableOpacity
+                      style={styles.msWhatsAppBtn}
+                      onPress={() => shareToWhatsApp(ms)}
+                      activeOpacity={0.8}
+                    >
+                      <Ionicons name="logo-whatsapp" size={15} color="#FFFFFF" style={{ marginRight: 6 }} />
+                      <Text style={styles.msWhatsAppBtnText}>Share Report via WhatsApp</Text>
+                    </TouchableOpacity>
                   </View>
                 ))
               )}
@@ -223,6 +264,9 @@ export function FeedTab() {
                         <Ionicons name="location-sharp" size={11} color="#71717A" style={{ marginRight: 2 }} />
                         <Text style={styles.cityText} numberOfLines={1}>
                           {row.city}
+                        </Text>
+                        <Text style={[styles.cityText, { color: "#059669", fontWeight: "600" }]}>
+                          {" • "}{row.timestamp || "Just now"}
                         </Text>
                       </View>
                     </View>
@@ -293,6 +337,9 @@ export function FeedTab() {
                       </Text>
                       <Text style={styles.metaLine} numberOfLines={1}>
                         {s.mainOccupation} • {s.currentVehicle}
+                      </Text>
+                      <Text style={[styles.metaLine, { color: "#059669", fontWeight: "600", marginTop: 2 }]}>
+                        {s.city} • {s.timestamp || "Just now"}
                       </Text>
                     </View>
 
@@ -644,5 +691,19 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: "#71717A",
     fontStyle: "italic",
+  },
+  msWhatsAppBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#16A34A",
+    borderRadius: 6,
+    paddingVertical: 8,
+    marginTop: 10,
+  },
+  msWhatsAppBtnText: {
+    fontFamily: FONTS.semiBold,
+    color: "#FFFFFF",
+    fontSize: 12,
   },
 });

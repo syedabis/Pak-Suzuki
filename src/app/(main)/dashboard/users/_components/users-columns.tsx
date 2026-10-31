@@ -3,7 +3,20 @@ import React, { useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Subscribe } from "@tanstack/react-table";
 import { cn } from "cn";
-import { Copy, Eye, EyeOff, MoreHorizontal, Power, Shield, Trash2, UserCheck, UserX } from "lucide-react";
+import {
+  Copy,
+  Eye,
+  EyeOff,
+  FileText,
+  MoreHorizontal,
+  Power,
+  Shield,
+  Sparkles,
+  Trash2,
+  UserCheck,
+  Users,
+  UserX,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -66,6 +79,66 @@ function StatusBadge({ isActive }: { isActive: boolean }) {
       {status}
     </Badge>
   );
+}
+
+function RoleBadge({ role }: { role: string }) {
+  const normalized = role.toLowerCase().trim();
+  if (normalized.includes("admin")) {
+    return (
+      <Badge
+        variant="outline"
+        className="gap-1 border-zinc-900/20 bg-zinc-900/10 text-zinc-900 dark:border-zinc-100/20 dark:bg-zinc-100/10 dark:text-zinc-100 font-semibold text-xs py-0.5 px-2"
+      >
+        <Shield className="size-3 text-primary" />
+        {role}
+      </Badge>
+    );
+  }
+  if (normalized.includes("k-carry") || normalized.includes("kcarry")) {
+    return (
+      <Badge
+        variant="outline"
+        className="gap-1 border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400 font-semibold text-xs py-0.5 px-2"
+      >
+        <Sparkles className="size-3 text-amber-500" />
+        {role}
+      </Badge>
+    );
+  }
+  if (normalized.includes("interception") || normalized.includes("visitor")) {
+    return (
+      <Badge
+        variant="outline"
+        className="gap-1 border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-semibold text-xs py-0.5 px-2"
+      >
+        <Users className="size-3 text-emerald-500" />
+        {role}
+      </Badge>
+    );
+  }
+  if (normalized.includes("master")) {
+    return (
+      <Badge
+        variant="outline"
+        className="gap-1 border-purple-500/30 bg-purple-500/10 text-purple-700 dark:text-purple-400 font-semibold text-xs py-0.5 px-2"
+      >
+        <FileText className="size-3 text-purple-500" />
+        {role}
+      </Badge>
+    );
+  }
+  if (normalized.includes("view") || normalized.includes("viewer")) {
+    return (
+      <Badge
+        variant="outline"
+        className="gap-1 border-blue-500/30 bg-blue-500/10 text-blue-600 dark:text-blue-400 font-semibold text-xs py-0.5 px-2"
+      >
+        <Eye className="size-3 text-blue-500" />
+        {role}
+      </Badge>
+    );
+  }
+  return <span className="text-xs font-medium text-foreground">{role}</span>;
 }
 
 export const usersColumns: ColumnDef<DataTableFeatures, SupervisorUser>[] = [
@@ -143,7 +216,7 @@ export const usersColumns: ColumnDef<DataTableFeatures, SupervisorUser>[] = [
     accessorKey: "role",
     header: "Role",
     filterFn: "equalsString",
-    cell: ({ row }) => <span className="text-xs font-medium text-foreground">{row.original.role}</span>,
+    cell: ({ row }) => <RoleBadge role={row.original.role} />,
   },
   {
     accessorKey: "assigned_city",
@@ -186,11 +259,14 @@ export const usersColumns: ColumnDef<DataTableFeatures, SupervisorUser>[] = [
         | {
             onToggleStatus?: (user: SupervisorUser) => void;
             onDelete?: (user: SupervisorUser) => void;
+            isAdmin?: boolean;
           }
         | undefined;
 
+      const isAdmin = meta?.isAdmin ?? true;
+
       const handleCopyCredentials = () => {
-        const text = `Pak Suzuki OpsPulse Login Credentials:\nEmail: ${user.email}\nPassword: ${user.password || "paksuzuki2026"}\nAssigned City: ${user.assigned_city}\nStation: ${user.station_venue}`;
+        const text = `Pak Suzuki OpsPulse Login Credentials:\nEmail: ${user.email}\nPassword: ${user.password || "paksuzuki2026"}\nRole: ${user.role}\nAssigned City: ${user.assigned_city}\nStation: ${user.station_venue}`;
         navigator.clipboard.writeText(text);
         toast.success("Login credentials copied to clipboard");
       };
@@ -208,28 +284,40 @@ export const usersColumns: ColumnDef<DataTableFeatures, SupervisorUser>[] = [
                 <MoreHorizontal className="size-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuContent align="end" className="w-52">
               <DropdownMenuItem onClick={handleCopyCredentials} className="gap-2 text-xs">
-                <Copy className="size-3.5" /> Copy Mobile Credentials
+                <Copy className="size-3.5" /> Copy Login Credentials
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => meta?.onToggleStatus?.(user)} className="gap-2 text-xs">
-                {user.is_active ? (
-                  <>
-                    <UserX className="size-3.5 text-amber-500" /> Deactivate Account
-                  </>
-                ) : (
-                  <>
-                    <UserCheck className="size-3.5 text-emerald-500" /> Activate Account
-                  </>
-                )}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => meta?.onDelete?.(user)}
-                className="gap-2 text-xs text-destructive focus:text-destructive"
-              >
-                <Trash2 className="size-3.5" /> Delete Supervisor
-              </DropdownMenuItem>
+
+              {isAdmin ? (
+                <>
+                  <DropdownMenuItem onClick={() => meta?.onToggleStatus?.(user)} className="gap-2 text-xs">
+                    {user.is_active ? (
+                      <>
+                        <UserX className="size-3.5 text-amber-500" /> Deactivate Account
+                      </>
+                    ) : (
+                      <>
+                        <UserCheck className="size-3.5 text-emerald-500" /> Activate Account
+                      </>
+                    )}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => meta?.onDelete?.(user)}
+                    className="gap-2 text-xs text-destructive focus:text-destructive"
+                  >
+                    <Trash2 className="size-3.5" /> Delete User
+                  </DropdownMenuItem>
+                </>
+              ) : (
+                <>
+                  <DropdownMenuSeparator />
+                  <div className="px-2 py-1 text-[11px] text-muted-foreground italic">
+                    Read-only: Modifications restricted to Admins
+                  </div>
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
